@@ -1,5 +1,7 @@
 package com.tourism.itda.auth.controller;
 
+import com.tourism.itda.auth.dto.LoginRequest;
+import com.tourism.itda.auth.dto.LoginResponse;
 import com.tourism.itda.auth.dto.SignupRequest;
 import com.tourism.itda.auth.dto.UserResponse;
 import com.tourism.itda.auth.service.AuthService;
@@ -28,6 +30,14 @@ public class AuthController {
                 request.email(),
                 request.birthDate(),
                 request.agreedToTerms()
+        );
+    }
+
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginRequest request){
+        return authService.login(
+                request.loginId(),
+                request.password()
         );
     }
 }

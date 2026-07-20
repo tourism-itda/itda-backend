@@ -1,4 +1,4 @@
 package com.tourism.itda.auth.dto;
 
-public class LoginRequest {
+public record LoginRequest (String loginId, String password){
 }
