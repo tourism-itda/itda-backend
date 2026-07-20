@@ -21,6 +21,7 @@ public class SecurityConfig {
                 // CSRF: 웹 브라우저 폼 공격 방지 기능인데, REST API(JSON 통신)에선 보통 비활성화
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/places/**").permitAll()
                         .anyRequest().authenticated()
 
                 );
