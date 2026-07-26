@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record FestivalItem(
+public record LocationBasedListItem(
         @JsonProperty("contentid") String contentId,
         @JsonProperty("contenttypeid") String contentTypeId,
         @JsonProperty("title") String title,
@@ -21,14 +21,9 @@ public record FestivalItem(
         @JsonProperty("mapx") String mapX,
         @JsonProperty("mapy") String mapY,
         @JsonProperty("mlevel") String mLevel,
+        @JsonProperty("dist") String dist,
         @JsonProperty("tel") String tel,
         @JsonProperty("booktour") String bookTour,
         @JsonProperty("createdtime") String createdTime,
-        @JsonProperty("modifiedtime") String modifiedTime,
-        @JsonProperty("eventstartdate") String eventStartDate,
-        @JsonProperty("eventenddate") String eventEndDate,
-        @JsonProperty("sponsor1") String sponsor1,
-        @JsonProperty("sponsor1tel") String sponsor1Tel,
-        @JsonProperty("sponsor2") String sponsor2,
-        @JsonProperty("sponsor2tel") String sponsor2Tel
+        @JsonProperty("modifiedtime") String modifiedTime
 ) {}

@@ -23,4 +23,5 @@ jwt:
 
 public-data:
   base-url: https://apis.data.go.kr/B551011/KorService2/
+  tar-rlte-url: https://apis.data.go.kr/B551011/TarRlteTarService1/
   api-key: ${PUBLIC_DATA_API_KEY}

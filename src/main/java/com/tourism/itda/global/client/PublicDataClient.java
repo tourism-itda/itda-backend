@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.net.URI;
 import java.util.Map;
 
@@ -25,8 +24,12 @@ public class PublicDataClient {
     }
 
     public String get(String endpoint, Map<String, String> params) {
+        return get(baseUrl, endpoint, params);
+    }
+
+    public String get(String customBaseUrl, String endpoint, Map<String, String> params) {
         UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl(baseUrl + endpoint)
+                .fromHttpUrl(customBaseUrl + endpoint)
                 .queryParam("serviceKey", apiKey)
                 .queryParam("MobileOS", "ETC")
                 .queryParam("MobileApp", "itda")
@@ -34,7 +37,7 @@ public class PublicDataClient {
 
         params.forEach(builder::queryParam);
 
-        URI uri = builder.build(true).toUri();
+        URI uri = builder.build().encode().toUri();
 
         return restClient.get()
                 .uri(uri)
