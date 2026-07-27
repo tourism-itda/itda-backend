@@ -26,7 +26,6 @@ logs/
 
 # Environment / Secrets
 .env
-.env.*
 application-local.properties
 application-local.yml
 application-secret.properties

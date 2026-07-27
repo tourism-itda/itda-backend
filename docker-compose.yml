@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: itda-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: itda
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - itda-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  itda-postgres-data:
