@@ -1,0 +1,16 @@
+# 로컬 스모크 테스트 전용 프로파일.
+# virtualization 미지원으로 Docker/PostgreSQL 을 못 띄우는 상황에서 기능 검증용.
+# 실제 개발/운영은 local(=PostgreSQL) 프로파일 사용. schema.sql/data.sql 은 공용.
+spring:
+  datasource:
+    url: jdbc:h2:mem:itda;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+  h2:
+    console:
+      enabled: true      # http://localhost:8080/h2-console 로 확인 가능

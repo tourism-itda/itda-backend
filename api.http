@@ -1,0 +1,108 @@
+### =====================================================================
+### 잇다(Itda) — 권승훈 파트 API 테스트 (v4 명세서 기준: No.25~32)
+###   장소(place) 25~26 + 일정·플래너(itinerary) 27~32
+### IntelliJ HTTP Client. 위에서부터 순서대로 실행하면 토큰/일정ID가 자동 저장됨.
+### 선행: (PostgreSQL) docker compose -p itda up -d  또는  (H2) 아래 방법
+###   .\gradlew.bat bootRun "--args=--spring.profiles.active=h2"
+### =====================================================================
+
+@host = http://localhost:8080
+
+### [사전] 개발용 JWT 발급 (local/h2 전용) — user 1
+GET {{host}}/dev/token?userId=1
+
+> {% client.global.set("token", response.body.token); %}
+
+### =====================================================================
+### 장소 (No.25~26)
+### =====================================================================
+
+### No.25 장소 상세 — 비로그인 (is_bookmarked=false, fee 없음)
+GET {{host}}/places/1
+
+### No.25 장소 상세 — 로그인 (place 1 은 user1 이 북마크 → is_bookmarked=true)
+GET {{host}}/places/1
+Authorization: Bearer {{token}}
+
+### No.25 없는 장소 → 404 {code:NOT_FOUND}
+GET {{host}}/places/9999
+
+### No.26 대안 장소 — content 1, visit_order=1 다음 순위 중 place 1 제외
+###   응답: { place: { ..., opening_hours, latitude, longitude } }
+GET {{host}}/places/alternative?content_id=1&visit_order=1&exclude_place_id=1
+
+### No.26 대안 장소 — exclude 없이 (content 2)
+GET {{host}}/places/alternative?content_id=2&visit_order=2
+
+### =====================================================================
+### 일정·플래너 (No.27~32)
+### =====================================================================
+
+### No.27 추천 일정 (비저장) — content 1
+###   응답: { content_id, content_title, region, slots:[{ visit_order, place:{ ..., to_next_* } }] }
+GET {{host}}/itineraries/recommend?content_id=1
+
+### No.28 일정 저장 — 응답 { itinerary_id }
+POST {{host}}/itineraries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "content_id": 1,
+  "title": "제주 2박 3일 여행",
+  "travel_date": "2026-08-01",
+  "region": "제주",
+  "duration_label": "2박 3일",
+  "places": [
+    { "place_id": 1, "day_number": 1, "visit_order": 1, "status": "CONFIRMED" },
+    { "place_id": 4, "day_number": 1, "visit_order": 2, "status": "PENDING", "memo": "땅콩 아이스크림" },
+    { "place_id": 6, "day_number": 2, "visit_order": 1, "status": "PENDING" }
+  ]
+}
+
+> {% client.global.set("itineraryId", response.body.itinerary_id); %}
+
+### No.28 인증 없이 저장 → 401 {code:UNAUTHORIZED}
+POST {{host}}/itineraries
+Content-Type: application/json
+
+{ "title": "무단 일정", "places": [ { "place_id": 1, "visit_order": 1 } ] }
+
+### No.29 내 플래너 목록 (content_title, place_count, thumbnail_url 포함)
+GET {{host}}/itineraries
+Authorization: Bearer {{token}}
+
+### No.30 저장 일정 상세 (places[]에 to_next_*, opening_hours 포함)
+GET {{host}}/itineraries/{{itineraryId}}
+Authorization: Bearer {{token}}
+
+### No.30 남의 일정 접근 → 403 {code:FORBIDDEN} (user 2 로 user1 일정 조회)
+GET {{host}}/dev/token?userId=2
+
+> {% client.global.set("token2", response.body.token); %}
+
+###
+GET {{host}}/itineraries/{{itineraryId}}
+Authorization: Bearer {{token2}}
+
+### No.31 일정 수정 — 제목/날짜 + places 전체 교체. 응답 { itinerary_id }
+PATCH {{host}}/itineraries/{{itineraryId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "제주 코스 (수정)",
+  "travel_date": "2026-08-10",
+  "places": [
+    { "place_id": 5, "day_number": 1, "visit_order": 1, "status": "CONFIRMED" },
+    { "place_id": 7, "day_number": 1, "visit_order": 2, "status": "PENDING" }
+  ]
+}
+
+### No.32 일정 삭제 (soft delete) → { success: true }
+DELETE {{host}}/itineraries/{{itineraryId}}
+Authorization: Bearer {{token}}
+
+### No.32 삭제 후 재조회 → 404 (soft delete 확인)
+GET {{host}}/itineraries/{{itineraryId}}
+Authorization: Bearer {{token}}
