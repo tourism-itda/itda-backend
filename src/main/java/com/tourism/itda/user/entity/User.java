@@ -31,7 +31,7 @@ public class User {
     @Column(name="nickname", length=50, nullable = false)
     private String nickname;
 
-    @Column(name="email", length=255, nullable = false)
+    @Column(name="email", length=255)
     private String email;
 
     @Column(name="birth_date")
@@ -40,7 +40,7 @@ public class User {
     @Column(name="profile_url", length=500)
     private String profileUrl;
 
-    @Column(name="provider, length= 20")
+    @Column(name="provider", length= 20)
     private String provider; // 카카오 로그인 시에만 값 존재 (예:"KAKAO", 일반 가입은 null)
 
     @Column(name="provider_uid", length=100)
@@ -81,6 +81,21 @@ public class User {
         this.birthDate = birthDate;
         this.agreedToTerms = agreedToTerms;
         this.agreedAt = agreedToTerms ? LocalDateTime.now() : null;
+    }
+
+    public static User ofKakao(String providerUid, String nickname, String email, String profileUrl){
+        User user = new User();
+        user.loginId = "KAKAO_" +providerUid;
+        user.password = "";
+        user.name = nickname;
+        user.nickname = nickname;
+        user.email = email;
+        user.profileUrl = profileUrl;
+        user.provider = "KAKAO";
+        user.providerUid = providerUid;
+        user.agreedToTerms = true;
+        user.agreedAt = LocalDateTime.now();
+        return user;
     }
 
     // 상태 변경이 필요한 필드만 의도가 드러나는 메서드로 노출
