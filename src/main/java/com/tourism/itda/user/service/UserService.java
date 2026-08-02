@@ -31,6 +31,13 @@ public class UserService {
     }
 
     @Transactional
+    public void deleteMyAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        user.delete();
+    }
+
+    @Transactional
     public UserProfileResponse updateMyProfile(Long userId, UpdateProfileRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));

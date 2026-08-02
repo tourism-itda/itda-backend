@@ -65,6 +65,9 @@ public class User {
     // updatable = false: 최초 저장 후엔 이 컬럼을 UPDATE 쿼리에서 제외
     private LocalDateTime createdAt;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @PrePersist // 이 엔티티가 처음 저장(INSERT)되기 직전에 자동 호출되는 JPA 콜백
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -117,5 +120,9 @@ public class User {
 
     public void changeNotificationEnabled(Boolean notificationEnabled) {
         this.notificationEnabled = notificationEnabled;
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

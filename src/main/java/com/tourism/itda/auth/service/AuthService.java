@@ -68,6 +68,10 @@ public class AuthService {
             throw new LoginFailedException();
         }
 
+        if (user.getDeletedAt() != null) {
+            throw new LoginFailedException();
+        }
+
         String token = jwtProvider.createToken(user.getUserId(), user.getLoginId());
 
         return new LoginResponse(token, UserResponse.from(user));

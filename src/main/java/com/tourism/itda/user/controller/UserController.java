@@ -40,4 +40,10 @@ public class UserController {
         Long userId = (Long) authentication.getPrincipal();
         return userService.updateMyProfile(userId, request);
     }
+
+    @DeleteMapping("/me")
+    public void deleteMyAccount(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        userService.deleteMyAccount(userId);
+    }
 }
