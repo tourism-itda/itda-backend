@@ -1,13 +1,12 @@
 package com.tourism.itda.user.controller;
 
 import com.tourism.itda.user.dto.CheckAvailableResponse;
+import com.tourism.itda.user.dto.UpdateProfileRequest;
 import com.tourism.itda.user.dto.UserProfileResponse;
 import com.tourism.itda.user.service.UserService;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -33,5 +32,12 @@ public class UserController {
     public UserProfileResponse getMyProfile(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return userService.getMyProfile(userId);
+    }
+
+    @PatchMapping("/me")
+    public UserProfileResponse updateMyProfile(Authentication authentication,
+                                               @RequestBody UpdateProfileRequest request) {
+        Long userId = (Long) authentication.getPrincipal();
+        return userService.updateMyProfile(userId, request);
     }
 }

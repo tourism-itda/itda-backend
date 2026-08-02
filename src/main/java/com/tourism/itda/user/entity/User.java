@@ -106,4 +106,16 @@ public class User {
     public void changeProfileUrl(String profileUrl) {
         this.profileUrl = profileUrl;
     }
+
+    public void changeDarkMode(Boolean darkMode) {
+        this.darkMode = darkMode;
+    }
+
+    public void changeLanguage(String language) {
+        this.language = language;
+    }
+
+    public void changeNotificationEnabled(Boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
+    }
 }
