@@ -5,10 +5,7 @@ import com.tourism.itda.auth.dto.LoginResponse;
 import com.tourism.itda.auth.dto.SignupRequest;
 import com.tourism.itda.auth.dto.UserResponse;
 import com.tourism.itda.auth.service.AuthService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,5 +36,10 @@ public class AuthController {
                 request.loginId(),
                 request.password()
         );
+    }
+
+    @GetMapping("/kakao/callback")
+    public LoginResponse kakaoCallback(@RequestParam String code){
+        return authService.kakaoLogin(code);
     }
 }
