@@ -34,6 +34,9 @@ public class UserService {
     public void deleteMyAccount(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        if (user.getDeletedAt() != null) {
+            throw new IllegalArgumentException("이미 탈퇴한 유저입니다.");
+        }
         user.delete();
     }
 

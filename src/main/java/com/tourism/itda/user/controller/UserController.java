@@ -1,6 +1,7 @@
 package com.tourism.itda.user.controller;
 
 import com.tourism.itda.user.dto.CheckAvailableResponse;
+import com.tourism.itda.user.dto.SuccessResponse;
 import com.tourism.itda.user.dto.UpdateProfileRequest;
 import com.tourism.itda.user.dto.UserProfileResponse;
 import com.tourism.itda.user.service.UserService;
@@ -42,8 +43,9 @@ public class UserController {
     }
 
     @DeleteMapping("/me")
-    public void deleteMyAccount(Authentication authentication) {
+    public SuccessResponse deleteMyAccount(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         userService.deleteMyAccount(userId);
+        return SuccessResponse.ok();
     }
 }
