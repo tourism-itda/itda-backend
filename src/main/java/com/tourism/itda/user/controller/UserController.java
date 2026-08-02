@@ -1,7 +1,9 @@
 package com.tourism.itda.user.controller;
 
 import com.tourism.itda.user.dto.CheckAvailableResponse;
+import com.tourism.itda.user.dto.UserProfileResponse;
 import com.tourism.itda.user.service.UserService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,5 +27,11 @@ public class UserController {
     @GetMapping("/check-nickname")
     public CheckAvailableResponse checkNickname(@RequestParam String nickname) {
         return new CheckAvailableResponse(userService.isNicknameAvailable(nickname));
+    }
+
+    @GetMapping("/me")
+    public UserProfileResponse getMyProfile(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return userService.getMyProfile(userId);
     }
 }
