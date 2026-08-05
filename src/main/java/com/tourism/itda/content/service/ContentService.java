@@ -27,12 +27,12 @@ public class ContentService {
      */
     private Content saveContent(Long movieId) {
 
-        TmdbResponseDto movie = tmdbClient.getMovie(movieId);
+        TmdbResponse movie = tmdbClient.getMovie(movieId);
 
         // 필요하면 나중에 배우 정보 사용
-        TmdbCreditResponseDto credits = tmdbClient.getCredits(movieId);
+        TmdbCreditResponse credits = tmdbClient.getCredits(movieId);
 
-        TmdbKeywordResponseDto keyword = tmdbClient.getKeywords(movieId);
+        TmdbKeywordResponse keyword = tmdbClient.getKeywords(movieId);
 
         int year = Integer.parseInt(
                 movie.getRelease_date().substring(0, 4)
@@ -40,7 +40,7 @@ public class ContentService {
 
         String keywords = keyword.getKeywords()
                 .stream()
-                .map(TmdbKeywordResponseDto.KeywordDto::getName)
+                .map(TmdbKeywordResponse.KeywordDto::getName)
                 .collect(Collectors.joining(","));
 
         Content content = new Content(
@@ -61,23 +61,23 @@ public class ContentService {
     /**
      * 영화 저장 API
      */
-    public ContentResponseDto saveMovie(Long movieId) {
+    public ContentResponse saveMovie(Long movieId) {
 
         Content content = saveContent(movieId);
 
-        return ContentResponseDto.from(content);
+        return ContentResponse.from(content);
     }
 
     /**
      * 영화 조회 API
      * DB에 없으면 TMDB에서 가져와 저장 후 반환
      */
-    public ContentResponseDto findContent(Long id) {
+    public ContentResponse findContent(Long id) {
 
         Content content = contentRepository.findById(id)
                 .orElseGet(() -> saveContent(id));
 
-        return ContentResponseDto.from(content);
+        return ContentResponse.from(content);
     }
 
 }

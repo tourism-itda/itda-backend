@@ -3,7 +3,7 @@ package com.tourism.itda.content.dto;
 import lombok.Getter;
 
 @Getter
-public class ContentDto {
+public class Content {
 
     private Long id;
 

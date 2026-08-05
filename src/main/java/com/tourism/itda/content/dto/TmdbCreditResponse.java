@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class TmdbCreditResponseDto {
+public class TmdbCreditResponse {
 
     private List<CastDto> cast;
 

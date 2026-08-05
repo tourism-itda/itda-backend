@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ContentResponseDto {
+public class ContentResponse {
 
     private Long id;
     private Long tmdbId;
@@ -18,8 +18,8 @@ public class ContentResponseDto {
     private String overview;
     private String keywords;
 
-    public static ContentResponseDto from(Content content) {
-        return ContentResponseDto.builder()
+    public static ContentResponse from(Content content) {
+        return ContentResponse.builder()
                 .id(content.getId())
                 .tmdbId(content.getTmdbId())
                 .title(content.getTitle())

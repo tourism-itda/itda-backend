@@ -2,10 +2,8 @@ package com.tourism.itda.content.dto;
 
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
-public class TmdbResponseDto {
+public class TmdbResponse {
 
     private Long id;
 
@@ -13,9 +11,9 @@ public class TmdbResponseDto {
 
     private String overview;
 
-    private String poster_path;
+    private String posterPath;
 
-    private String release_date;
+    private String releaseDate;
 
     private String tagline;
 

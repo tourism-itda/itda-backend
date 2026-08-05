@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class TmdbKeywordResponseDto {
+public class TmdbKeywordResponse {
 
     private Long id;
 

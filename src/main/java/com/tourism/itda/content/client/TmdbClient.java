@@ -1,8 +1,8 @@
 package com.tourism.itda.content.client;
 
-import com.tourism.itda.content.dto.TmdbCreditResponseDto;
-import com.tourism.itda.content.dto.TmdbKeywordResponseDto;
-import com.tourism.itda.content.dto.TmdbResponseDto;
+import com.tourism.itda.content.dto.TmdbCreditResponse;
+import com.tourism.itda.content.dto.TmdbKeywordResponse;
+import com.tourism.itda.content.dto.TmdbResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +18,8 @@ public class TmdbClient {
     @Value("${tmdb.api.access-token}")
     private String accessToken;
 
+    private static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
+
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -30,10 +32,10 @@ public class TmdbClient {
         return headers;
     }
 
-    public TmdbResponseDto getMovie(Long movieId){
+    public TmdbResponse getMovie(Long movieId){
 
         String url =
-                "https://api.themoviedb.org/3/movie/"
+                BASE_URL
                         + movieId
                         + "?language=ko-KR";
 
@@ -45,22 +47,22 @@ public class TmdbClient {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
 
-        ResponseEntity<TmdbResponseDto> response =
+        ResponseEntity<TmdbResponse> response =
                 restTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         entity,
-                        TmdbResponseDto.class
+                        TmdbResponse.class
                 );
 
 
         return response.getBody();
     }
 
-    public TmdbCreditResponseDto getCredits(Long movieId){
+    public TmdbCreditResponse getCredits(Long movieId){
 
         String url =
-                "https://api.themoviedb.org/3/movie/"
+                BASE_URL
                         + movieId
                         + "/credits";
 
@@ -71,22 +73,22 @@ public class TmdbClient {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
 
-        ResponseEntity<TmdbCreditResponseDto> response =
+        ResponseEntity<TmdbCreditResponse> response =
                 restTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         entity,
-                        TmdbCreditResponseDto.class
+                        TmdbCreditResponse.class
                 );
 
 
         return response.getBody();
     }
 
-    public TmdbKeywordResponseDto getKeywords(Long movieId){
+    public TmdbKeywordResponse getKeywords(Long movieId){
 
         String url =
-                "https://api.themoviedb.org/3/movie/"
+                BASE_URL
                         + movieId
                         + "/keywords";
 
@@ -95,12 +97,12 @@ public class TmdbClient {
                 new HttpEntity<>(getHeaders());
 
 
-        ResponseEntity<TmdbKeywordResponseDto> response =
+        ResponseEntity<TmdbKeywordResponse> response =
                 restTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         entity,
-                        TmdbKeywordResponseDto.class
+                        TmdbKeywordResponse.class
                 );
 
 
