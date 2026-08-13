@@ -4,6 +4,7 @@ import com.tourism.itda.auth.exception.DuplicateEmailException;
 import com.tourism.itda.auth.exception.DuplicateLoginIdException;
 import com.tourism.itda.auth.exception.DuplicateNicknameException;
 import com.tourism.itda.auth.exception.LoginFailedException;
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,5 +37,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponse> handleJwtException(JwtException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("유효하지 않은 토큰입니다."));
     }
 }
