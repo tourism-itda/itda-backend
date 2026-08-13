@@ -48,4 +48,9 @@ public class UserController {
         userService.deleteMyAccount(userId);
         return SuccessResponse.ok();
     }
+
+    @PostMapping("/logout")
+    public SuccessResponse logout() {
+        return SuccessResponse.ok();
+    }
 }
