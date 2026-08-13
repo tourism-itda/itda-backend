@@ -49,8 +49,5 @@ public class UserController {
         return SuccessResponse.ok();
     }
 
-    @PostMapping("/logout")
-    public SuccessResponse logout() {
-        return SuccessResponse.ok();
-    }
+
 }

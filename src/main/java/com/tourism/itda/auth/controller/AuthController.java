@@ -41,6 +41,11 @@ public class AuthController {
         return authService.kakaoLogin(code);
     }
 
+    @PostMapping("/logout")
+    public SuccessResponse logout() {
+        return SuccessResponse.ok();
+    }
+
     @PostMapping("/password/reset-request")
     public SuccessResponse passwordResetRequest(@RequestBody PasswordResetRequestDto request) {
         authService.sendPasswordResetCode(request.loginId(), request.email());
