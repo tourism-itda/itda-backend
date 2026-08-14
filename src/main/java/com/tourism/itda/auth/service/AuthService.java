@@ -111,6 +111,13 @@ public class AuthService {
         return new LoginResponse(token, UserResponse.from(user));
     }
 
+    public SessionResponse getSession(Long userId) {
+        return userRepository.findById(userId)
+                .filter(u -> u.getDeletedAt() == null)
+                .map(SessionResponse::of)
+                .orElse(SessionResponse.empty());
+    }
+
     @Transactional
     public void sendPasswordResetCode(String loginId, String email) {
         User user = userRepository.findByLoginId(loginId)

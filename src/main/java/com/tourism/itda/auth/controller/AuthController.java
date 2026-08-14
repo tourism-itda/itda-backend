@@ -3,6 +3,7 @@ package com.tourism.itda.auth.controller;
 import com.tourism.itda.auth.dto.*;
 import com.tourism.itda.auth.service.AuthService;
 import com.tourism.itda.user.dto.SuccessResponse;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,6 +40,15 @@ public class AuthController {
     @GetMapping("/kakao/callback")
     public LoginResponse kakaoCallback(@RequestParam String code){
         return authService.kakaoLogin(code);
+    }
+
+    @GetMapping("/session")
+    public SessionResponse getSession(Authentication authentication) {
+        if (authentication == null) {
+            return SessionResponse.empty();
+        }
+        Long userId = (Long) authentication.getPrincipal();
+        return authService.getSession(userId);
     }
 
     @PostMapping("/logout")
