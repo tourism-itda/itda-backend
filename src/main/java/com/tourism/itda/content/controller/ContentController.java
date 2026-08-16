@@ -1,6 +1,5 @@
 package com.tourism.itda.content.controller;
 
-import com.tourism.itda.content.client.TmdbClient;
 import com.tourism.itda.content.dto.ContentResponse;
 import com.tourism.itda.content.dto.TmdbCreditResponse;
 import com.tourism.itda.content.service.ContentService;
@@ -11,14 +10,9 @@ import org.springframework.web.bind.annotation.*;
 public class ContentController {
 
     private final ContentService contentService;
-    private final TmdbClient tmdbClient;
 
-    public ContentController(
-            ContentService contentService,
-            TmdbClient tmdbClient
-    ) {
+    public ContentController(ContentService contentService) {
         this.contentService = contentService;
-        this.tmdbClient = tmdbClient;
     }
 
     @PostMapping("/{movieId}")
@@ -32,7 +26,7 @@ public class ContentController {
     public TmdbCreditResponse credits(
             @PathVariable Long movieId
     ) {
-        return tmdbClient.getCredits(movieId);
+        return contentService.getCredits(movieId);
     }
 
     @GetMapping("/{id}")

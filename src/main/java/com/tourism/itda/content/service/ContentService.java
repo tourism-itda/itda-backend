@@ -35,7 +35,7 @@ public class ContentService {
         TmdbKeywordResponse keyword = tmdbClient.getKeywords(movieId);
 
         int year = Integer.parseInt(
-                movie.getRelease_date().substring(0, 4)
+                movie.getReleaseDate().substring(0, 4)
         );
 
         String keywords = keyword.getKeywords()
@@ -47,10 +47,10 @@ public class ContentService {
                 movie.getId(),
                 movie.getId(),
                 movie.getTitle(),
-                "https://image.tmdb.org/t/p/w500" + movie.getPoster_path(),
+                "https://image.tmdb.org/t/p/w500" + movie.getPosterPath(),
                 movie.getOverview(),
                 year,
-                "MOVIE",
+                "MOVIE",    
                 keywords,
                 movie.getTagline()
         );
@@ -78,6 +78,10 @@ public class ContentService {
                 .orElseGet(() -> saveContent(id));
 
         return ContentResponse.from(content);
+    }
+
+    public TmdbCreditResponse getCredits(Long movieId) {
+        return tmdbClient.getCredits(movieId);
     }
 
 }

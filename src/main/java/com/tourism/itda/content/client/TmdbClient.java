@@ -39,13 +39,8 @@ public class TmdbClient {
                         + movieId
                         + "?language=ko-KR";
 
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
-
-
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-
+        HttpEntity<Void> entity =
+                new HttpEntity<>(getHeaders());
 
         ResponseEntity<TmdbResponse> response =
                 restTemplate.exchange(
@@ -54,7 +49,6 @@ public class TmdbClient {
                         entity,
                         TmdbResponse.class
                 );
-
 
         return response.getBody();
     }
@@ -66,12 +60,8 @@ public class TmdbClient {
                         + movieId
                         + "/credits";
 
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
-
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-
+        HttpEntity<Void> entity =
+                new HttpEntity<>(getHeaders());
 
         ResponseEntity<TmdbCreditResponse> response =
                 restTemplate.exchange(
@@ -80,7 +70,6 @@ public class TmdbClient {
                         entity,
                         TmdbCreditResponse.class
                 );
-
 
         return response.getBody();
     }
