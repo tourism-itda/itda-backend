@@ -48,4 +48,6 @@ public class UserController {
         userService.deleteMyAccount(userId);
         return SuccessResponse.ok();
     }
+
+
 }

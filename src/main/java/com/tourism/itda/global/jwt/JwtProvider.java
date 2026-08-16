@@ -30,4 +30,23 @@ public class JwtProvider {
                 .signWith(key)                  // 이 비밀키로 서명 → 위변조 방지
                 .compact();
     }
+
+    public String createResetToken(Long userId) {
+        return Jwts.builder()
+                .subject(String.valueOf(userId))
+                .claim("type", "RESET")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10)) // 10분
+                .signWith(key)
+                .compact();
+    }
+
+    public Long parseResetToken(String token) {
+        var claims = Jwts.parser().verifyWith(key).build()
+                .parseSignedClaims(token).getPayload();
+        if (!"RESET".equals(claims.get("type", String.class))) {
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
+        return Long.parseLong(claims.getSubject());
+    }
 }
