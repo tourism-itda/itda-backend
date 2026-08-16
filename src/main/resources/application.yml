@@ -41,6 +41,14 @@ public-data:
   tar-rlte-url: https://apis.data.go.kr/B551011/TarRlteTarService1/
   api-key: ${PUBLIC_DATA_API_KEY}
 
+
+
+tmdb:
+  api:
+    key: ${TMDB_API_KEY}
+    access-token: ${TMDB_ACCESS_TOKEN}
+    base-url: https://api.themoviedb.org/3
+    
 kakao:
   client-id: ${KAKAO_REST_API_KEY}
   client-secret: ${KAKAO_CLIENT_SECRET}
