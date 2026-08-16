@@ -1,14 +1,10 @@
 package com.tourism.itda.auth.controller;
 
-import com.tourism.itda.auth.dto.LoginRequest;
-import com.tourism.itda.auth.dto.LoginResponse;
-import com.tourism.itda.auth.dto.SignupRequest;
-import com.tourism.itda.auth.dto.UserResponse;
+import com.tourism.itda.auth.dto.*;
 import com.tourism.itda.auth.service.AuthService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.tourism.itda.user.dto.SuccessResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,5 +35,41 @@ public class AuthController {
                 request.loginId(),
                 request.password()
         );
+    }
+
+    @GetMapping("/kakao/callback")
+    public LoginResponse kakaoCallback(@RequestParam String code){
+        return authService.kakaoLogin(code);
+    }
+
+    @GetMapping("/session")
+    public SessionResponse getSession(Authentication authentication) {
+        if (authentication == null) {
+            return SessionResponse.empty();
+        }
+        Long userId = (Long) authentication.getPrincipal();
+        return authService.getSession(userId);
+    }
+
+    @PostMapping("/logout")
+    public SuccessResponse logout() {
+        return SuccessResponse.ok();
+    }
+
+    @PostMapping("/password/reset-request")
+    public SuccessResponse passwordResetRequest(@RequestBody PasswordResetRequestDto request) {
+        authService.sendPasswordResetCode(request.loginId(), request.email());
+        return SuccessResponse.ok();
+    }
+
+    @PostMapping("/password/verify-code")
+    public VerifyCodeResponse verifyCode(@RequestBody VerifyCodeRequest request) {
+        return authService.verifyCode(request.loginId(), request.code());
+    }
+
+    @PatchMapping("/password/reset")
+    public SuccessResponse resetPassword(@RequestBody PasswordResetDto request) {
+        authService.resetPassword(request.resetToken(), request.newPassword());
+        return SuccessResponse.ok();
     }
 }
