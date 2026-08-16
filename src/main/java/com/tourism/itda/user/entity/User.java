@@ -125,4 +125,8 @@ public class User {
     public void delete() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }
