@@ -40,7 +40,7 @@ public class AuthService {
         this.emailService = emailService;
     }
 
-    public UserResponse signup(String loginId, String password, String name, String nickname, String email,
+    public LoginResponse signup(String loginId, String password, String name, String nickname, String email,
                                LocalDate birthDate, Boolean agreedToTerms) {
 
         if (userRepository.existsByLoginId(loginId)) {
@@ -59,9 +59,10 @@ public class AuthService {
 
         User user = new User(loginId, encodedPassword, name, nickname, email, birthDate, agreedToTerms);
 
-        User saveduser = userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        return UserResponse.from(saveduser);
+        String token = jwtProvider.createToken(savedUser.getUserId(), savedUser.getLoginId());
+        return new LoginResponse(token, UserResponse.from(savedUser));
 
     }
 

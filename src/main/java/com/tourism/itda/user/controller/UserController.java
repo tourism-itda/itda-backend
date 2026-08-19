@@ -3,6 +3,7 @@ package com.tourism.itda.user.controller;
 import com.tourism.itda.user.dto.CheckAvailableResponse;
 import com.tourism.itda.user.dto.SuccessResponse;
 import com.tourism.itda.user.dto.UpdateProfileRequest;
+import com.tourism.itda.user.dto.UpdateProfileResponse;
 import com.tourism.itda.user.dto.UserProfileResponse;
 import com.tourism.itda.user.service.UserService;
 import org.springframework.security.core.Authentication;
@@ -36,10 +37,10 @@ public class UserController {
     }
 
     @PatchMapping("/me")
-    public UserProfileResponse updateMyProfile(Authentication authentication,
-                                               @RequestBody UpdateProfileRequest request) {
+    public UpdateProfileResponse updateMyProfile(Authentication authentication,
+                                                 @RequestBody UpdateProfileRequest request) {
         Long userId = (Long) authentication.getPrincipal();
-        return userService.updateMyProfile(userId, request);
+        return new UpdateProfileResponse(userService.updateMyProfile(userId, request));
     }
 
     @DeleteMapping("/me")
