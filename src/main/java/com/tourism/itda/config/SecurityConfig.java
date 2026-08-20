@@ -3,6 +3,7 @@ package com.tourism.itda.config;
 import com.tourism.itda.global.jwt.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -69,6 +70,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/check-login-id", "/api/users/check-nickname").permitAll()
                         .requestMatchers("/api/places/**").permitAll()
+                        // /api/itineraries/recommend 만 연다 — 곧 추가될 POST /api/itineraries(저장)는
+                        // 인증이 필요하므로 anyRequest().authenticated() 에 그대로 걸려야 한다.
+                        .requestMatchers(HttpMethod.GET, "/api/itineraries/recommend").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 );

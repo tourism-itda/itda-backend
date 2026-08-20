@@ -12,10 +12,17 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    # data.sql(플레이스홀더 촬영지 시드)이 Hibernate가 테이블을 만든 "뒤에" 실행되도록 미룬다.
+    defer-datasource-initialization: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+  sql:
+    init:
+      # 실DB(Postgres)라 기본값(embedded 전용)으로는 data.sql이 자동 실행되지 않는다.
+      mode: always
 
   mail:
     host: smtp.naver.com
