@@ -2,8 +2,13 @@ package com.tourism.itda.place.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tourism.itda.bookmark.repository.BookmarkRepository;
 import com.tourism.itda.global.client.PublicDataClient;
+import com.tourism.itda.global.exception.NotFoundException;
 import com.tourism.itda.place.dto.*;
+import com.tourism.itda.place.entity.Place;
+import com.tourism.itda.place.repository.PlaceImageRepository;
+import com.tourism.itda.place.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,9 +26,30 @@ public class PlaceService {
 
     private final PublicDataClient publicDataClient;
     private final ObjectMapper objectMapper;
+    private final PlaceRepository placeRepository;
+    private final PlaceImageRepository placeImageRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     @Value("${public-data.tar-rlte-url}")
     private String tarRlteUrl;
+
+    /**
+     * GET /api/places/{placeId}. userId 가 null 이면 비로그인 → is_bookmarked=false.
+     * 위의 메서드들(관광공사 API 프록시)과 달리 이건 저장된 place 테이블을 직접 조회한다.
+     */
+    public PlaceDetailResponse getPlaceDetail(Long placeId, Long userId) {
+        Place place = placeRepository.findById(placeId)
+                .orElseThrow(() -> new NotFoundException("장소를 찾을 수 없습니다."));
+
+        List<PlaceImageResponse> images = placeImageRepository
+                .findByPlaceIdOrderBySortOrderAsc(placeId).stream()
+                .map(PlaceImageResponse::from)
+                .toList();
+
+        boolean isBookmarked = userId != null && bookmarkRepository.existsByUserIdAndPlaceId(userId, placeId);
+
+        return PlaceDetailResponse.of(place, images, isBookmarked);
+    }
 
     public List<FestivalItem> searchFestivals(String eventStartDate, String eventEndDate, String areaCode, String sigunguCode, String arrange, String listYN, int pageNo, int numOfRows) {
         Map<String, String> params = new HashMap<>();

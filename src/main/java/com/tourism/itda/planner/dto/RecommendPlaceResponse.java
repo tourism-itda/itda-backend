@@ -2,7 +2,7 @@ package com.tourism.itda.planner.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tourism.itda.planner.entity.Spot;
+import com.tourism.itda.place.entity.Place;
 
 /**
  * fee(입장료) 필드 없음 — v2에서 제거 확정.
@@ -21,11 +21,11 @@ public record RecommendPlaceResponse(
         double latitude,
         double longitude
 ) {
-    public static RecommendPlaceResponse of(Spot spot, Long toNextDistanceM, Long toNextDurationMin) {
+    public static RecommendPlaceResponse of(Place place, String imageUrl, Long toNextDistanceM, Long toNextDurationMin) {
         return new RecommendPlaceResponse(
-                spot.getId(), spot.getName(), spot.getCategory(), spot.getDescription(),
-                spot.getImageUrl(), spot.getOpeningHours(),
+                place.getId(), place.getName(), place.getCategory(), place.getDescription(),
+                imageUrl, place.getOpeningHours(),
                 toNextDistanceM, toNextDurationMin,
-                spot.getLatitude(), spot.getLongitude());
+                place.getLatitude(), place.getLongitude());
     }
 }

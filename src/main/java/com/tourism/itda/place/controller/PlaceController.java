@@ -3,7 +3,9 @@ package com.tourism.itda.place.controller;
 import com.tourism.itda.place.dto.*;
 import com.tourism.itda.place.service.PlaceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +18,13 @@ import java.util.List;
 public class PlaceController {
 
     private final PlaceService placeService;
+
+    // 장소 상세 (저장된 place 테이블 조회). 인증 선택 — 로그인 시에만 is_bookmarked 계산.
+    @GetMapping("/{placeId}")
+    public PlaceDetailResponse getPlace(@PathVariable Long placeId, Authentication authentication) {
+        Long userId = authentication == null ? null : (Long) authentication.getPrincipal();
+        return placeService.getPlaceDetail(placeId, userId);
+    }
 
     // 위치기반 관광정보조회 - locationBasedList2
     @GetMapping("/location")
