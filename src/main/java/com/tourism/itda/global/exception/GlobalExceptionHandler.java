@@ -4,6 +4,10 @@ import com.tourism.itda.auth.exception.DuplicateEmailException;
 import com.tourism.itda.auth.exception.DuplicateLoginIdException;
 import com.tourism.itda.auth.exception.DuplicateNicknameException;
 import com.tourism.itda.auth.exception.LoginFailedException;
+import com.tourism.itda.content.exception.BookmarkAccessDeniedException;
+import com.tourism.itda.content.exception.BookmarkAlreadyExistsException;
+import com.tourism.itda.content.exception.BookmarkNotFoundException;
+import com.tourism.itda.content.exception.ContentNotFoundException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,5 +46,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ErrorResponse> handleJwtException(JwtException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("유효하지 않은 토큰입니다."));
+    }
+
+    @ExceptionHandler(BookmarkAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleBookmarkAlreadyExists(BookmarkAlreadyExistsException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(BookmarkNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBookmarkNotFound(BookmarkNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(BookmarkAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleBookmarkAccessDenied(BookmarkAccessDeniedException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(ContentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleContentNotFound(ContentNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
     }
 }

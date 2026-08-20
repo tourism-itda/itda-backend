@@ -3,9 +3,19 @@ package com.tourism.itda.content.service;
 import com.tourism.itda.content.client.TmdbClient;
 import com.tourism.itda.content.dto.*;
 import com.tourism.itda.content.entity.Content;
+import com.tourism.itda.content.entity.ContentMedia;
+import com.tourism.itda.content.exception.ContentNotFoundException;
+import com.tourism.itda.content.repository.ContentCategoryRepository;
+import com.tourism.itda.content.repository.ContentCharacterRepository;
+import com.tourism.itda.content.repository.ContentFactCheckRepository;
+import com.tourism.itda.content.repository.ContentMediaRepository;
+import com.tourism.itda.content.repository.ContentPlaceRepository;
 import com.tourism.itda.content.repository.ContentRepository;
+import com.tourism.itda.content.repository.ContentStorySectionRepository;
+import com.tourism.itda.content.repository.BookmarkRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -13,13 +23,34 @@ public class ContentService {
 
     private final TmdbClient tmdbClient;
     private final ContentRepository contentRepository;
+    private final ContentMediaRepository contentMediaRepository;
+    private final ContentCategoryRepository contentCategoryRepository;
+    private final ContentCharacterRepository contentCharacterRepository;
+    private final ContentStorySectionRepository contentStorySectionRepository;
+    private final ContentFactCheckRepository contentFactCheckRepository;
+    private final ContentPlaceRepository contentPlaceRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     public ContentService(
             TmdbClient tmdbClient,
-            ContentRepository contentRepository
+            ContentRepository contentRepository,
+            ContentMediaRepository contentMediaRepository,
+            ContentCategoryRepository contentCategoryRepository,
+            ContentCharacterRepository contentCharacterRepository,
+            ContentStorySectionRepository contentStorySectionRepository,
+            ContentFactCheckRepository contentFactCheckRepository,
+            ContentPlaceRepository contentPlaceRepository,
+            BookmarkRepository bookmarkRepository
     ) {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
+        this.contentMediaRepository = contentMediaRepository;
+        this.contentCategoryRepository = contentCategoryRepository;
+        this.contentCharacterRepository = contentCharacterRepository;
+        this.contentStorySectionRepository = contentStorySectionRepository;
+        this.contentFactCheckRepository = contentFactCheckRepository;
+        this.contentPlaceRepository = contentPlaceRepository;
+        this.bookmarkRepository = bookmarkRepository;
     }
 
     /**
@@ -72,16 +103,62 @@ public class ContentService {
      * 영화 조회 API
      * DB에 없으면 TMDB에서 가져와 저장 후 반환
      */
-    public ContentResponse findContent(Long id) {
+    public ContentDetailResponse findContent(Long id) {
 
         Content content = contentRepository.findById(id)
                 .orElseGet(() -> saveContent(id));
 
-        return ContentResponse.from(content);
+        return buildDetailResponse(content);
+    }
+
+    private ContentDetailResponse buildDetailResponse(Content content) {
+
+        MediaSummaryResponse media = contentMediaRepository.findByContent(content).stream()
+                .findFirst()
+                .map(ContentMedia::getMedia)
+                .map(MediaSummaryResponse::from)
+                .orElse(null);
+
+        List<CategorySummaryResponse> categories = contentCategoryRepository.findByContent(content).stream()
+                .map(CategorySummaryResponse::from)
+                .toList();
+
+        List<CharacterResponse> characters = contentCharacterRepository.findByContentIdOrderBySortOrderAsc(content.getId()).stream()
+                .map(CharacterResponse::from)
+                .toList();
+
+        List<StorySectionResponse> storySections = contentStorySectionRepository.findByContentOrderBySortOrderAsc(content).stream()
+                .map(StorySectionResponse::from)
+                .toList();
+
+        List<FactCheckResponse> factChecks = contentFactCheckRepository.findByContentOrderBySortOrderAsc(content).stream()
+                .map(FactCheckResponse::from)
+                .toList();
+
+        List<RelatedPlaceResponse> relatedPlaces = contentPlaceRepository.findByContentOrderByRecommendOrderAsc(content).stream()
+                .map(RelatedPlaceResponse::from)
+                .toList();
+
+        return ContentDetailResponse.of(content, media, categories, characters, storySections, factChecks, relatedPlaces);
     }
 
     public TmdbCreditResponse getCredits(Long movieId) {
         return tmdbClient.getCredits(movieId);
+    }
+
+    public List<ContentPlaceListItemResponse> getRelatedPlaces(Long contentId, Long userId) {
+
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new ContentNotFoundException(contentId));
+
+        return contentPlaceRepository.findByContentOrderByRecommendOrderAsc(content).stream()
+                .map(contentPlace -> {
+                    Long placeId = contentPlace.getId().getPlaceId();
+                    boolean isBookmarked = userId != null
+                            && bookmarkRepository.existsByUserIdAndPlaceId(userId, placeId);
+                    return ContentPlaceListItemResponse.of(contentPlace, isBookmarked);
+                })
+                .toList();
     }
 
 }
