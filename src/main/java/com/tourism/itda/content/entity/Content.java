@@ -5,6 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -33,6 +36,21 @@ public class Content {
     @Column(columnDefinition = "TEXT")
     private String keywords;
 
+    private String summary;
+
+    private String storyIntro;
+
+    @Column(columnDefinition = "TEXT")
+    private String storyBody;
+
+    private Long viewCount = 0L;
+
+    private String thumbnailUrl;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
     public Content(
             Long id,
             Long tmdbId,
@@ -53,5 +71,25 @@ public class Content {
         this.mediaType = mediaType;
         this.keywords = keywords;
         this.tagline = tagline;
+    }
+
+    public void changeSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public void changeStoryIntro(String storyIntro) {
+        this.storyIntro = storyIntro;
+    }
+
+    public void changeStoryBody(String storyBody) {
+        this.storyBody = storyBody;
+    }
+
+    public void changeThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public void changeViewCount(Long viewCount) {
+        this.viewCount = viewCount;
     }
 }
