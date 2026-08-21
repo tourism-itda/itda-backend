@@ -1,25 +1,25 @@
-package com.tourism.itda.planner.dto;
+package com.tourism.itda.community.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import java.time.LocalDate;
 import java.util.List;
 
-/** No.27 응답: 저장 일정 상세 (v2). */
+/** No.40 GET /community/posts 목록 항목. */
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ItineraryDetailResponse(
+public record CommunityPostSummaryResponse(
         Long itineraryId,
         String title,
-        Long contentId,
-        String contentTitle,
-        LocalDate travelDate,
+        String authorNickname,
+        String authorProfileUrl,
+        Double rating,
+        long reviewCount,
+        long placeCount,
         String region,
         String durationLabel,
-        String description,
-        boolean isShared,
-        List<ItineraryPlaceView> places
+        String thumbnailUrl,
+        List<String> tags
 ) {
 }
