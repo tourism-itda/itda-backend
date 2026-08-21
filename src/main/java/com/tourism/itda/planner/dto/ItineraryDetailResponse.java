@@ -18,6 +18,7 @@ public record ItineraryDetailResponse(
         LocalDate travelDate,
         String region,
         String durationLabel,
+        String description,
         boolean isShared,
         List<ItineraryPlaceView> places
 ) {

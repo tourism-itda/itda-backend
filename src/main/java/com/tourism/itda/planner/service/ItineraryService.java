@@ -11,9 +11,11 @@ import com.tourism.itda.content.repository.ContentRepository;
 import com.tourism.itda.planner.entity.Itinerary;
 import com.tourism.itda.planner.entity.ItineraryPlace;
 import com.tourism.itda.planner.entity.ItineraryPlaceStatus;
+import com.tourism.itda.planner.entity.ItineraryTag;
 import com.tourism.itda.planner.dto.*;
 import com.tourism.itda.planner.repository.ItineraryPlaceRepository;
 import com.tourism.itda.planner.repository.ItineraryRepository;
+import com.tourism.itda.planner.repository.ItineraryTagRepository;
 import com.tourism.itda.place.entity.Place;
 import com.tourism.itda.place.entity.PlaceImage;
 import com.tourism.itda.place.repository.PlaceImageRepository;
@@ -33,6 +35,7 @@ public class ItineraryService {
 
     private final ItineraryRepository itineraryRepository;
     private final ItineraryPlaceRepository itineraryPlaceRepository;
+    private final ItineraryTagRepository itineraryTagRepository;
     private final PlaceRepository placeRepository;
     private final PlaceImageRepository placeImageRepository;
     private final ContentRepository contentRepository;
@@ -125,6 +128,7 @@ public class ItineraryService {
                             it.getId(), it.getTitle(),
                             c == null ? null : c.getTitle(),
                             it.getTravelDate(), it.getRegion(), it.getDurationLabel(),
+                            it.isShared(),
                             itineraryPlaceRepository.countByItineraryId(it.getId()),
                             c == null ? null : c.getThumbnailUrl());
                 })
@@ -162,6 +166,87 @@ public class ItineraryService {
     @Transactional
     public void delete(Long userId, Long itineraryId) {
         loadOwned(userId, itineraryId).softDelete(LocalDateTime.now());
+    }
+
+    // =========================================================
+    // No.38 일정 공유
+    // =========================================================
+    @Transactional
+    public ShareItineraryResponse share(Long userId, Long itineraryId, ShareItineraryRequest req) {
+        Itinerary itinerary = loadOwned(userId, itineraryId);
+
+        itinerary.changeIsShared(true);
+
+        if (req != null) {
+            if (req.description() != null) {
+                itinerary.changeDescription(req.description());
+            }
+            itinerary.updateRegion(req.region());
+
+            if (req.tags() != null) {
+                itineraryTagRepository.deleteByItineraryId(itineraryId);
+                for (String tagName : req.tags()) {
+                    itineraryTagRepository.save(
+                            ItineraryTag.builder().itinerary(itinerary).tagName(tagName).build());
+                }
+            }
+        }
+
+        return new ShareItineraryResponse(itinerary.getId(), itinerary.isShared());
+    }
+
+    // =========================================================
+    // No.39 일정 공유 해제
+    // =========================================================
+    @Transactional
+    public ShareItineraryResponse unshare(Long userId, Long itineraryId) {
+        Itinerary itinerary = loadOwned(userId, itineraryId);
+        itinerary.changeIsShared(false);
+        return new ShareItineraryResponse(itinerary.getId(), itinerary.isShared());
+    }
+
+    // =========================================================
+    // No.42 공유 일정 가져오기 (복사본 생성)
+    // =========================================================
+    @Transactional
+    public ItineraryIdResponse importItinerary(Long userId, ImportItineraryRequest req) {
+        Itinerary source = itineraryRepository.findByIdAndDeletedAtIsNull(req.sourceItineraryId())
+                .orElseThrow(() -> new NotFoundException("원본 일정을 찾을 수 없습니다."));
+
+        if (!source.isShared()) {
+            throw new ForbiddenException("공유되지 않은 일정은 가져올 수 없습니다.");
+        }
+
+        Itinerary copy = Itinerary.builder()
+                .userId(userId)
+                .contentId(source.getContentId())
+                .title(source.getTitle())
+                .travelDate(source.getTravelDate())
+                .region(source.getRegion())
+                .durationLabel(source.getDurationLabel())
+                .build();
+        copy.changeSourceItineraryId(source.getId());
+        copy.changeDescription(source.getDescription());
+        // isShared 는 필드 기본값(false) 그대로 — 가져온 직후엔 비공개.
+
+        for (ItineraryPlace place : source.getPlaces()) {
+            copy.addPlace(ItineraryPlace.builder()
+                    .placeId(place.getPlaceId())
+                    .dayNumber(place.getDayNumber())
+                    .visitOrder(place.getVisitOrder())
+                    .status(place.getStatus())
+                    .memo(place.getMemo())
+                    .build());
+        }
+
+        Itinerary savedCopy = itineraryRepository.save(copy);
+
+        for (ItineraryTag tag : itineraryTagRepository.findByItineraryId(source.getId())) {
+            itineraryTagRepository.save(
+                    ItineraryTag.builder().itinerary(savedCopy).tagName(tag.getTagName()).build());
+        }
+
+        return new ItineraryIdResponse(savedCopy.getId());
     }
 
     // =========================================================
@@ -258,6 +343,7 @@ public class ItineraryService {
                 itinerary.getId(), itinerary.getTitle(),
                 itinerary.getContentId(), contentTitle,
                 itinerary.getTravelDate(), itinerary.getRegion(), itinerary.getDurationLabel(),
+                itinerary.getDescription(),
                 itinerary.isShared(), views);
     }
 

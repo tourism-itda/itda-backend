@@ -40,6 +40,9 @@ public class Itinerary {
     @Column(name = "duration_label")
     private String durationLabel;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "is_shared")
     private boolean shared;
 
@@ -98,6 +101,18 @@ public class Itinerary {
 
     public void updateDurationLabel(String durationLabel) {
         if (durationLabel != null) this.durationLabel = durationLabel;
+    }
+
+    public void changeIsShared(boolean isShared) {
+        this.shared = isShared;
+    }
+
+    public void changeSourceItineraryId(Long sourceItineraryId) {
+        this.sourceItineraryId = sourceItineraryId;
+    }
+
+    public void changeDescription(String description) {
+        this.description = description;
     }
 
     // --- 장소 목록 전체 교체 (PATCH places 전달 시) ---

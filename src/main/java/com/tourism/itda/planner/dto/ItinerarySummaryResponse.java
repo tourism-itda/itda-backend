@@ -16,6 +16,7 @@ public record ItinerarySummaryResponse(
         LocalDate travelDate,
         String region,
         String durationLabel,
+        boolean isShared,
         long placeCount,       // itinerary_place 건수(계산)
         String thumbnailUrl    // content.thumbnail_url 조인
 ) {
