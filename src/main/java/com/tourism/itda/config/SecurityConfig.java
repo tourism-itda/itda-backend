@@ -71,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/check-login-id", "/api/users/check-nickname").permitAll()
                         .requestMatchers("/api/places/**").permitAll()
                         .requestMatchers("/api/contents/*/places").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/contents").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/contents/*").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()

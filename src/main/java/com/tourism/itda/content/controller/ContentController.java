@@ -1,6 +1,7 @@
 package com.tourism.itda.content.controller;
 
 import com.tourism.itda.content.dto.ContentDetailResponse;
+import com.tourism.itda.content.dto.ContentListResponse;
 import com.tourism.itda.content.dto.ContentPlaceListItemResponse;
 import com.tourism.itda.content.dto.ContentResponse;
 import com.tourism.itda.content.dto.TmdbCreditResponse;
@@ -18,6 +19,18 @@ public class ContentController {
 
     public ContentController(ContentService contentService) {
         this.contentService = contentService;
+    }
+
+    @GetMapping
+    public ContentListResponse list(
+            @RequestParam(required = false) String q,
+            @RequestParam(name = "media_type", required = false) String mediaType,
+            @RequestParam(name = "category_id", required = false) Long categoryId,
+            @RequestParam(defaultValue = "recent") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int limit
+    ) {
+        return contentService.searchContents(q, mediaType, categoryId, sort, page, limit);
     }
 
     @PostMapping("/{movieId}")
