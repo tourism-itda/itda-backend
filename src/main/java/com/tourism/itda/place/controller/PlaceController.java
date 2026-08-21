@@ -1,9 +1,17 @@
 package com.tourism.itda.place.controller;
 
+import com.tourism.itda.global.auth.LoginUser;
 import com.tourism.itda.place.dto.*;
+import com.tourism.itda.place.service.PlaceQueryService;
 import com.tourism.itda.place.service.PlaceService;
+import com.tourism.itda.place.service.TourApiPlaceImporter;
+import com.tourism.itda.planner.dto.RoutePlaceView;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +24,46 @@ import java.util.List;
 public class PlaceController {
 
     private final PlaceService placeService;
+    private final PlaceQueryService placeQueryService;
+    private final TourApiPlaceImporter tourApiPlaceImporter;
+
+    // =====================================================================
+    // 장소/일정 파트 (권승훈) — 저장된 place 테이블 조회
+    // =====================================================================
+
+    /** No.25 GET /api/places/{place_id} — 인증 선택 (로그인 시에만 is_bookmarked 계산). */
+    @GetMapping("/{placeId}")
+    public PlaceDetailResponse getPlace(@PathVariable Long placeId,
+                                        @LoginUser(required = false) Long userId) {
+        return placeQueryService.getPlaceDetail(placeId, userId);
+    }
+
+    /** No.26 GET /api/places/alternative — 인증 불필요. */
+    @GetMapping("/alternative")
+    public AlternativePlaceResponse getAlternative(
+            @RequestParam("content_id") Long contentId,
+            @RequestParam("visit_order") int visitOrder,
+            @RequestParam(value = "exclude_place_id", required = false) Long excludePlaceId) {
+        return placeQueryService.getAlternative(contentId, visitOrder, excludePlaceId);
+    }
+
+    /**
+     * 사용자가 고른 관광API 후보(식당/카페)를 place 로 확정하고 place_id 를 발급한다.
+     *
+     * <p>일정 저장(No.28)은 place_id 를 요구하는데 관광API 장소는 place 테이블에 없으므로,
+     * 사용자가 후보를 확정한 이 시점에 저장한다. 이미 저장된 곳이면 기존 행을 재사용한다.
+     *
+     * <p>⚠️ 명세서 v4 에 없는 신규 엔드포인트 — 팀·프론트 합의 필요.
+     */
+    @PostMapping("/import")
+    public RoutePlaceView importPlace(@Valid @RequestBody ImportPlaceRequest request) {
+        var place = tourApiPlaceImporter.importPlace(request.externalId(), request.placeType());
+        return RoutePlaceView.of(place, null);
+    }
+
+    // =====================================================================
+    // 한국관광공사 API 패스스루 (기존)
+    // =====================================================================
 
     // 위치기반 관광정보조회 - locationBasedList2
     @GetMapping("/location")

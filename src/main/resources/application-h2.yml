@@ -1,0 +1,39 @@
+# 로컬 스모크 테스트 전용 프로파일.
+# Docker/PostgreSQL 을 못 띄우는 상황에서 기동·매핑 검증용으로만 쓴다.
+# 실제 개발/운영은 기본 프로파일(PostgreSQL).
+#
+#   .\gradlew.bat bootRun "--args=--spring.profiles.active=h2"
+#
+# ⚠️ 시드 데이터는 아직 없다. 엔티티에서 스키마만 만들고 띄운다.
+spring:
+  datasource:
+    url: jdbc:h2:mem:itda;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true      # http://localhost:8080/h2-console
+
+# 아래 값들은 h2 로 띄울 때 외부 키가 없어도 기동되도록 하는 더미다.
+# 기능을 쓰려면 실제 키가 필요하다.
+jwt:
+  secret: "itda-local-h2-smoke-secret-key-change-me-32bytes-min"
+
+public-data:
+  api-key: ""
+
+tmdb:
+  api:
+    key: ""
+    access-token: ""
+
+kakao:
+  client-id: ""
+  client-secret: ""
