@@ -67,4 +67,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleContentNotFound(ContentNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
     }
+
+    // 장소/일정 파트(권승훈)의 도메인 예외. 상태코드를 예외 자신이 들고 다니므로 한 곳에서 받는다.
+    // NotFoundException / ForbiddenException / InvalidRequestException / UnauthorizedException
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
+        return ResponseEntity.status(e.getStatus()).body(new ErrorResponse(e.getMessage()));
+    }
 }

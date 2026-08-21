@@ -71,6 +71,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/check-login-id", "/api/users/check-nickname").permitAll()
                         .requestMatchers("/api/places/**").permitAll()
                         .requestMatchers("/api/contents/*/places").permitAll()
+                        // 장소/일정 파트 — 인증 불필요 (저장 전 미리보기·후보 조회)
+                        .requestMatchers(HttpMethod.GET, "/api/itineraries/recommend").permitAll()
+                        .requestMatchers("/api/itineraries/route/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/itineraries/route").permitAll()
+                        // 나머지 /api/itineraries/** (저장·목록·상세·수정·삭제) 는 인증 필요 → anyRequest 로 처리
                         .requestMatchers(HttpMethod.GET, "/api/contents").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/contents/*").permitAll()
                         .requestMatchers("/error").permitAll()
