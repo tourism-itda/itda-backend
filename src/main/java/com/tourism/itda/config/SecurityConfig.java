@@ -78,6 +78,8 @@ public class SecurityConfig {
                         // 나머지 /api/itineraries/** (저장·목록·상세·수정·삭제) 는 인증 필요 → anyRequest 로 처리
                         .requestMatchers(HttpMethod.GET, "/api/contents").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/contents/*").permitAll()
+                        // No.40/41 커뮤니티 목록·상세 — 인증 불필요
+                        .requestMatchers(HttpMethod.GET, "/api/community/posts", "/api/community/posts/*").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 );
