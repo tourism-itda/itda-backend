@@ -80,6 +80,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/contents/*").permitAll()
                         // No.40/41 커뮤니티 목록·상세 — 인증 불필요
                         .requestMatchers(HttpMethod.GET, "/api/community/posts", "/api/community/posts/*").permitAll()
+                        // No.43 리뷰 목록 — 인증 선택 (로그인 시에만 is_liked 계산). POST(작성)/좋아요는 인증 필요 → anyRequest 로 처리
+                        .requestMatchers(HttpMethod.GET, "/api/itineraries/*/reviews").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 );
