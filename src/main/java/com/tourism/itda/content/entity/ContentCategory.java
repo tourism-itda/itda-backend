@@ -1,5 +1,6 @@
 package com.tourism.itda.content.entity;
 
+import com.tourism.itda.explore.entity.Category;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,8 +23,14 @@ public class ContentCategory {
     @JoinColumn(name = "content_id")
     private Content content;
 
-    public ContentCategory(Content content, Long categoryId) {
+    @MapsId("categoryId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    public ContentCategory(Content content, Category category) {
         this.content = content;
-        this.id = new ContentCategoryId(content.getId(), categoryId);
+        this.category = category;
+        this.id = new ContentCategoryId(content.getId(), category.getCategoryId());
     }
 }
