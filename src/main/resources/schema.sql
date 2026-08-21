@@ -30,9 +30,24 @@ CREATE TABLE place (
     region          VARCHAR(50),
     opening_hours   VARCHAR(200),
     kakao_place_id  VARCHAR(50),
+    -- 하루 일정 템플릿(장소→식당→카페→장소→식당→장소)을 위해 추가된 컬럼들 ↓
+    -- SPOT(촬영지) | RESTAURANT | CAFE. 숙소는 하루 일정이라 제외 — 팀 결정.
+    place_type      VARCHAR(20)      NOT NULL DEFAULT 'SPOT',
+    -- SEED(시드 데이터) | TOUR_API(관광API 온디맨드 저장)
+    source          VARCHAR(20)      NOT NULL DEFAULT 'SEED',
+    -- 관광API contentid. source=TOUR_API 일 때만 채워진다.
+    external_id     VARCHAR(50),
+    -- opening_hours 원문을 파싱해 채운다. 파싱 실패 시 NULL / night_open=FALSE.
+    open_time       TIME,
+    close_time      TIME,
+    night_open      BOOLEAN          NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMP        NOT NULL DEFAULT now(),
     updated_at      TIMESTAMP        NOT NULL DEFAULT now()
 );
+-- 같은 관광API 장소를 두 번 저장하지 않기 위한 유니크 키.
+-- (SEED 장소는 external_id 가 NULL 이라 이 제약에 걸리지 않는다 — PG/H2 모두 NULL 은 중복 허용)
+CREATE UNIQUE INDEX uq_place_source_external ON place(source, external_id);
+CREATE INDEX idx_place_type ON place(place_type);
 
 -- ---------------------------------------------------------------------
 -- place_image (내 소유)

@@ -31,6 +31,50 @@ itda:
   distance:
     average-speed-kmh: 25
 
+  # 한국관광공사 TourAPI (KorService2)
+  #   api-key 는 공공데이터포털 서비스키. 인코딩/디코딩 어느 형태든 동작한다.
+  #   키가 없으면 식당/카페 후보가 빈 목록으로 나올 뿐, 앱은 정상 기동한다.
+  tour-api:
+    base-url: https://apis.data.go.kr/B551011/KorService2/
+    api-key: ${TOUR_API_KEY:}
+    num-of-rows: 30
+
+  # 하루 일정 템플릿: 장소 → 식당(점심) → 카페 → 장소 → 식당(저녁) → 장소
+  route:
+    day-start: "10:00"
+    # 체류시간 60/60/40 으로는 마지막 촬영지가 오후 3시경에 끝나 '저녁 이후' 전제가 깨졌다.
+    # 하루 코스답게 저녁까지 이어지도록 상향한 값이다. (팀 합의 후 재조정 가능)
+    spot-dwell-minutes: 120
+    restaurant-dwell-minutes: 90
+    cafe-dwell-minutes: 60
+    # 장소의 성질: 이 시각 이후에도 열려 있으면 night_open (영업시간 파싱 기준)
+    night-threshold: "20:00"
+    # 일정의 상황: 마지막 칸 도착 예상이 이 시각 이후면 night_open 장소를 우대한다.
+    #   국내 관광지는 대개 18시에 닫으므로 야간 기준(20시)보다 이르게 잡는다.
+    #   도착이 오후 3시면 야간 운영 여부는 의미가 없으므로 가산점을 주지 않는다.
+    late-arrival-threshold: "18:00"
+    # 동선이 몇 m 늘어나도 되는가 (타원의 두께). 사용자가 슬라이더로 조정한다.
+    default-allowance-meters: 3000
+    max-allowance-meters: 20000
+    # 지도에 뿌릴 구간별 후보 개수
+    candidate-limit: 8
+    # 코드가 이만큼으로 좁힌 뒤 Claude 가 그중 하나를 고른다
+    curator-shortlist-size: 5
+    # 촬영지 자동 선택 점수 가중치 (합이 1이 아니어도 내부에서 정규화한다)
+    detour-weight: 0.6
+    order-weight: 0.3
+    night-weight: 0.1
+
+  # 촬영지 큐레이션용 Claude — 선택 기능이라 기본 OFF.
+  # 동선·거리·순서·운영시간 판정은 전부 코드가 하고, LLM 은 코드가 좁힌 후보 중
+  # 선택 + 이유 작성만 담당한다. 꺼두면 점수 1등이 그대로 선택된다.
+  # 켜려면 enabled: true + ANTHROPIC_API_KEY 설정.
+  llm:
+    enabled: false
+    model: claude-haiku-4-5
+    api-key: ${ANTHROPIC_API_KEY:}
+    max-tokens: 1024
+
 logging:
   level:
     org.hibernate.SQL: debug

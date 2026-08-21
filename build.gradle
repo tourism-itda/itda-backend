@@ -26,6 +26,7 @@ repositories {
 ext {
 	querydslVersion = '5.1.0'
 	jjwtVersion = '0.12.6'
+	anthropicVersion = '2.34.0'
 }
 
 dependencies {
@@ -44,6 +45,11 @@ dependencies {
 	annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jakarta"
 	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
 	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+
+	// Claude API — 추천 촬영지 큐레이션(SpotCurator)에만 사용.
+	// 동선 계산은 전부 코드가 하고, LLM 은 코드가 좁힌 후보 중 선택 + 이유 작성만 담당한다.
+	// 키가 없으면 점수 1등으로 폴백하므로 이 의존성 없이도 기능은 동작한다.
+	implementation "com.anthropic:anthropic-java:${anthropicVersion}"
 
 	// jwt (jjwt)
 	implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"

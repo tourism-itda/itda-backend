@@ -82,6 +82,67 @@ GET {{host}}/dev/token?userId=2
 > {% client.global.set("token2", response.body.token); %}
 
 ###
+
+# =====================================================================
+# 하루 루트 (명세서 밖 신규 — 팀·프론트 합의 필요)
+#   템플릿: 장소 → 식당(점심) → 카페 → 장소 → 식당(저녁) → 장소
+#   식당·카페 칸은 비워서 내려가고, 사용자가 구간별 후보에서 골라 채운다.
+# =====================================================================
+
+### 콘텐츠의 촬영지 전체 목록 (직접선택 화면용)
+GET {{host}}/contents/2/places
+
+### 자동추천 — 촬영지를 안 고르면 서버가 3곳을 채운다
+POST {{host}}/itineraries/route
+Content-Type: application/json
+
+{ "content_id": 2 }
+
+> {% client.global.set("segStart", response.body.segments[0].start_place_id);
+     client.global.set("segEnd",   response.body.segments[0].end_place_id); %}
+
+### 직접선택 — 꼭 가고 싶은 촬영지를 최대 3개까지. 모자라면 서버가 채운다
+POST {{host}}/itineraries/route
+Content-Type: application/json
+
+{
+  "content_id": 2,
+  "spot_place_ids": [8, 12],
+  "allowance_meters": 2000
+}
+
+### 촬영지를 3개 넘게 보내면 앞에서부터 3개만 쓴다
+POST {{host}}/itineraries/route
+Content-Type: application/json
+
+{ "content_id": 2, "spot_place_ids": [12, 8, 9, 13] }
+
+### 구간 0 의 식당 후보 — 우회거리(동선 증가량) 오름차순
+#   ⚠️ TOUR_API_KEY 가 없으면 candidates 는 빈 배열로 온다 (에러 아님)
+GET {{host}}/itineraries/route/candidates?start_place_id={{segStart}}&end_place_id={{segEnd}}&slot_type=RESTAURANT&allowance_meters=2000
+
+### 같은 구간의 카페 후보
+GET {{host}}/itineraries/route/candidates?start_place_id={{segStart}}&end_place_id={{segEnd}}&slot_type=CAFE&allowance_meters=2000
+
+### "다른 곳 추천" — 이미 본 후보를 제외하고 다시 조회
+GET {{host}}/itineraries/route/candidates?start_place_id={{segStart}}&end_place_id={{segEnd}}&slot_type=RESTAURANT&exclude_external_ids=126508&exclude_external_ids=2649619
+
+### 꼬리 구간 (end_place_id 없음) — 우회거리 대신 앵커에서 가까운 순
+GET {{host}}/itineraries/route/candidates?start_place_id={{segStart}}&slot_type=RESTAURANT
+
+### 촬영지는 후보 조회 대상이 아니다 → 400 {code:INVALID_REQUEST}
+GET {{host}}/itineraries/route/candidates?start_place_id={{segStart}}&slot_type=SPOT
+
+### 고른 후보를 place 로 확정하고 place_id 발급 (일정 저장 전 필수 단계)
+#   ⚠️ external_id 는 위 후보 응답의 값으로 바꿔서 실행할 것
+POST {{host}}/places/import
+Content-Type: application/json
+
+{ "external_id": "126508", "place_type": "RESTAURANT" }
+
+> {% client.global.set("importedPlaceId", response.body.place_id); %}
+
+###
 GET {{host}}/itineraries/{{itineraryId}}
 Authorization: Bearer {{token2}}
 
