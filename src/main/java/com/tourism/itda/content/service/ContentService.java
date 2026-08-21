@@ -13,6 +13,10 @@ import com.tourism.itda.content.repository.ContentPlaceRepository;
 import com.tourism.itda.content.repository.ContentRepository;
 import com.tourism.itda.content.repository.ContentStorySectionRepository;
 import com.tourism.itda.content.repository.BookmarkRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -159,6 +163,48 @@ public class ContentService {
                     return ContentPlaceListItemResponse.of(contentPlace, isBookmarked);
                 })
                 .toList();
+    }
+
+    public ContentListResponse searchContents(
+            String q,
+            String mediaType,
+            Long categoryId,
+            String sort,
+            int page,
+            int limit
+    ) {
+        String likePattern = (q != null && !q.isBlank()) ? "%" + q + "%" : null;
+        String type = (mediaType != null && !mediaType.isBlank()) ? mediaType : null;
+
+        Sort sortOrder = "popular".equalsIgnoreCase(sort)
+                ? Sort.by(Sort.Direction.DESC, "viewCount")
+                : Sort.by(Sort.Direction.DESC, "createdAt");
+
+        Pageable pageable = PageRequest.of(page, limit, sortOrder);
+
+        Page<Content> result = contentRepository.search(likePattern, type, categoryId, pageable);
+
+        List<ContentListItemResponse> data = result.getContent().stream()
+                .map(this::toListItem)
+                .toList();
+
+        return new ContentListResponse(data, result.getTotalElements());
+    }
+
+    private ContentListItemResponse toListItem(Content content) {
+
+        MediaSummaryResponse media = contentMediaRepository.findByContent(content).stream()
+                .findFirst()
+                .map(ContentMedia::getMedia)
+                .map(MediaSummaryResponse::from)
+                .orElse(null);
+
+        ContentCategoryBriefResponse category = contentCategoryRepository.findByContent(content).stream()
+                .findFirst()
+                .map(ContentCategoryBriefResponse::from)
+                .orElse(null);
+
+        return ContentListItemResponse.of(content, media, category);
     }
 
 }
