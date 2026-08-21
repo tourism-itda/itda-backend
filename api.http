@@ -133,7 +133,7 @@ Content-Type: application/json
 { "content_id": 2, "spot_place_ids": [12, 8, 9, 13] }
 
 ### 구간 0 의 식당 후보 — 우회거리(동선 증가량) 오름차순
-#   ⚠️ TOUR_API_KEY 가 없으면 candidates 는 빈 배열로 온다 (에러 아님)
+#   ⚠️ PUBLIC_DATA_API_KEY 가 없으면 candidates 는 빈 배열로 온다 (에러 아님)
 GET {{host}}/api/itineraries/route/candidates?start_place_id={{segStart}}&end_place_id={{segEnd}}&slot_type=RESTAURANT&allowance_meters=2000
 
 ### 같은 구간의 카페 후보

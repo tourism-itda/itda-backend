@@ -286,7 +286,7 @@ GET /api/itineraries/route/candidates?start_place_id=8&slot_type=RESTAURANT&excl
 | `allowance_meters` | **실제 적용된** 값. 요청이 상한을 넘으면 잘려서 반영됨 |
 
 **⚠️ `candidates`는 빈 배열일 수 있습니다 — 에러가 아닙니다.**
-관광공사에 등록된 업소가 반경 안에 없는 지역이 실제로 있고, 서버에 `TOUR_API_KEY`가 없어도 빈 배열이 옵니다.
+관광공사에 등록된 업소가 반경 안에 없는 지역이 실제로 있고, 서버에 `PUBLIC_DATA_API_KEY`가 없어도 빈 배열이 옵니다.
 
 **에러**
 - `400 INVALID_REQUEST` — `slot_type=SPOT`

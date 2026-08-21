@@ -85,14 +85,14 @@
 |---|---|
 | 스택 | Spring Boot 3.x + **Java 21** + **Gradle** |
 | DB | **PostgreSQL** (Docker Compose) |
-| 데이터 접근 | **JPA + QueryDSL** |
-| 인증 | JWT — 시크릿/클레임 규격만 팀 합의하고 각자 검증. 임시 JWT 필터는 내가 작성 후 안시현 것으로 교체 |
+| 데이터 접근 | **JPA** (QueryDSL 은 실사용 코드가 없어 이식하면서 제거) |
+| 인증 | JWT — **안시현 `global.jwt.JwtFilter` 사용 확정.** 내 임시 필터는 삭제 |
 | 거리/소요시간 | **하버사인 직선거리 + 평균속도 환산**. 인터페이스로 분리해 추후 카카오 길찾기 API 교체 가능하게 |
-| 응답 포맷 | **명세서 raw 그대로**. 에러만 공통 `{ "code": "...", "message": "..." }` |
+| 응답 포맷 | **명세서 raw 그대로**. 에러는 ~~`{code, message}`~~ → **`{message}`** (dev 구현 기준, 4-0-1 참고) |
 | 일정 기간 | **N박 M일 완전 지원** (`day_number`, `duration_label`) |
 | 추천 로직 | `content_place.recommend_order` 순서 그대로 |
-| 레포 구조 | **단일 레포 + 도메인별 패키지 + feat 브랜치** (`com.itda.place`, `com.itda.itinerary`, ...) |
-| DDL | 내 파트 테이블 DDL은 내가 작성해서 팀에 공유 |
+| 레포 구조 | 단일 레포 + 도메인별 패키지 + feat 브랜치 (**`com.tourism.itda.place`, `com.tourism.itda.planner`**) |
+| DDL | dev 가 `ddl-auto: update` 라 **내 엔티티가 곧 DDL**. `place` 정의를 팀에 공유해야 함 |
 
 ---
 
