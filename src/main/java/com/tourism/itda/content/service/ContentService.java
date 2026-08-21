@@ -4,6 +4,7 @@ import com.tourism.itda.content.client.TmdbClient;
 import com.tourism.itda.content.dto.*;
 import com.tourism.itda.content.entity.Content;
 import com.tourism.itda.content.entity.ContentMedia;
+import com.tourism.itda.content.entity.ContentPlace;
 import com.tourism.itda.content.exception.ContentNotFoundException;
 import com.tourism.itda.content.repository.ContentCategoryRepository;
 import com.tourism.itda.content.repository.ContentCharacterRepository;
@@ -13,6 +14,10 @@ import com.tourism.itda.content.repository.ContentPlaceRepository;
 import com.tourism.itda.content.repository.ContentRepository;
 import com.tourism.itda.content.repository.ContentStorySectionRepository;
 import com.tourism.itda.content.repository.BookmarkRepository;
+import com.tourism.itda.place.entity.Place;
+import com.tourism.itda.place.entity.PlaceImage;
+import com.tourism.itda.place.repository.PlaceImageRepository;
+import com.tourism.itda.place.repository.PlaceRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +40,8 @@ public class ContentService {
     private final ContentFactCheckRepository contentFactCheckRepository;
     private final ContentPlaceRepository contentPlaceRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final PlaceRepository placeRepository;
+    private final PlaceImageRepository placeImageRepository;
 
     public ContentService(
             TmdbClient tmdbClient,
@@ -44,7 +52,9 @@ public class ContentService {
             ContentStorySectionRepository contentStorySectionRepository,
             ContentFactCheckRepository contentFactCheckRepository,
             ContentPlaceRepository contentPlaceRepository,
-            BookmarkRepository bookmarkRepository
+            BookmarkRepository bookmarkRepository,
+            PlaceRepository placeRepository,
+            PlaceImageRepository placeImageRepository
     ) {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
@@ -55,6 +65,8 @@ public class ContentService {
         this.contentFactCheckRepository = contentFactCheckRepository;
         this.contentPlaceRepository = contentPlaceRepository;
         this.bookmarkRepository = bookmarkRepository;
+        this.placeRepository = placeRepository;
+        this.placeImageRepository = placeImageRepository;
     }
 
     /**
@@ -139,8 +151,13 @@ public class ContentService {
                 .map(FactCheckResponse::from)
                 .toList();
 
-        List<RelatedPlaceResponse> relatedPlaces = contentPlaceRepository.findByContentOrderByRecommendOrderAsc(content).stream()
-                .map(RelatedPlaceResponse::from)
+        List<ContentPlace> contentPlacesForDetail = contentPlaceRepository.findByContentOrderByRecommendOrderAsc(content);
+        Map<Long, Place> placesForDetail = findPlacesByIds(contentPlacesForDetail.stream()
+                .map(cp -> cp.getId().getPlaceId())
+                .toList());
+
+        List<RelatedPlaceResponse> relatedPlaces = contentPlacesForDetail.stream()
+                .map(cp -> RelatedPlaceResponse.from(cp, placesForDetail.get(cp.getId().getPlaceId())))
                 .toList();
 
         return ContentDetailResponse.of(content, media, categories, characters, storySections, factChecks, relatedPlaces);
@@ -155,14 +172,31 @@ public class ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentNotFoundException(contentId));
 
-        return contentPlaceRepository.findByContentOrderByRecommendOrderAsc(content).stream()
+        List<ContentPlace> contentPlaces = contentPlaceRepository.findByContentOrderByRecommendOrderAsc(content);
+        List<Long> placeIds = contentPlaces.stream().map(cp -> cp.getId().getPlaceId()).toList();
+
+        Map<Long, Place> places = findPlacesByIds(placeIds);
+        Map<Long, String> primaryImageUrls = findPrimaryImageUrlsByPlaceIds(placeIds);
+
+        return contentPlaces.stream()
                 .map(contentPlace -> {
                     Long placeId = contentPlace.getId().getPlaceId();
                     boolean isBookmarked = userId != null
                             && bookmarkRepository.existsByUserIdAndPlaceId(userId, placeId);
-                    return ContentPlaceListItemResponse.of(contentPlace, isBookmarked);
+                    return ContentPlaceListItemResponse.of(
+                            contentPlace, places.get(placeId), primaryImageUrls.get(placeId), isBookmarked);
                 })
                 .toList();
+    }
+
+    private Map<Long, Place> findPlacesByIds(List<Long> placeIds) {
+        return placeRepository.findAllById(placeIds).stream()
+                .collect(Collectors.toMap(Place::getId, place -> place));
+    }
+
+    private Map<Long, String> findPrimaryImageUrlsByPlaceIds(List<Long> placeIds) {
+        return placeImageRepository.findByPlaceIdInAndPrimaryIsTrue(placeIds).stream()
+                .collect(Collectors.toMap(PlaceImage::getPlaceId, PlaceImage::getImageUrl, (a, b) -> a));
     }
 
     public ContentListResponse searchContents(
