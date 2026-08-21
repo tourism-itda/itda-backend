@@ -43,4 +43,33 @@ public class Category {
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
+
+    public Category(String type, String name) {
+        this(type, name, null, null, null, null);
+    }
+
+    public Category(String type, String name, Category parent, String imageUrl, String description, String years) {
+        this.type = type;
+        this.name = name;
+        this.parent = parent;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.years = years;
+    }
+
+    public void changeParent(Category parent) {
+        this.parent = parent;
+    }
+
+    public void changeImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void changeDescription(String description) {
+        this.description = description;
+    }
+
+    public void changeYears(String years) {
+        this.years = years;
+    }
 }

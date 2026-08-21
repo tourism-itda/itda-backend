@@ -28,4 +28,18 @@ public class CategoryFact {
 
     @Column(name = "fact_order")
     private Integer factOrder;
+
+    public CategoryFact(Category category, String factText) {
+        this(category, factText, null);
+    }
+
+    public CategoryFact(Category category, String factText, Integer factOrder) {
+        this.category = category;
+        this.factText = factText;
+        this.factOrder = factOrder;
+    }
+
+    public void changeFactOrder(Integer factOrder) {
+        this.factOrder = factOrder;
+    }
 }
