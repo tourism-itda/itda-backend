@@ -43,6 +43,10 @@ public class AuthService {
     public LoginResponse signup(String loginId, String password, String name, String nickname, String email,
                                LocalDate birthDate, Boolean agreedToTerms) {
 
+        if (agreedToTerms == null || !agreedToTerms) {
+            throw new IllegalArgumentException("약관에 동의해야 가입할 수 있습니다.");
+        }
+
         if (userRepository.existsByLoginId(loginId)) {
             throw new DuplicateLoginIdException(loginId);
         }

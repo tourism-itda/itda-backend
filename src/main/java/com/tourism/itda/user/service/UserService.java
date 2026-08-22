@@ -27,6 +27,9 @@ public class UserService {
     public UserProfileResponse getMyProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        if (user.getDeletedAt() != null) {
+            throw new IllegalArgumentException("탈퇴한 유저입니다.");
+        }
         return UserProfileResponse.from(user);
     }
 
@@ -45,6 +48,14 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
+        if (request.name() != null) {
+            if (request.name().isBlank()) throw new IllegalArgumentException("이름은 공백일 수 없어요.");
+            user.changeName(request.name());
+        }
+        if (request.email() != null) {
+            if (request.email().isBlank()) throw new IllegalArgumentException("이메일은 공백일 수 없어요.");
+            user.changeEmail(request.email());
+        }
         if (request.nickname() != null) {
             if (request.nickname().isBlank()) throw new IllegalArgumentException("닉네임은 공백일 수 없어요.");
             user.changeNickname(request.nickname());
