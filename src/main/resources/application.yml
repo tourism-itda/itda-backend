@@ -49,6 +49,13 @@ tmdb:
     access-token: ${TMDB_ACCESS_TOKEN}
     base-url: https://api.themoviedb.org/3
     
+aws:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  region: ap-northeast-2
+  s3:
+    bucket: itda-official
+
 kakao:
   client-id: ${KAKAO_REST_API_KEY}
   client-secret: ${KAKAO_CLIENT_SECRET}

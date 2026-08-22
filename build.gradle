@@ -42,6 +42,7 @@ dependencies {
 	// 선택 + 이유 작성만 담당한다. 키가 없으면 점수 1등으로 폴백하므로
 	// 이 의존성 없이도 기능 자체는 동작한다.
 	implementation "com.anthropic:anthropic-java:${anthropicVersion}"
+	implementation 'software.amazon.awssdk:s3:2.26.29'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
