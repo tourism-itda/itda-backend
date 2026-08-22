@@ -1,8 +1,8 @@
 package com.tourism.itda.content.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.tourism.itda.explore.enums.Kingdom;
+import com.tourism.itda.explore.enums.PersonType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,6 +26,12 @@ public class Content {
     private String mediaType;
 
     private String posterUrl;
+
+    @Enumerated(EnumType.STRING)
+    private Kingdom kingdom;
+
+    @Enumerated(EnumType.STRING)
+    private PersonType personType;
 
     @Column(columnDefinition = "TEXT")
     private String tagline;
@@ -91,5 +97,10 @@ public class Content {
 
     public void changeViewCount(Long viewCount) {
         this.viewCount = viewCount;
+    }
+
+    public void classify(Kingdom kingdom, PersonType personType) {
+        this.kingdom = kingdom;
+        this.personType = personType;
     }
 }

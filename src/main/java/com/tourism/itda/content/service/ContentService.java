@@ -42,6 +42,7 @@ public class ContentService {
     private final BookmarkRepository bookmarkRepository;
     private final PlaceRepository placeRepository;
     private final PlaceImageRepository placeImageRepository;
+    private final ContentClassifier contentClassifier;
 
     public ContentService(
             TmdbClient tmdbClient,
@@ -54,7 +55,8 @@ public class ContentService {
             ContentPlaceRepository contentPlaceRepository,
             BookmarkRepository bookmarkRepository,
             PlaceRepository placeRepository,
-            PlaceImageRepository placeImageRepository
+            PlaceImageRepository placeImageRepository,
+            ContentClassifier contentClassifier
     ) {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
@@ -67,6 +69,7 @@ public class ContentService {
         this.bookmarkRepository = bookmarkRepository;
         this.placeRepository = placeRepository;
         this.placeImageRepository = placeImageRepository;
+        this.contentClassifier = contentClassifier;
     }
 
     /**
@@ -97,10 +100,16 @@ public class ContentService {
                 "https://image.tmdb.org/t/p/w500" + movie.getPosterPath(),
                 movie.getOverview(),
                 year,
-                "MOVIE",    
+                "MOVIE",
                 keywords,
                 movie.getTagline()
         );
+
+        contentClassifier.classify(movie.getTitle(), movie.getOverview(), keywords, movie.getTagline())
+                .ifPresent(c -> content.classify(
+                        contentClassifier.parseKingdom(c.kingdom()),
+                        contentClassifier.parsePersonType(c.personType())
+                ));
 
         return contentRepository.save(content);
     }
