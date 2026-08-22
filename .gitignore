@@ -17,8 +17,10 @@ out/
 !**/src/test/**/out/
 .vscode/
 
-# macOS
+# macOS / Windows
 .DS_Store
+desktop.ini
+Thumbs.db
 
 # Logs
 *.log
@@ -37,4 +39,13 @@ application-secret.yml
 
 # 개인 메모 / 로컬 실행 스크립트
 가이드_*.md
+TODO.md
+API_변경사항_프론트전달.md
+api.http
 push-to-github.ps1
+
+# AI 코딩 도구 로컬 설정
+.claude/
+CLAUDE.md
+.mcp.json
+.cursor/
