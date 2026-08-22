@@ -65,11 +65,13 @@ jobs:
           KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
           KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: DB_USERNAME,DB_PASSWORD,JWT_SECRET,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_API_KEY,TMDB_API_KEY,TMDB_ACCESS_TOKEN,KAKAO_REST_API_KEY,KAKAO_CLIENT_SECRET,ANTHROPIC_API_KEY
+          envs: DB_USERNAME,DB_PASSWORD,JWT_SECRET,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_API_KEY,TMDB_API_KEY,TMDB_ACCESS_TOKEN,KAKAO_REST_API_KEY,KAKAO_CLIENT_SECRET,ANTHROPIC_API_KEY,AWS_ACCESS_KEY,AWS_SECRET_KEY
           script: |
             mkdir -p ~/itda
 
@@ -85,6 +87,8 @@ jobs:
             KAKAO_REST_API_KEY=${KAKAO_REST_API_KEY}
             KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
             ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+            AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+            AWS_SECRET_KEY=${AWS_SECRET_KEY}
             EOF
 
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
