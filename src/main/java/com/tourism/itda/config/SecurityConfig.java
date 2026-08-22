@@ -84,6 +84,7 @@ public class SecurityConfig {
                         // No.43 리뷰 목록 — 인증 선택 (로그인 시에만 is_liked 계산). POST(작성)/좋아요는 인증 필요 → anyRequest 로 처리
                         .requestMatchers(HttpMethod.GET, "/api/itineraries/*/reviews").permitAll()
                         .requestMatchers("/explore/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 );
