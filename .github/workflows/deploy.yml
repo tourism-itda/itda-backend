@@ -53,11 +53,23 @@ jobs:
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
+        env:
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: GITHUB_ACTOR,DB_USERNAME,DB_PASSWORD,JWT_SECRET,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_API_KEY,TMDB_API_KEY,TMDB_ACCESS_TOKEN,KAKAO_REST_API_KEY,KAKAO_CLIENT_SECRET,ANTHROPIC_API_KEY
+          envs: DB_USERNAME,DB_PASSWORD,JWT_SECRET,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_API_KEY,TMDB_API_KEY,TMDB_ACCESS_TOKEN,KAKAO_REST_API_KEY,KAKAO_CLIENT_SECRET,ANTHROPIC_API_KEY
           script: |
             mkdir -p ~/itda
 
@@ -75,7 +87,7 @@ jobs:
             ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
             EOF
 
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose -f ~/itda/docker-compose.yml pull app
             docker compose -f ~/itda/docker-compose.yml up -d
             docker image prune -f
