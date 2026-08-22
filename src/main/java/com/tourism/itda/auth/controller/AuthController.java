@@ -37,9 +37,9 @@ public class AuthController {
         );
     }
 
-    @GetMapping("/kakao/callback")
-    public LoginResponse kakaoCallback(@RequestParam String code){
-        return authService.kakaoLogin(code);
+    @PostMapping("/kakao")
+    public LoginResponse kakaoLogin(@RequestBody KakaoLoginRequest request){
+        return authService.kakaoLogin(request.code());
     }
 
     @GetMapping("/session")
