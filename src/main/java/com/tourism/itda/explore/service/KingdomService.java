@@ -1,9 +1,9 @@
 package com.tourism.itda.explore.service;
 
+import com.tourism.itda.explore.data.HistoricalKingdomData;
 import com.tourism.itda.explore.dto.KingdomDetailResponse;
 import com.tourism.itda.explore.dto.KingdomResponse;
 import com.tourism.itda.explore.dto.PersonResponse;
-import com.tourism.itda.explore.entity.Person;
 import com.tourism.itda.explore.enums.Kingdom;
 import com.tourism.itda.explore.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,16 +36,20 @@ public class KingdomService {
     // 나라 상세
     public KingdomDetailResponse getKingdom(Kingdom kingdom) {
 
+        HistoricalKingdomData.KingdomInfo info =
+                HistoricalKingdomData.KINGDOMS.get(kingdom);
+
         return new KingdomDetailResponse(
                 kingdom,
-                getKingdomName(kingdom)
+                info.name(),
+                info.timePeriod(),
+                info.description(),
+                info.imageUrl()
         );
     }
 
     // 나라별 인물
-    public List<PersonResponse> getPersonsByKingdom(
-            Kingdom kingdom
-    ) {
+    public List<PersonResponse> getPersonsByKingdom(Kingdom kingdom) {
 
         return personRepository.findByKingdom(kingdom)
                 .stream()

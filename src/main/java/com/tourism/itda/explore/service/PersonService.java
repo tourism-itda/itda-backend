@@ -1,33 +1,31 @@
 package com.tourism.itda.explore.service;
 
-import com.tourism.itda.explore.data.HistoricalPersonData;
 import com.tourism.itda.explore.dto.PersonResponse;
 import com.tourism.itda.explore.entity.Person;
+import com.tourism.itda.explore.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
+@Service
 @Transactional(readOnly = true)
 public class PersonService {
 
-    // 전체 인물 조회
-    public List<PersonResponse> getPersons() {
+    private final PersonRepository personRepository;
 
-        return HistoricalPersonData.PEOPLE.stream()
+    public List<PersonResponse> getPersons() {
+        return personRepository.findAll()
+                .stream()
                 .map(PersonResponse::new)
                 .toList();
     }
 
-    // 인물 상세 조회
     public PersonResponse getPerson(Long personId) {
-
-        Person person = HistoricalPersonData.PEOPLE.stream()
-                .filter(p -> p.getPersonId().equals(personId))
-                .findFirst()
+        Person person = personRepository.findById(personId)
                 .orElseThrow(() ->
                         new IllegalArgumentException("존재하지 않는 인물입니다.")
                 );
