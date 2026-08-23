@@ -38,6 +38,6 @@ kakao:
   client-id: ""
   client-secret: ""
 
-  aws:
-    access-key: ""
-    secret-key: ""
+aws:
+  access-key: ""
+  secret-key: ""
