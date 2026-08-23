@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/explore/kingdoms")
+@RequestMapping("api/explore/kingdoms")
 @RequiredArgsConstructor
 public class KingdomController {
 
