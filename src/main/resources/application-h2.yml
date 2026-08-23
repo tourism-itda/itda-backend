@@ -37,3 +37,7 @@ tmdb:
 kakao:
   client-id: ""
   client-secret: ""
+
+  aws:
+    access-key: ""
+    secret-key: ""
