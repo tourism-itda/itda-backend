@@ -1,5 +1,6 @@
 package com.tourism.itda.explore.controller;
 
+import com.tourism.itda.explore.dto.KingdomContentResponse;
 import com.tourism.itda.explore.dto.KingdomDetailResponse;
 import com.tourism.itda.explore.dto.KingdomResponse;
 import com.tourism.itda.explore.dto.PersonResponse;
@@ -7,7 +8,6 @@ import com.tourism.itda.explore.enums.Kingdom;
 import com.tourism.itda.explore.service.KingdomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import com.tourism.itda.explore.dto.KingdomContentResponse;
 
 import java.util.List;
 
@@ -39,18 +39,12 @@ public class KingdomController {
     ) {
         return kingdomService.getPersonsByKingdom(kingdom);
     }
+
     // 나라별 콘텐츠
     @GetMapping("/{kingdom}/contents")
     public List<KingdomContentResponse> getContentsByKingdom(
             @PathVariable Kingdom kingdom
     ) {
         return kingdomService.getContentsByKingdom(kingdom);
-    }
-
-    @GetMapping("/{kingdom}/contents/test")
-    public List<String> searchKingdomContents(
-            @PathVariable Kingdom kingdom
-    ) {
-        return kingdomService.searchKingdomContents(kingdom);
     }
 }
