@@ -29,15 +29,23 @@ public class Person {
     @Column(nullable = false)
     private PersonType type;
 
+    private Integer startYear;
+
+    private Integer endYear;
+
     public Person(
             String name,
             String description,
             Kingdom kingdom,
-            PersonType type
+            PersonType type,
+            Integer startYear,
+            Integer endYear
     ) {
         this.name = name;
         this.description = description;
         this.kingdom = kingdom;
         this.type = type;
+        this.startYear = startYear;
+        this.endYear = endYear;
     }
 }

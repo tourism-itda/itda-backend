@@ -14,6 +14,9 @@ import com.tourism.itda.content.repository.ContentPlaceRepository;
 import com.tourism.itda.content.repository.ContentRepository;
 import com.tourism.itda.content.repository.ContentStorySectionRepository;
 import com.tourism.itda.content.repository.BookmarkRepository;
+import com.tourism.itda.content.service.HistoryChronologyLoader.ChronologyEvent;
+import com.tourism.itda.explore.data.HistoricalPersonData;
+import com.tourism.itda.explore.entity.Person;
 import com.tourism.itda.place.entity.Place;
 import com.tourism.itda.place.entity.PlaceImage;
 import com.tourism.itda.place.repository.PlaceImageRepository;
@@ -46,6 +49,9 @@ public class ContentService {
     private final BookmarkRepository bookmarkRepository;
     private final PlaceRepository placeRepository;
     private final PlaceImageRepository placeImageRepository;
+    private final ContentClassifier contentClassifier;
+    private final StorytellingGenerator storytellingGenerator;
+    private final HistoryChronologyLoader chronologyLoader;
     private final ContentKingdomRepository contentKingdomRepository;
 
     public ContentService(
@@ -60,6 +66,9 @@ public class ContentService {
             BookmarkRepository bookmarkRepository,
             PlaceRepository placeRepository,
             PlaceImageRepository placeImageRepository,
+            ContentClassifier contentClassifier,
+            StorytellingGenerator storytellingGenerator,
+            HistoryChronologyLoader chronologyLoader,
             ContentKingdomRepository contentKingdomRepository
     ) {
         this.tmdbClient = tmdbClient;
@@ -73,6 +82,9 @@ public class ContentService {
         this.bookmarkRepository = bookmarkRepository;
         this.placeRepository = placeRepository;
         this.placeImageRepository = placeImageRepository;
+        this.contentClassifier = contentClassifier;
+        this.storytellingGenerator = storytellingGenerator;
+        this.chronologyLoader = chronologyLoader;
         this.contentKingdomRepository = contentKingdomRepository;
     }
 
@@ -104,20 +116,52 @@ public class ContentService {
                 "https://image.tmdb.org/t/p/w500" + movie.getPosterPath(),
                 movie.getOverview(),
                 year,
-                "MOVIE",    
+                "MOVIE",
                 keywords,
                 movie.getTagline()
         );
+
+        contentClassifier.classify(movie.getTitle(), movie.getOverview(), keywords, movie.getTagline())
+                .ifPresent(c -> {
+                    // personName 더블체크: HistoricalPersonData에 존재하는 실존 인물인지 확인
+                    // 검증 통과한 이름만 저장한다. (Claude가 지어낸 이름은 null 처리)
+                    Person person = HistoricalPersonData.findByName(c.personName());
+
+                    content.classify(
+                            contentClassifier.parseKingdom(c.kingdom()),
+                            contentClassifier.parsePersonType(c.personType()),
+                            person != null ? person.getName() : null
+                    );
+
+                    // 검증된 인물의 재위/활동 연도 구간에 해당하는 실제 연표 사건을 추출
+                    List<ChronologyEvent> events = (person != null)
+                            ? chronologyLoader.getEventsBetween(person.getStartYear(), person.getEndYear())
+                            : List.of();
+
+                    storytellingGenerator.generate(
+                            movie.getTitle(), movie.getOverview(), keywords, movie.getTagline(),
+                            person != null ? person.getName() : null,
+                            events
+                    ).ifPresent(s -> {
+                        content.changeSummary(s.summary());
+                        content.changeStoryIntro(s.storyIntro());
+                        content.changeStoryBody(s.storyBody());
+                    });
+                });
+
+        content.changeThumbnailUrl("https://image.tmdb.org/t/p/w500" + movie.getPosterPath());
 
         return contentRepository.save(content);
     }
 
     /**
      * 영화 저장 API
+     * 이미 저장된 영화면 TMDB·Claude 재호출 없이 기존 데이터를 반환한다.
      */
     public ContentResponse saveMovie(Long movieId, Kingdom kingdom) {
 
-        Content content = saveContent(movieId);
+        Content content = contentRepository.findById(movieId)
+                .orElseGet(() -> saveContent(movieId));
 
         contentKingdomRepository.save(
                 new ContentKingdom(content, kingdom)

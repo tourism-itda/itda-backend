@@ -108,7 +108,7 @@ itda:
   # 선택 + 이유 작성만 담당한다. 꺼두면 점수 1등이 그대로 선택된다.
   # 켜려면 enabled: true + ANTHROPIC_API_KEY 설정.
   llm:
-    enabled: false
+    enabled: true
     model: claude-haiku-4-5
     api-key: ${ANTHROPIC_API_KEY:}
     max-tokens: 1024
