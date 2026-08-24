@@ -1,5 +1,7 @@
 package com.tourism.itda.explore.service;
 
+import com.tourism.itda.content.repository.ContentRepository;
+import com.tourism.itda.explore.dto.KingdomContentResponse;
 import com.tourism.itda.explore.dto.PersonResponse;
 import com.tourism.itda.explore.entity.Person;
 import com.tourism.itda.explore.repository.PersonRepository;
@@ -17,6 +19,7 @@ import java.util.List;
 public class PersonService {
 
     private final PersonRepository personRepository;
+    private final ContentRepository contentRepository;
 
     public List<PersonResponse> getPersons() {
         return personRepository.findAll()
@@ -33,4 +36,19 @@ public class PersonService {
 
         return new PersonResponse(person);
     }
+
+    public List<KingdomContentResponse> getContentsByPerson(Long personId) {
+
+        Person person = personRepository.findById(personId)
+                .orElseThrow(() ->
+                        new NotFoundException("존재하지 않는 인물입니다.")
+                );
+
+        return contentRepository.findByPersonName(person.getName())
+                .stream()
+                .map(KingdomContentResponse::new)
+                .toList();
+    }
+
+
 }
