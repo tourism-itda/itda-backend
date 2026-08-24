@@ -1,5 +1,6 @@
 package com.tourism.itda.explore.controller;
 
+import com.tourism.itda.explore.dto.KingdomContentResponse;
 import com.tourism.itda.explore.dto.PersonResponse;
 import com.tourism.itda.explore.service.PersonService;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,12 @@ public class PersonController {
             @PathVariable Long personId
     ) {
         return personService.getPerson(personId);
+    }
+
+    @GetMapping("/{personId}/contents")
+    public List<KingdomContentResponse> getContentsByPerson(
+            @PathVariable Long personId
+    ) {
+        return personService.getContentsByPerson(personId);
     }
 }
