@@ -1,6 +1,5 @@
 package com.tourism.itda.explore.service;
 
-import com.tourism.itda.content.client.TmdbClient;
 import com.tourism.itda.explore.data.HistoricalKingdomData;
 import com.tourism.itda.explore.dto.KingdomContentResponse;
 import com.tourism.itda.explore.dto.KingdomDetailResponse;
@@ -24,7 +23,6 @@ public class KingdomService {
 
     private final PersonRepository personRepository;
     private final ContentKingdomRepository contentKingdomRepository;
-    private final TmdbClient tmdbClient;
 
     // 나라 목록
     public List<KingdomResponse> getKingdoms() {
@@ -71,43 +69,6 @@ public class KingdomService {
                 .map(ContentKingdom::getContent)
                 .map(KingdomContentResponse::new)
                 .toList();
-    }
-
-    // 나라별 TMDB 콘텐츠 검색 테스트
-    public List<String> searchKingdomContents(Kingdom kingdom) {
-
-        String keyword = getTmdbSearchKeyword(kingdom);
-
-        return tmdbClient.searchMovies(keyword, 1)
-                .getResults()
-                .stream()
-                .map(result -> result.getTitle())
-                .toList();
-    }
-
-    // Kingdom → TMDB 검색어
-    private String getTmdbSearchKeyword(Kingdom kingdom) {
-
-        return switch (kingdom) {
-
-            case GOGURYEO -> "고구려";
-            case BAEKJE -> "백제";
-            case SILLA -> "신라";
-            case GAYA -> "가야";
-
-            case UNIFIED_SILLA -> "통일신라";
-            case BALHAE -> "발해";
-
-            case LATER_GOGURYEO -> "후고구려";
-            case LATER_BAEKJE -> "후백제";
-
-            case GORYEO -> "고려";
-            case JOSEON -> "조선";
-
-            case KOREAN_EMPIRE -> "대한제국";
-            case JAPANESE_COLONY -> "일제강점기";
-            case FIRST_REPUBLIC_OF_KOREA -> "대한민국";
-        };
     }
 
     // enum → 실제 표시 이름
