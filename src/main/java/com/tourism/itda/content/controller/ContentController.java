@@ -42,6 +42,20 @@ public class ContentController {
         return contentService.saveMovie(movieId, kingdom);
     }
 
+    /**
+     * 한국 역사 영화 자동 수집 수동 트리거.
+     * 스케줄러(매일 새벽 4시)와 동일한 로직을 즉시 1회 실행한다.
+     */
+    @PostMapping("/collect")
+    public CollectResponse collect(
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        int saved = contentService.collectKoreanHistoryMovies(limit);
+        return new CollectResponse(saved);
+    }
+
+    public record CollectResponse(int saved) {}
+
     @GetMapping("/credits/{movieId}")
     public TmdbCreditResponse credits(
             @PathVariable Long movieId

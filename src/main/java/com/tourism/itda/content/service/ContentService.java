@@ -171,6 +171,34 @@ public class ContentService {
     }
 
     /**
+     * 한국 역사·전쟁 영화를 TMDB에서 자동 수집한다. (스케줄러용)
+     * 아직 저장되지 않은 영화만 최대 limit편 처리하고, 처리한 편수를 반환한다.
+     * Claude가 분류한 kingdom을 content_kingdom 에도 함께 저장해 나라별 조회와 연동한다.
+     */
+    public int collectKoreanHistoryMovies(int limit) {
+
+        TmdbSearchResponse discovered = tmdbClient.discoverKoreanHistory(1);
+        if (discovered == null || discovered.getResults() == null) return 0;
+
+        int saved = 0;
+        for (TmdbSearchResponse.Result result : discovered.getResults()) {
+            if (saved >= limit) break;
+
+            Long movieId = result.getId();
+            if (contentRepository.existsById(movieId)) continue;
+
+            Content content = saveContent(movieId);
+
+            // Claude가 분류한 나라를 content_kingdom 에 연동 (나라별 조회용)
+            if (content.getKingdom() != null) {
+                contentKingdomRepository.save(new ContentKingdom(content, content.getKingdom()));
+            }
+            saved++;
+        }
+        return saved;
+    }
+
+    /**
      * 영화 조회 API
      * DB에 없으면 TMDB에서 가져와 저장 후 반환
      */
