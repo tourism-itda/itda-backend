@@ -156,16 +156,13 @@ public class ContentService {
 
     /**
      * 영화 저장 API
-     * 이미 저장된 영화면 TMDB·Claude 재호출 없이 기존 데이터를 반환한다.
+     * 이미 저장된 영화면 기존 데이터를 반환한다.
+     * 신규 영화는 TMDB에서 가져와 Claude가 시대적 배경을 분류한다.
      */
-    public ContentResponse saveMovie(Long movieId, Kingdom kingdom) {
+    public ContentResponse saveMovie(Long movieId) {
 
         Content content = contentRepository.findById(movieId)
                 .orElseGet(() -> saveContent(movieId));
-
-        contentKingdomRepository.save(
-                new ContentKingdom(content, kingdom)
-        );
 
         return ContentResponse.from(content);
     }
