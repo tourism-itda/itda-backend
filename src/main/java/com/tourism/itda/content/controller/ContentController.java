@@ -8,6 +8,7 @@ import com.tourism.itda.content.dto.TmdbCreditResponse;
 import com.tourism.itda.content.service.ContentService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.tourism.itda.explore.enums.Kingdom;
 
 import java.util.List;
 
@@ -35,9 +36,10 @@ public class ContentController {
 
     @PostMapping("/{movieId}")
     public ContentResponse save(
-            @PathVariable Long movieId
+            @PathVariable Long movieId,
+            @RequestParam Kingdom kingdom
     ) {
-        return contentService.saveMovie(movieId);
+        return contentService.saveMovie(movieId, kingdom);
     }
 
     @GetMapping("/credits/{movieId}")

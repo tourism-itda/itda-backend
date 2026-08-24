@@ -23,6 +23,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import com.tourism.itda.explore.entity.ContentKingdom;
+import com.tourism.itda.explore.enums.Kingdom;
+import com.tourism.itda.explore.repository.ContentKingdomRepository;
+
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +46,7 @@ public class ContentService {
     private final BookmarkRepository bookmarkRepository;
     private final PlaceRepository placeRepository;
     private final PlaceImageRepository placeImageRepository;
+    private final ContentKingdomRepository contentKingdomRepository;
 
     public ContentService(
             TmdbClient tmdbClient,
@@ -54,7 +59,8 @@ public class ContentService {
             ContentPlaceRepository contentPlaceRepository,
             BookmarkRepository bookmarkRepository,
             PlaceRepository placeRepository,
-            PlaceImageRepository placeImageRepository
+            PlaceImageRepository placeImageRepository,
+            ContentKingdomRepository contentKingdomRepository
     ) {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
@@ -67,6 +73,7 @@ public class ContentService {
         this.bookmarkRepository = bookmarkRepository;
         this.placeRepository = placeRepository;
         this.placeImageRepository = placeImageRepository;
+        this.contentKingdomRepository = contentKingdomRepository;
     }
 
     /**
@@ -108,9 +115,13 @@ public class ContentService {
     /**
      * 영화 저장 API
      */
-    public ContentResponse saveMovie(Long movieId) {
+    public ContentResponse saveMovie(Long movieId, Kingdom kingdom) {
 
         Content content = saveContent(movieId);
+
+        contentKingdomRepository.save(
+                new ContentKingdom(content, kingdom)
+        );
 
         return ContentResponse.from(content);
     }

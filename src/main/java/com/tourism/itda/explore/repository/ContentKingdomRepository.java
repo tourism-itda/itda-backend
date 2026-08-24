@@ -10,6 +10,4 @@ public interface ContentKingdomRepository
         extends JpaRepository<ContentKingdom, ContentKingdom.ContentKingdomId> {
 
     List<ContentKingdom> findByKingdom(Kingdom kingdom);
-
-//    List<Content> findContentByKingdom(Kingdom kingdom);
 }

@@ -87,6 +87,7 @@ public class SecurityConfig {
                         .requestMatchers("/explore/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/contents/**").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();
