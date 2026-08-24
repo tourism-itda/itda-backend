@@ -33,11 +33,11 @@ public class ContentController {
         return contentService.searchContents(q, mediaType, categoryId, sort, page, limit);
     }
 
-    @PostMapping("/{movieId}")
+    @PostMapping("/{contentId}")
     public ContentResponse save(
-            @PathVariable Long movieId
+            @PathVariable Long contentId
     ) {
-        return contentService.saveMovie(movieId);
+        return contentService.saveMovie(contentId);
     }
 
     /**
