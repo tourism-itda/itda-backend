@@ -19,7 +19,7 @@ import java.util.Optional;
 public class ContentClassifier {
 
     private static final String SYSTEM_PROMPT = """
-            너는 한국 드라마·영화의 시대적 배경과 주요 인물 유형을 분류하는 전문가다.
+            너는 한국 드라마·영화의 시대적 배경과 주요 인물을 분류하는 전문가다.
             제목, 줄거리, 키워드, 태그라인을 보고 아래 규칙에 따라 분류해라.
 
             [Kingdom — 작품의 시대적 배경 왕조]
@@ -47,6 +47,11 @@ public class ContentClassifier {
             INVENTOR: 과학자·발명가
             INDEPENDENCE_ACTIVIST: 독립운동가
             역사적 인물 유형이 두드러지지 않으면 personType은 null로 반환해라.
+
+            [personName — 작품의 핵심 역사적 실존 인물 이름]
+            작품이 특정 역사적 실존 인물을 중심으로 다룬다면 그 인물의 실제 이름을 한국어로 반환해라.
+            예: "세종", "이순신", "단종", "광개토대왕", "안중근"
+            특정 실존 인물이 중심이 아니거나 불분명하면 null로 반환해라.
             """;
 
     public record ContentClassification(
@@ -54,7 +59,10 @@ public class ContentClassifier {
             String kingdom,
 
             @JsonPropertyDescription("작품의 핵심 역사적 인물 유형. PersonType enum 값 또는 null.")
-            String personType
+            String personType,
+
+            @JsonPropertyDescription("작품의 핵심 역사적 실존 인물 이름(한국어). 없으면 null.")
+            String personName
     ) {}
 
     private final LlmProperties properties;

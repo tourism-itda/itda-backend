@@ -28,6 +28,7 @@ public class ContentResponse {
     private Long viewCount;
     private Kingdom kingdom;
     private PersonType personType;
+    private String personName;
     private LocalDateTime createdAt;
 
     public static ContentResponse from(Content content) {
@@ -48,6 +49,7 @@ public class ContentResponse {
                 .viewCount(content.getViewCount())
                 .kingdom(content.getKingdom())
                 .personType(content.getPersonType())
+                .personName(content.getPersonName())
                 .createdAt(content.getCreatedAt())
                 .build();
     }

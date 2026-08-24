@@ -33,6 +33,8 @@ public class Content {
     @Enumerated(EnumType.STRING)
     private PersonType personType;
 
+    private String personName;
+
     @Column(columnDefinition = "TEXT")
     private String tagline;
 
@@ -99,8 +101,9 @@ public class Content {
         this.viewCount = viewCount;
     }
 
-    public void classify(Kingdom kingdom, PersonType personType) {
+    public void classify(Kingdom kingdom, PersonType personType, String personName) {
         this.kingdom = kingdom;
         this.personType = personType;
+        this.personName = personName;
     }
 }
