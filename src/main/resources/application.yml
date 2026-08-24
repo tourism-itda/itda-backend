@@ -71,6 +71,15 @@ itda:
   distance:
     average-speed-kmh: 25
 
+  # 한국 역사 영화 TMDB 자동 수집 설정
+  # batch-size: 한 번 수집 시 처리할 최대 신규 영화 편수
+  # cron: 스케줄 실행 시각 (초 분 시 일 월 요일)
+  # genres: TMDB 장르 ID (36=역사, 10752=전쟁)
+  movie-collect:
+    batch-size: 10
+    cron: "0 0 4 * * *"
+    genres: "36,10752"
+
   # 한국관광공사 TourAPI (KorService2) — 식당/카페 후보를 온디맨드로 조회한다.
   # 위 public-data 와 같은 서비스라 서비스키를 따로 두지 않고 그대로 재사용한다.
   # 키가 없으면 후보가 빈 목록으로 나올 뿐, 앱은 정상 기동한다.
