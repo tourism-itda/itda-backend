@@ -10,6 +10,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import com.tourism.itda.content.dto.TmdbSearchResponse;
+import org.springframework.web.util.UriComponentsBuilder;
 
 
 @Component
@@ -19,7 +21,8 @@ public class TmdbClient {
     private String accessToken;
 
     private static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
-
+    private static final String SEARCH_URL =
+            "https://api.themoviedb.org/3/search/movie";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -97,4 +100,30 @@ public class TmdbClient {
 
         return response.getBody();
     }
+
+    public TmdbSearchResponse searchMovies(String query, int page) {
+
+        String url = UriComponentsBuilder
+                .fromHttpUrl(SEARCH_URL)
+                .queryParam("query", query)
+                .queryParam("language", "ko-KR")
+                .queryParam("page", page)
+                .queryParam("include_adult", false)
+                .build()
+                .toUriString();
+
+        HttpEntity<Void> entity =
+                new HttpEntity<>(getHeaders());
+
+        ResponseEntity<TmdbSearchResponse> response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        entity,
+                        TmdbSearchResponse.class
+                );
+
+        return response.getBody();
+    }
 }
+

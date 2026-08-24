@@ -26,6 +26,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import com.tourism.itda.explore.entity.ContentKingdom;
+import com.tourism.itda.explore.enums.Kingdom;
+import com.tourism.itda.explore.repository.ContentKingdomRepository;
+
 
 import java.util.List;
 import java.util.Map;
@@ -48,6 +52,7 @@ public class ContentService {
     private final ContentClassifier contentClassifier;
     private final StorytellingGenerator storytellingGenerator;
     private final HistoryChronologyLoader chronologyLoader;
+    private final ContentKingdomRepository contentKingdomRepository;
 
     public ContentService(
             TmdbClient tmdbClient,
@@ -63,7 +68,8 @@ public class ContentService {
             PlaceImageRepository placeImageRepository,
             ContentClassifier contentClassifier,
             StorytellingGenerator storytellingGenerator,
-            HistoryChronologyLoader chronologyLoader
+            HistoryChronologyLoader chronologyLoader,
+            ContentKingdomRepository contentKingdomRepository
     ) {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
@@ -79,6 +85,7 @@ public class ContentService {
         this.contentClassifier = contentClassifier;
         this.storytellingGenerator = storytellingGenerator;
         this.chronologyLoader = chronologyLoader;
+        this.contentKingdomRepository = contentKingdomRepository;
     }
 
     /**
@@ -151,10 +158,14 @@ public class ContentService {
      * 영화 저장 API
      * 이미 저장된 영화면 TMDB·Claude 재호출 없이 기존 데이터를 반환한다.
      */
-    public ContentResponse saveMovie(Long movieId) {
+    public ContentResponse saveMovie(Long movieId, Kingdom kingdom) {
 
         Content content = contentRepository.findById(movieId)
                 .orElseGet(() -> saveContent(movieId));
+
+        contentKingdomRepository.save(
+                new ContentKingdom(content, kingdom)
+        );
 
         return ContentResponse.from(content);
     }

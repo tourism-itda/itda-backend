@@ -1,5 +1,6 @@
 package com.tourism.itda.content.entity;
 
+import com.tourism.itda.place.entity.Place;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,11 +23,20 @@ public class ContentPlace {
     @JoinColumn(name = "content_id")
     private Content content;
 
+    @MapsId("placeId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "place_id")
+    private Place place;
+
     private Integer recommendOrder;
 
-    public ContentPlace(Content content, Long placeId, Integer recommendOrder) {
+    public ContentPlace(Content content, Place place, Integer recommendOrder) {
         this.content = content;
-        this.id = new ContentPlaceId(content.getId(), placeId);
+        this.place = place;
+        this.id = new ContentPlaceId(
+                content.getId(),
+                place.getId()
+        );
         this.recommendOrder = recommendOrder;
     }
 }
