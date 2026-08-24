@@ -92,6 +92,14 @@ public class ContentClassifier {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("Claude 응답에 구조화 결과가 없습니다."));
 
+            log.info(
+                    "콘텐츠 분류 결과 - title={}, kingdom={}, personType={}, personName={}",
+                    title,
+                    result.kingdom(),
+                    result.personType(),
+                    result.personName()
+            );
+
             return Optional.of(result);
 
         } catch (Exception e) {
