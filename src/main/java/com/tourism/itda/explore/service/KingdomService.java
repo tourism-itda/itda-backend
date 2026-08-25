@@ -28,12 +28,17 @@ public class KingdomService {
     public List<KingdomResponse> getKingdoms() {
 
         return Arrays.stream(Kingdom.values())
-                .map(kingdom ->
-                        new KingdomResponse(
-                                kingdom,
-                                getKingdomName(kingdom)
-                        )
-                )
+                .map(kingdom -> {
+                    HistoricalKingdomData.KingdomInfo info =
+                            HistoricalKingdomData.KINGDOMS.get(kingdom);
+
+                    return new KingdomResponse(
+                            kingdom,
+                            info.name(),
+                            info.timePeriod(),
+                            info.imageUrl()
+                    );
+                })
                 .toList();
     }
 
