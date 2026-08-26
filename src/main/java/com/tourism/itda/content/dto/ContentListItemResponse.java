@@ -9,7 +9,8 @@ public record ContentListItemResponse(
         @JsonProperty("thumbnail_url") String thumbnailUrl,
         MediaSummaryResponse media,
         ContentCategoryBriefResponse category,
-        @JsonProperty("view_count") Long viewCount
+        @JsonProperty("view_count") Long viewCount,
+        String summary
 ) {
     public static ContentListItemResponse of(
             Content content,
@@ -22,7 +23,8 @@ public record ContentListItemResponse(
                 content.getThumbnailUrl(),
                 media,
                 category,
-                content.getViewCount()
+                content.getViewCount(),
+                content.getSummary()
         );
     }
 }
