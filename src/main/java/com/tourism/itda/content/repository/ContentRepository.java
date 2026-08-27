@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface ContentRepository extends JpaRepository<Content, Long> {
 
-    List<Content> findByPersonName(String personName);
 
     @Query(value = "SELECT DISTINCT c FROM Content c "
             + "LEFT JOIN ContentCategory cc ON cc.content = c "

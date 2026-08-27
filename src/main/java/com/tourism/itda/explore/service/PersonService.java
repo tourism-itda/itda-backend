@@ -1,11 +1,12 @@
 package com.tourism.itda.explore.service;
 
-import com.tourism.itda.content.repository.ContentRepository;
 import com.tourism.itda.explore.dto.KingdomContentResponse;
 import com.tourism.itda.explore.dto.PersonResponse;
 import com.tourism.itda.explore.dto.RelatedPlaceResponse;
+import com.tourism.itda.explore.entity.ContentPerson;
 import com.tourism.itda.explore.entity.Person;
 import com.tourism.itda.explore.entity.PlacePerson;
+import com.tourism.itda.explore.repository.ContentPersonRepository;
 import com.tourism.itda.explore.repository.PersonRepository;
 import com.tourism.itda.explore.repository.PlacePersonRepository;
 import com.tourism.itda.global.exception.NotFoundException;
@@ -22,7 +23,7 @@ import java.util.List;
 public class PersonService {
 
     private final PersonRepository personRepository;
-    private final ContentRepository contentRepository;
+    private final ContentPersonRepository contentPersonRepository;
     private final PlacePersonRepository placePersonRepository;
 
     public List<PersonResponse> getPersons() {
@@ -48,8 +49,9 @@ public class PersonService {
                         new NotFoundException("존재하지 않는 인물입니다.")
                 );
 
-        return contentRepository.findByPersonName(person.getName())
+        return contentPersonRepository.findByPerson(person)
                 .stream()
+                .map(ContentPerson::getContent)
                 .map(KingdomContentResponse::new)
                 .toList();
     }

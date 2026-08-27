@@ -1,6 +1,7 @@
 package com.tourism.itda.explore.config;
 
 import com.tourism.itda.explore.data.HistoricalPersonData;
+import com.tourism.itda.explore.entity.Person;
 import com.tourism.itda.explore.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -16,8 +17,21 @@ public class PersonDataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (personRepository.count() == 0) {
-            personRepository.saveAll(HistoricalPersonData.PEOPLE);
+
+        for (Person source : HistoricalPersonData.PEOPLE) {
+
+            personRepository.findByName(source.getName())
+                    .ifPresentOrElse(
+                            existing -> existing.update(
+                                    source.getDescription(),
+                                    source.getSummary(),
+                                    source.getKingdom(),
+                                    source.getType(),
+                                    source.getStartYear(),
+                                    source.getEndYear()
+                            ),
+                            () -> personRepository.save(source)
+                    );
         }
     }
 }

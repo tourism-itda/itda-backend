@@ -21,6 +21,7 @@ import com.tourism.itda.explore.entity.Person;
 import com.tourism.itda.explore.enums.Kingdom;
 import com.tourism.itda.explore.enums.PersonType;
 import com.tourism.itda.explore.repository.ContentKingdomRepository;
+import com.tourism.itda.explore.repository.PersonRepository;
 import com.tourism.itda.place.entity.Place;
 import com.tourism.itda.place.entity.PlaceImage;
 import com.tourism.itda.place.repository.PlaceImageRepository;
@@ -31,6 +32,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import com.tourism.itda.explore.entity.ContentPerson;
+import com.tourism.itda.explore.repository.ContentPersonRepository;
+
 
 import java.util.List;
 import java.util.Map;
@@ -54,6 +58,8 @@ public class ContentService {
     private final StorytellingGenerator storytellingGenerator;
     private final HistoryChronologyLoader chronologyLoader;
     private final ContentKingdomRepository contentKingdomRepository;
+    private final ContentPersonRepository contentPersonRepository;
+    private final PersonRepository personRepository;
 
     public ContentService(
             TmdbClient tmdbClient,
@@ -70,7 +76,9 @@ public class ContentService {
             ContentClassifier contentClassifier,
             StorytellingGenerator storytellingGenerator,
             HistoryChronologyLoader chronologyLoader,
-            ContentKingdomRepository contentKingdomRepository
+            ContentKingdomRepository contentKingdomRepository,
+            ContentPersonRepository contentPersonRepository,
+            PersonRepository personRepository
     ) {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
@@ -87,6 +95,8 @@ public class ContentService {
         this.storytellingGenerator = storytellingGenerator;
         this.chronologyLoader = chronologyLoader;
         this.contentKingdomRepository = contentKingdomRepository;
+        this.contentPersonRepository = contentPersonRepository;
+        this.personRepository = personRepository;
     }
 
     /**
@@ -160,15 +170,26 @@ public class ContentService {
         );
 
         // 6. Claude를 이용한 역사적 시대/인물 분류
-        contentClassifier.classify(
+        Person classifiedPerson = null;
+
+        var classification = contentClassifier.classify(
                 title,
                 contentData.getOverview(),
                 keywords,
                 contentData.getTagline()
-        ).ifPresent(c -> {
+        );
 
-            Person person =
-                    HistoricalPersonData.findByName(c.personName());
+        if (classification.isPresent()) {
+
+            var c = classification.get();
+
+            classifiedPerson =
+                    personRepository.findByName(c.personName())
+                            .orElse(null);
+
+            System.out.println("=== PERSON DEBUG ===");
+            System.out.println("Claude personName = [" + c.personName() + "]");
+            System.out.println("classifiedPerson = " + classifiedPerson);
 
             Kingdom kingdom =
                     contentClassifier.parseKingdom(c.kingdom());
@@ -179,24 +200,24 @@ public class ContentService {
             content.classify(
                     kingdom,
                     personType,
-                    person != null ? person.getName() : null
+                    classifiedPerson != null
+                            ? classifiedPerson.getName()
+                            : null
             );
 
-            // 인물의 활동 기간에 해당하는 연표 조회
             final List<ChronologyEvent> events =
-                    person != null
+                    classifiedPerson != null
                             ? chronologyLoader.getEventsBetween(
-                            person.getStartYear(),
-                            person.getEndYear()
+                            classifiedPerson.getStartYear(),
+                            classifiedPerson.getEndYear()
                     )
                             : List.of();
 
             final String personName =
-                    person != null
-                            ? person.getName()
+                    classifiedPerson != null
+                            ? classifiedPerson.getName()
                             : null;
 
-            // storytellingGenerator에 전달되는 값은 모두 final/effectively final
             storytellingGenerator.generate(
                     title,
                     contentData.getOverview(),
@@ -209,7 +230,7 @@ public class ContentService {
                 content.changeStoryIntro(s.storyIntro());
                 content.changeStoryBody(s.storyBody());
             });
-        });
+        }
 
         // 7. 썸네일
         content.changeThumbnailUrl(
@@ -221,7 +242,7 @@ public class ContentService {
         Content savedContent =
                 contentRepository.save(content);
 
-        // 9. 나라-콘텐츠 연결
+// 나라-콘텐츠 연결
         if (savedContent.getKingdom() != null
                 && !contentKingdomRepository.existsByContentIdAndKingdom(
                 savedContent.getId(),
@@ -232,6 +253,22 @@ public class ContentService {
                     new ContentKingdom(
                             savedContent,
                             savedContent.getKingdom()
+                    )
+            );
+        }
+
+// 인물-콘텐츠 연결
+        if (classifiedPerson != null) {
+
+            System.out.println("=== CONTENT PERSON SAVE ===");
+            System.out.println("contentId = " + savedContent.getId());
+            System.out.println("personId = " + classifiedPerson.getPersonId());
+            System.out.println("personName = " + classifiedPerson.getName());
+
+            contentPersonRepository.save(
+                    new ContentPerson(
+                            savedContent,
+                            classifiedPerson
                     )
             );
         }

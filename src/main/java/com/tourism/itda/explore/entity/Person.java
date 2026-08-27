@@ -54,4 +54,20 @@ public class Person {
         this.startYear = startYear;
         this.endYear = endYear;
     }
+
+    public void update(
+            String description,
+            String summary,
+            Kingdom kingdom,
+            PersonType type,
+            Integer startYear,
+            Integer endYear
+    ) {
+        this.description = description;
+        this.summary = summary;
+        this.kingdom = kingdom;
+        this.type = type;
+        this.startYear = startYear;
+        this.endYear = endYear;
+    }
 }
