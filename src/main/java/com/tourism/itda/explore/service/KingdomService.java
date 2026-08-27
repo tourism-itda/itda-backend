@@ -1,14 +1,13 @@
 package com.tourism.itda.explore.service;
 
 import com.tourism.itda.explore.data.HistoricalKingdomData;
-import com.tourism.itda.explore.dto.KingdomContentResponse;
-import com.tourism.itda.explore.dto.KingdomDetailResponse;
-import com.tourism.itda.explore.dto.KingdomResponse;
-import com.tourism.itda.explore.dto.PersonResponse;
+import com.tourism.itda.explore.dto.*;
 import com.tourism.itda.explore.entity.ContentKingdom;
+import com.tourism.itda.explore.entity.PlaceKingdom;
 import com.tourism.itda.explore.enums.Kingdom;
 import com.tourism.itda.explore.repository.ContentKingdomRepository;
 import com.tourism.itda.explore.repository.PersonRepository;
+import com.tourism.itda.explore.repository.PlaceKingdomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +22,7 @@ public class KingdomService {
 
     private final PersonRepository personRepository;
     private final ContentKingdomRepository contentKingdomRepository;
+    private final PlaceKingdomRepository placeKingdomRepository;
 
     // 나라 목록
     public List<KingdomResponse> getKingdoms() {
@@ -100,4 +100,15 @@ public class KingdomService {
             case FIRST_REPUBLIC_OF_KOREA -> "대한민국 제1공화국";
         };
     }
+
+    public List<RelatedPlaceResponse> getPlacesByKingdom(Kingdom kingdom) {
+
+        return placeKingdomRepository.findByKingdom(kingdom)
+                .stream()
+                .map(PlaceKingdom::getPlace)
+                .map(RelatedPlaceResponse::new)
+                .toList();
+    }
+
+
 }

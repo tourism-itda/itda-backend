@@ -1,9 +1,6 @@
 package com.tourism.itda.explore.controller;
 
-import com.tourism.itda.explore.dto.KingdomContentResponse;
-import com.tourism.itda.explore.dto.KingdomDetailResponse;
-import com.tourism.itda.explore.dto.KingdomResponse;
-import com.tourism.itda.explore.dto.PersonResponse;
+import com.tourism.itda.explore.dto.*;
 import com.tourism.itda.explore.enums.Kingdom;
 import com.tourism.itda.explore.service.KingdomService;
 import lombok.RequiredArgsConstructor;
@@ -46,5 +43,12 @@ public class KingdomController {
             @PathVariable Kingdom kingdom
     ) {
         return kingdomService.getContentsByKingdom(kingdom);
+    }
+
+    @GetMapping("/{kingdom}/places")
+    public List<RelatedPlaceResponse> getPlacesByKingdom(
+            @PathVariable Kingdom kingdom
+    ) {
+        return kingdomService.getPlacesByKingdom(kingdom);
     }
 }
