@@ -14,135 +14,135 @@ public class HistoricalPersonData {
                 // 삼국 시대 - 고구려
                 // ==================================================
 
-                new Person("주몽", "고구려 건국자", Kingdom.GOGURYEO, PersonType.KING, -37, -19),
-                new Person("광개토대왕", "고구려의 영토를 크게 확장한 왕", Kingdom.GOGURYEO, PersonType.KING, 391, 413),
-                new Person("장수왕", "고구려 전성기를 이끈 왕", Kingdom.GOGURYEO, PersonType.KING, 413, 491),
-                new Person("을지문덕", "살수대첩을 이끈 고구려 장군", Kingdom.GOGURYEO, PersonType.GENERAL, 598, 614),
-                new Person("연개소문", "고구려 말기의 권력자", Kingdom.GOGURYEO, PersonType.GENERAL, 642, 666),
+                new Person("주몽", "부여를 떠나 남하해 기원전 37년 고구려를 건국했다. 활을 잘 쏘았다는 뜻의 이름으로도 유명하며 고구려 건국 신화의 중심 인물이다.", "고구려를 세운 건국자", Kingdom.GOGURYEO, PersonType.KING, -37, -19),
+                new Person("광개토대왕", "만주와 한반도 북부 일대로 영토를 크게 확장하며 고구려 전성기의 기틀을 마련했다. 광개토대왕릉비를 통해 업적이 전해진다.", "고구려 영토를 크게 넓힌 정복왕", Kingdom.GOGURYEO, PersonType.KING, 391, 413),
+                new Person("장수왕", "평양 천도를 단행하고 남진 정책을 펼쳐 한강 유역까지 영토를 확장했다. 광개토대왕의 뒤를 이어 고구려의 전성기를 완성했다.", "고구려 전성기를 이끈 왕", Kingdom.GOGURYEO, PersonType.KING, 413, 491),
+                new Person("을지문덕", "수나라의 대규모 침공 당시 살수에서 적을 크게 격퇴했다. 이 살수대첩은 세계 전쟁사에 남을 대승으로 꼽힌다.", "살수대첩을 승리로 이끈 장군", Kingdom.GOGURYEO, PersonType.GENERAL, 598, 614),
+                new Person("연개소문", "정변을 통해 권력을 장악하고 대막리지에 올라 강경한 대외 정책을 펼쳤다. 당의 침입을 막아냈으나 사후 고구려는 급격히 쇠퇴했다.", "고구려 말기의 실권자", Kingdom.GOGURYEO, PersonType.GENERAL, 642, 666),
 
                 // ==================================================
                 // 삼국 시대 - 백제
                 // ==================================================
 
-                new Person("온조왕", "백제 건국자", Kingdom.BAEKJE, PersonType.KING, -18, 28),
-                new Person("근초고왕", "백제 전성기를 이끈 왕", Kingdom.BAEKJE, PersonType.KING, 346, 375),
-                new Person("무령왕", "백제 중흥을 이끈 왕", Kingdom.BAEKJE, PersonType.KING, 501, 523),
-                new Person("성왕", "백제의 사비 천도를 추진한 왕", Kingdom.BAEKJE, PersonType.KING, 523, 554),
-                new Person("계백", "황산벌 전투를 이끈 백제 장군", Kingdom.BAEKJE, PersonType.GENERAL, 655, 660),
+                new Person("온조왕", "고구려 시조 주몽의 아들로, 남쪽으로 내려와 한강 유역에 백제를 건국했다. 백제 왕실의 시조로 여겨진다.", "백제를 세운 건국자", Kingdom.BAEKJE, PersonType.KING, -18, 28),
+                new Person("근초고왕", "영토를 크게 확장하고 활발한 대외 교류를 펼쳐 백제의 전성기를 열었다. 일본에 문물을 전파하는 등 국제적 영향력도 넓혔다.", "백제 전성기를 이끈 왕", Kingdom.BAEKJE, PersonType.KING, 346, 375),
+                new Person("무령왕", "고구려에 밀려 약화된 백제를 안정시키며 국력을 회복시켰다. 무령왕릉에서 출토된 유물들은 당시 백제 문화의 수준을 보여준다.", "백제 중흥을 이끈 왕", Kingdom.BAEKJE, PersonType.KING, 501, 523),
+                new Person("성왕", "수도를 사비(부여)로 옮기고 국호를 남부여로 고치며 중흥을 꾀했다. 신라와의 전투에서 전사했다.", "사비 천도를 단행한 백제의 왕", Kingdom.BAEKJE, PersonType.KING, 523, 554),
+                new Person("계백", "나당연합군의 침공에 맞서 결사대를 이끌고 황산벌 전투에서 항전했다. 백제 멸망 직전의 마지막 저항을 상징하는 인물이다.", "황산벌에서 항전한 백제 장군", Kingdom.BAEKJE, PersonType.GENERAL, 655, 660),
 
                 // ==================================================
                 // 삼국 시대 - 신라
                 // ==================================================
 
-                new Person("박혁거세", "신라 건국자", Kingdom.SILLA, PersonType.KING, -57, 4),
-                new Person("진흥왕", "신라 영토 확장의 기반을 만든 왕", Kingdom.SILLA, PersonType.KING, 540, 576),
-                new Person("선덕여왕", "신라 최초의 여왕", Kingdom.SILLA, PersonType.KING, 632, 647),
-                new Person("김유신", "삼국통일을 이끈 신라 장군", Kingdom.SILLA, PersonType.GENERAL, 629, 673),
+                new Person("박혁거세", "알에서 태어났다는 신화를 지닌 신라의 시조로, 기원전 57년 신라를 건국했다고 전해진다.", "신라를 세운 건국자", Kingdom.SILLA, PersonType.KING, -57, 4),
+                new Person("진흥왕", "한강 유역과 가야 지역을 병합하며 신라 영토를 크게 넓혔다. 화랑도를 정비해 인재 양성 체계도 확립했다.", "신라 영토 확장의 기반을 다진 왕", Kingdom.SILLA, PersonType.KING, 540, 576),
+                new Person("선덕여왕", "신라 역사상 최초의 여성 군주로, 첨성대 건립과 황룡사 9층 목탑 조성 등 문화 사업을 추진했다.", "신라 최초의 여왕", Kingdom.SILLA, PersonType.KING, 632, 647),
+                new Person("김유신", "백제와 고구려를 정벌하는 데 핵심적 역할을 했으며 삼국통일의 주역으로 꼽힌다. 신라 최고의 명장으로 평가받는다.", "삼국통일을 이끈 신라의 명장", Kingdom.SILLA, PersonType.GENERAL, 629, 673),
 
                 // ==================================================
                 // 삼국 시대 - 가야
                 // ==================================================
 
-                new Person("김수로왕", "금관가야 건국자", Kingdom.GAYA, PersonType.KING, 42, 199),
+                new Person("김수로왕", "하늘에서 내려온 알에서 태어났다는 신화를 지닌 금관가야의 시조다. 가야 연맹의 중심국을 건설했다.", "금관가야를 세운 건국자", Kingdom.GAYA, PersonType.KING, 42, 199),
 
                 // ==================================================
                 // 남북국 시대 - 통일신라
                 // ==================================================
 
-                new Person("문무왕", "삼국통일을 완성한 왕", Kingdom.UNIFIED_SILLA, PersonType.KING, 661, 681),
-                new Person("신문왕", "통일신라 왕권을 강화한 왕", Kingdom.UNIFIED_SILLA, PersonType.KING, 681, 692),
-                new Person("원효", "신라의 대표적인 불교 사상가", Kingdom.UNIFIED_SILLA, PersonType.MONK, 617, 686),
-                new Person("의상", "화엄종을 발전시킨 승려", Kingdom.UNIFIED_SILLA, PersonType.MONK, 625, 702),
+                new Person("문무왕", "백제와 고구려 멸망 이후 당의 세력까지 몰아내며 삼국통일을 완성했다. 사후 동해의 용이 되어 나라를 지키겠다는 유언을 남긴 것으로도 유명하다.", "삼국통일을 완성한 왕", Kingdom.UNIFIED_SILLA, PersonType.KING, 661, 681),
+                new Person("신문왕", "통일 직후 귀족 세력의 반란을 진압하고 관료제를 정비해 왕권을 강화했다. 국학을 설립해 인재 양성에도 힘썼다.", "통일신라 왕권을 강화한 왕", Kingdom.UNIFIED_SILLA, PersonType.KING, 681, 692),
+                new Person("원효", "불교의 대중화에 힘쓴 승려로 화쟁 사상을 통해 여러 교리의 조화를 추구했다. 한국 불교사에서 가장 영향력 있는 인물 중 하나로 꼽힌다.", "신라의 대표적 불교 사상가", Kingdom.UNIFIED_SILLA, PersonType.MONK, 617, 686),
+                new Person("의상", "당에서 화엄학을 공부하고 돌아와 신라에 화엄종을 확립했다. 부석사 등 여러 사찰을 창건하며 불교 교단의 기틀을 다졌다.", "화엄종을 발전시킨 승려", Kingdom.UNIFIED_SILLA, PersonType.MONK, 625, 702),
 
                 // ==================================================
                 // 남북국 시대 - 발해
                 // ==================================================
 
-                new Person("대조영", "발해 건국자", Kingdom.BALHAE, PersonType.KING, 698, 719),
-                new Person("무왕", "발해 영토 확장을 이끈 왕", Kingdom.BALHAE, PersonType.KING, 719, 737),
-                new Person("문왕", "발해의 전성기를 이끈 왕", Kingdom.BALHAE, PersonType.KING, 737, 793),
+                new Person("대조영", "고구려 유민과 말갈족을 이끌고 698년 발해를 건국했다. 고구려 계승 의식을 바탕으로 새로운 국가를 세운 인물이다.", "발해를 세운 건국자", Kingdom.BALHAE, PersonType.KING, 698, 719),
+                new Person("무왕", "대조영의 뒤를 이어 활발한 정복 활동을 펼치며 발해의 영토를 크게 넓혔다. 당·신라와도 대립과 교류를 병행했다.", "발해 영토 확장을 이끈 왕", Kingdom.BALHAE, PersonType.KING, 719, 737),
+                new Person("문왕", "수도를 여러 차례 옮기며 체제를 정비하고 당의 문물을 적극 수용했다. 발해가 해동성국으로 불리는 전성기의 기반을 닦았다.", "발해 전성기를 이끈 왕", Kingdom.BALHAE, PersonType.KING, 737, 793),
 
                 // ==================================================
                 // 후삼국 시대
                 // ==================================================
 
-                new Person("궁예", "후고구려를 건국한 인물", Kingdom.LATER_GOGURYEO, PersonType.KING, 901, 918),
-                new Person("견훤", "후백제 건국자", Kingdom.LATER_BAEKJE, PersonType.KING, 900, 935),
+                new Person("궁예", "신라 왕족 출신으로 알려지며 후고구려(마진, 태봉)를 건국했다. 폭정으로 신망을 잃고 부하였던 왕건에게 축출되었다.", "후고구려를 세운 인물", Kingdom.LATER_GOGURYEO, PersonType.KING, 901, 918),
+                new Person("견훤", "신라 말 혼란기에 후백제를 건국하며 후삼국시대를 열었다. 왕건과 패권을 다투었으나 아들들의 내분으로 세력이 약화되었다.", "후백제를 세운 건국자", Kingdom.LATER_BAEKJE, PersonType.KING, 900, 935),
 
                 // ==================================================
                 // 고려
                 // ==================================================
 
-                new Person("태조 왕건", "고려 건국자", Kingdom.GORYEO, PersonType.KING, 918, 943),
-                new Person("광종", "노비안검법과 과거제를 실시한 왕", Kingdom.GORYEO, PersonType.KING, 949, 975),
-                new Person("공민왕", "개혁 정책을 추진한 왕", Kingdom.GORYEO, PersonType.KING, 1351, 1374),
-                new Person("서희", "거란과의 외교 협상을 이끈 문신", Kingdom.GORYEO, PersonType.POLITICIAN, 942, 998),
-                new Person("강감찬", "귀주대첩을 승리로 이끈 장군", Kingdom.GORYEO, PersonType.GENERAL, 948, 1031),
-                new Person("최무선", "화약 기술을 개발한 인물", Kingdom.GORYEO, PersonType.INVENTOR, 1325, 1395),
+                new Person("태조 왕건", "후삼국을 통일하고 918년 고려를 건국했다. 호족 세력을 포섭하는 정책으로 왕조의 기반을 다졌다.", "고려를 세운 건국자", Kingdom.GORYEO, PersonType.KING, 918, 943),
+                new Person("광종", "노비안검법으로 호족 세력을 약화시키고 과거제를 도입해 인재를 등용했다. 고려 왕권 강화의 기틀을 마련했다.", "왕권을 강화한 고려의 왕", Kingdom.GORYEO, PersonType.KING, 949, 975),
+                new Person("공민왕", "원의 간섭에서 벗어나기 위해 반원 자주 정책을 펼치고 정치 개혁을 시도했다. 신돈을 등용해 토지·노비 제도를 개혁하려 했다.", "개혁을 추진한 고려의 왕", Kingdom.GORYEO, PersonType.KING, 1351, 1374),
+                new Person("서희", "거란의 1차 침입 당시 적장 소손녕과 담판을 벌여 전쟁 없이 강동 6주를 확보했다. 뛰어난 외교술로 위기를 극복한 인물로 평가받는다.", "외교 담판으로 강동 6주를 얻은 문신", Kingdom.GORYEO, PersonType.POLITICIAN, 942, 998),
+                new Person("강감찬", "거란의 3차 침입 당시 귀주에서 대승을 거두며 고려를 지켜냈다. 귀주대첩은 고려 대외 항쟁사의 대표적 승리로 꼽힌다.", "귀주대첩을 이끈 명장", Kingdom.GORYEO, PersonType.GENERAL, 948, 1031),
+                new Person("최무선", "중국으로부터 화약 제조법을 습득해 고려 최초로 화약과 화포를 개발했다. 이를 활용해 진포대첩에서 왜구를 격퇴하는 데 기여했다.", "화약 무기를 개발한 발명가", Kingdom.GORYEO, PersonType.INVENTOR, 1325, 1395),
 
                 // ==================================================
                 // 조선 - 왕
                 // ==================================================
 
-                new Person("태조", "조선 제1대 왕", Kingdom.JOSEON, PersonType.KING, 1392, 1398),
-                new Person("정종", "조선 제2대 왕", Kingdom.JOSEON, PersonType.KING, 1398, 1400),
-                new Person("태종", "조선 제3대 왕", Kingdom.JOSEON, PersonType.KING, 1400, 1418),
-                new Person("세종", "조선 제4대 왕", Kingdom.JOSEON, PersonType.KING, 1418, 1450),
-                new Person("문종", "조선 제5대 왕", Kingdom.JOSEON, PersonType.KING, 1450, 1452),
-                new Person("단종", "조선 제6대 왕", Kingdom.JOSEON, PersonType.KING, 1452, 1455),
-                new Person("세조", "조선 제7대 왕", Kingdom.JOSEON, PersonType.KING, 1455, 1468),
-                new Person("예종", "조선 제8대 왕", Kingdom.JOSEON, PersonType.KING, 1468, 1469),
-                new Person("성종", "조선 제9대 왕", Kingdom.JOSEON, PersonType.KING, 1469, 1494),
-                new Person("연산군", "조선 제10대 왕", Kingdom.JOSEON, PersonType.KING, 1494, 1506),
-                new Person("중종", "조선 제11대 왕", Kingdom.JOSEON, PersonType.KING, 1506, 1544),
-                new Person("인종", "조선 제12대 왕", Kingdom.JOSEON, PersonType.KING, 1544, 1545),
-                new Person("명종", "조선 제13대 왕", Kingdom.JOSEON, PersonType.KING, 1545, 1567),
-                new Person("선조", "조선 제14대 왕", Kingdom.JOSEON, PersonType.KING, 1567, 1608),
-                new Person("광해군", "조선 제15대 왕", Kingdom.JOSEON, PersonType.KING, 1608, 1623),
-                new Person("인조", "조선 제16대 왕", Kingdom.JOSEON, PersonType.KING, 1623, 1649),
-                new Person("효종", "조선 제17대 왕", Kingdom.JOSEON, PersonType.KING, 1649, 1659),
-                new Person("현종", "조선 제18대 왕", Kingdom.JOSEON, PersonType.KING, 1659, 1674),
-                new Person("숙종", "조선 제19대 왕", Kingdom.JOSEON, PersonType.KING, 1674, 1720),
-                new Person("경종", "조선 제20대 왕", Kingdom.JOSEON, PersonType.KING, 1720, 1724),
-                new Person("영조", "조선 제21대 왕", Kingdom.JOSEON, PersonType.KING, 1724, 1776),
-                new Person("정조", "조선 제22대 왕", Kingdom.JOSEON, PersonType.KING, 1776, 1800),
-                new Person("순조", "조선 제23대 왕", Kingdom.JOSEON, PersonType.KING, 1800, 1834),
-                new Person("헌종", "조선 제24대 왕", Kingdom.JOSEON, PersonType.KING, 1834, 1849),
-                new Person("철종", "조선 제25대 왕", Kingdom.JOSEON, PersonType.KING, 1849, 1863),
-                new Person("고종", "조선 제26대 왕", Kingdom.JOSEON, PersonType.KING, 1863, 1897),
-                new Person("순종", "조선 제27대 왕", Kingdom.JOSEON, PersonType.KING, 1907, 1910),
+                new Person("태조", "고려 말 무장 출신으로 위화도 회군을 계기로 실권을 장악한 뒤 1392년 조선을 건국했다. 한양 천도를 단행해 새 왕조의 기틀을 마련했다.", "조선을 건국한 초대 왕", Kingdom.JOSEON, PersonType.KING, 1392, 1398),
+                new Person("정종", "태조의 둘째 아들로, 형제간 왕위 다툼(1차 왕자의 난) 이후 왕위에 올랐다. 실권은 동생 이방원(훗날 태종)에게 있었고 재위 2년 만에 양위했다.", "조선 제2대 왕", Kingdom.JOSEON, PersonType.KING, 1398, 1400),
+                new Person("태종", "두 차례 왕자의 난을 통해 권력을 장악하고 즉위했다. 사병 혁파와 육조직계제 시행 등으로 강력한 중앙집권 체제를 구축해 세종 대의 안정적 기반을 닦았다.", "왕권을 강화한 조선 제3대 왕", Kingdom.JOSEON, PersonType.KING, 1400, 1418),
+                new Person("세종", "훈민정음(한글)을 창제하고 집현전을 통해 학문과 과학기술을 크게 발전시켰다. 측우기, 앙부일구 등 과학 기구 개발과 4군 6진 개척 등 재위 기간 조선의 전성기를 이끌었다.", "훈민정음을 창제한 조선 제4대 왕", Kingdom.JOSEON, PersonType.KING, 1418, 1450),
+                new Person("문종", "세종의 장남으로 학문에 뛰어났으며 세자 시절부터 국정에 참여해 세종을 보필했다. 병약하여 즉위 2년여 만에 세상을 떠나 아들 단종에게 왕위를 물려주었다.", "조선 제5대 왕", Kingdom.JOSEON, PersonType.KING, 1450, 1452),
+                new Person("단종", "12세의 나이로 즉위했으나 숙부 수양대군(세조)이 계유정난을 일으켜 실권을 장악했다. 결국 왕위에서 쫓겨나 유배되었다가 죽음을 맞은 비극적 인물이다.", "숙부에게 왕위를 빼앗긴 비운의 왕", Kingdom.JOSEON, PersonType.KING, 1452, 1455),
+                new Person("세조", "조카 단종의 왕위를 무력으로 찬탈해 즉위했다. 왕권 강화를 위해 육조직계제를 부활시키고 경국대전 편찬을 시작하는 등 통치 체제를 정비했다.", "계유정난으로 즉위한 조선 제7대 왕", Kingdom.JOSEON, PersonType.KING, 1455, 1468),
+                new Person("예종", "세조의 둘째 아들로 즉위했으나 병약하여 재위 1년여 만에 사망했다. 짧은 재위 기간으로 뚜렷한 치적을 남기지 못했다.", "조선 제8대 왕", Kingdom.JOSEON, PersonType.KING, 1468, 1469),
+                new Person("성종", "세조 대부터 편찬이 시작된 경국대전을 완성·반포해 조선의 법치 체계를 정립했다. 홍문관을 설치하고 학문을 장려하는 등 문물제도를 정비했다.", "경국대전을 완성한 조선 제9대 왕", Kingdom.JOSEON, PersonType.KING, 1469, 1494),
+                new Person("연산군", "두 차례의 사화(무오사화, 갑자사화)를 일으켜 많은 신하를 숙청하고 폭정을 일삼았다. 결국 중종반정으로 왕위에서 쫓겨났다.", "폭정으로 폐위된 조선 제10대 왕", Kingdom.JOSEON, PersonType.KING, 1494, 1506),
+                new Person("중종", "중종반정으로 연산군을 몰아내고 왕위에 올랐다. 조광조를 등용해 개혁을 시도했으나 기묘사화로 실패로 돌아갔다.", "반정으로 즉위한 조선 제11대 왕", Kingdom.JOSEON, PersonType.KING, 1506, 1544),
+                new Person("인종", "중종의 장남으로 효심이 깊고 학문을 즐겼다고 전해진다. 즉위 8개월 만에 병으로 승하해 짧은 재위를 남겼다.", "조선 제12대 왕", Kingdom.JOSEON, PersonType.KING, 1544, 1545),
+                new Person("명종", "어린 나이에 즉위해 어머니 문정왕후가 수렴청정을 했다. 외척 세력 간 권력 다툼(을사사화 등)이 이어진 시기였다.", "조선 제13대 왕", Kingdom.JOSEON, PersonType.KING, 1545, 1567),
+                new Person("선조", "재위 중 임진왜란(1592)이 발발해 국토가 큰 피해를 입었다. 이순신, 의병들의 활약으로 전쟁을 극복했으나 전후 국가 재건이라는 과제를 남겼다.", "임진왜란을 겪은 조선 제14대 왕", Kingdom.JOSEON, PersonType.KING, 1567, 1608),
+                new Person("광해군", "명과 후금 사이에서 중립적 실리 외교를 펼쳐 전쟁을 피하고자 했다. 그러나 인조반정으로 폐위되어 왕으로 인정받지 못했다.", "실리 외교를 펼친 조선 제15대 왕", Kingdom.JOSEON, PersonType.KING, 1608, 1623),
+                new Person("인조", "인조반정으로 광해군을 몰아내고 즉위했다. 재위 중 정묘호란과 병자호란을 겪었으며, 청 태종에게 삼전도에서 항복한 것으로 알려져 있다.", "병자호란을 겪은 조선 제16대 왕", Kingdom.JOSEON, PersonType.KING, 1623, 1649),
+                new Person("효종", "병자호란 이후 청에 볼모로 잡혀갔던 경험을 바탕으로 북벌 계획을 추진했다. 군비 강화에 힘썼으나 실현되지는 못했다.", "북벌을 추진한 조선 제17대 왕", Kingdom.JOSEON, PersonType.KING, 1649, 1659),
+                new Person("현종", "재위 기간 중 두 차례의 예송논쟁(왕실 예법을 둘러싼 서인·남인 간 대립)이 벌어져 정치적 갈등이 심화되었다.", "조선 제18대 왕", Kingdom.JOSEON, PersonType.KING, 1659, 1674),
+                new Person("숙종", "환국(정치 세력 교체)을 통해 강력한 왕권을 행사했다. 대동법 확대 시행과 상평통보 유통 등 경제 정책도 추진했다.", "왕권을 강화한 조선 제19대 왕", Kingdom.JOSEON, PersonType.KING, 1674, 1720),
+                new Person("경종", "숙종의 장남으로 즉위했으나 병약했고, 노론과 소론 간 정쟁이 극심한 시기를 보냈다. 재위 4년 만에 승하했다.", "조선 제20대 왕", Kingdom.JOSEON, PersonType.KING, 1720, 1724),
+                new Person("영조", "조선 왕 중 가장 긴 재위(52년)를 기록했으며 탕평책으로 붕당 갈등 완화를 시도했다. 아들 사도세자를 뒤주에 가두어 죽게 한 비극으로도 알려져 있다.", "탕평책을 편 조선 제21대 왕", Kingdom.JOSEON, PersonType.KING, 1724, 1776),
+                new Person("정조", "규장각을 설치해 인재를 양성하고 수원 화성을 건설하는 등 개혁 정책을 펼쳤다. 아버지 사도세자의 명예 회복에도 힘썼다.", "개혁을 추진한 조선 제22대 왕", Kingdom.JOSEON, PersonType.KING, 1776, 1800),
+                new Person("순조", "11세에 즉위해 안동 김씨 등 외척이 권력을 장악하는 세도정치가 본격화된 시기다. 홍경래의 난 등 사회 불안이 확산되었다.", "조선 제23대 왕", Kingdom.JOSEON, PersonType.KING, 1800, 1834),
+                new Person("헌종", "8세의 어린 나이로 즉위해 세도정치가 지속되었다. 재위 중 천주교 박해(기해박해)가 있었다.", "조선 제24대 왕", Kingdom.JOSEON, PersonType.KING, 1834, 1849),
+                new Person("철종", "왕실과 거리가 먼 강화도에서 평민처럼 자라다가 갑작스레 왕위에 올라 '강화도령'으로 불렸다. 실권 없이 안동 김씨 세도정치가 이어졌다.", "강화도령으로 불린 조선 제25대 왕", Kingdom.JOSEON, PersonType.KING, 1849, 1863),
+                new Person("고종", "어린 나이에 즉위해 흥선대원군이 섭정했고, 이후 개화와 근대화를 추진했다. 1897년 대한제국을 선포하고 황제로 즉위했다.", "조선 제26대 왕이자 대한제국 초대 황제", Kingdom.JOSEON, PersonType.KING, 1863, 1897),
+                new Person("순종", "대한제국 제2대 황제로 즉위했으나 1910년 한일병합으로 국권을 상실하며 조선 왕조의 마지막 군주가 되었다.", "조선의 마지막 왕", Kingdom.JOSEON, PersonType.KING, 1907, 1910),
 
                 // ==================================================
                 // 조선 - 주요 인물
                 // ==================================================
 
-                new Person("이순신", "임진왜란을 이끈 조선 장군", Kingdom.JOSEON, PersonType.GENERAL, 1576, 1598),
-                new Person("장영실", "조선의 과학자", Kingdom.JOSEON, PersonType.INVENTOR, 1400, 1450),
-                new Person("허준", "동의보감을 편찬한 의학자", Kingdom.JOSEON, PersonType.SCHOLAR, 1569, 1615),
-                new Person("정약용", "실학자이자 개혁 사상가", Kingdom.JOSEON, PersonType.SCHOLAR, 1762, 1836),
-                new Person("이황", "성리학자", Kingdom.JOSEON, PersonType.SCHOLAR, 1501, 1570),
-                new Person("이이", "성리학자", Kingdom.JOSEON, PersonType.SCHOLAR, 1536, 1584),
+                new Person("이순신", "임진왜란 당시 거북선과 학익진 전법으로 명량·한산도 대첩 등을 승리로 이끌었다. 노량해전에서 전사했으나 조선을 구한 명장으로 추앙받는다.", "임진왜란을 승리로 이끈 명장", Kingdom.JOSEON, PersonType.GENERAL, 1576, 1598),
+                new Person("장영실", "노비 출신이었으나 세종의 발탁으로 관직에 올라 측우기, 앙부일구(해시계), 자격루(물시계) 등을 개발했다. 조선 과학기술 발전에 크게 기여했다.", "세종 대의 과학 기술자", Kingdom.JOSEON, PersonType.INVENTOR, 1400, 1450),
+                new Person("허준", "선조·광해군 대의 어의로, 조선 최고의 의학서로 꼽히는 동의보감을 편찬했다. 이 책은 이후 한의학 발전에 지대한 영향을 미쳤다.", "동의보감을 편찬한 의학자", Kingdom.JOSEON, PersonType.SCHOLAR, 1569, 1615),
+                new Person("정약용", "조선 후기 실학자로 목민심서, 경세유표 등 개혁적 저술을 남겼다. 수원 화성 축조 시 거중기를 고안하는 등 실용적 학문에도 능했다.", "실학을 집대성한 학자", Kingdom.JOSEON, PersonType.SCHOLAR, 1762, 1836),
+                new Person("이황", "호는 퇴계로, 조선 성리학을 체계화한 대표적 학자다. 도산서원을 세워 후학을 양성했으며 이(理)를 중시하는 학풍을 남겼다.", "조선을 대표하는 성리학자", Kingdom.JOSEON, PersonType.SCHOLAR, 1501, 1570),
+                new Person("이이", "호는 율곡으로, 이황과 함께 조선 성리학의 양대 산맥으로 꼽힌다. 십만양병설 등 현실 개혁론을 주장한 경세가이기도 했다.", "조선을 대표하는 성리학자", Kingdom.JOSEON, PersonType.SCHOLAR, 1536, 1584),
 
                 // ==================================================
                 // 개화기
                 // ==================================================
 
-                new Person("명성황후", "조선의 왕비로 개화기와 대한제국 성립 과정에서 중요한 역할을 한 인물", Kingdom.JOSEON, PersonType.POLITICIAN, 1866, 1895),
-                new Person("고종", "조선 제26대 왕이자 대한제국 초대 황제", Kingdom.KOREAN_EMPIRE, PersonType.KING, 1897, 1907),
+                new Person("명성황후", "고종의 왕비로 개화 정책과 외교에 깊이 관여했다. 1895년 일본의 개입으로 시해되는 을미사변의 희생자가 되었다.", "개화기 대한제국의 왕비", Kingdom.JOSEON, PersonType.POLITICIAN, 1866, 1895),
+                new Person("고종", "1897년 대한제국을 선포하고 황제로 즉위해 자주독립국임을 대내외에 알렸다. 그러나 이후 일본의 침탈이 가속화되며 국권을 지키지 못했다.", "대한제국을 선포한 초대 황제", Kingdom.KOREAN_EMPIRE, PersonType.KING, 1897, 1907),
 
                 // ==================================================
                 // 일제강점기
                 // ==================================================
 
-                new Person("안중근", "독립운동가", Kingdom.JAPANESE_COLONY, PersonType.INDEPENDENCE_ACTIVIST, 1905, 1910),
-                new Person("유관순", "3·1 운동 독립운동가", Kingdom.JAPANESE_COLONY, PersonType.INDEPENDENCE_ACTIVIST, 1919, 1920),
-                new Person("김구", "대한민국 임시정부 지도자", Kingdom.JAPANESE_COLONY, PersonType.POLITICIAN, 1919, 1945),
+                new Person("안중근", "1909년 하얼빈에서 이토 히로부미를 저격해 처단했다. 뤼순 감옥에서 순국하기까지 의연한 태도로 독립 의지를 알린 인물이다.", "하얼빈에서 의거를 일으킨 독립운동가", Kingdom.JAPANESE_COLONY, PersonType.INDEPENDENCE_ACTIVIST, 1905, 1910),
+                new Person("유관순", "3·1 운동 당시 아우내 장터 만세운동을 주도하다 체포되어 옥고를 치렀다. 옥중에서도 저항을 멈추지 않다 순국했다.", "3·1 운동을 이끈 독립운동가", Kingdom.JAPANESE_COLONY, PersonType.INDEPENDENCE_ACTIVIST, 1919, 1920),
+                new Person("김구", "상하이 대한민국 임시정부의 주석으로 독립운동을 이끌었다. 광복 후에는 통일 정부 수립을 위해 힘썼다.", "대한민국 임시정부를 이끈 지도자", Kingdom.JAPANESE_COLONY, PersonType.POLITICIAN, 1919, 1945),
 
                 // ==================================================
                 // 대한민국 제1공화국
                 // ==================================================
 
-                new Person("이승만", "대한민국 제1대 대통령", Kingdom.FIRST_REPUBLIC_OF_KOREA, PersonType.POLITICIAN, 1948, 1960)
+                new Person("이승만", "임시정부 대통령을 지냈으며 광복 후 1948년 대한민국 초대 대통령으로 취임했다. 이후 장기 집권을 시도하다 4·19 혁명으로 하야했다.", "대한민국 초대 대통령", Kingdom.FIRST_REPUBLIC_OF_KOREA, PersonType.POLITICIAN, 1948, 1960)
         );
 
         public static Person findByName(String name) {

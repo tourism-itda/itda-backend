@@ -21,6 +21,10 @@ public class Person {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    // 카드/목록용 1~2줄 짧은 소개. description(상세 설명)과 별도로 관리한다.
+    @Column(length = 255)
+    private String summary;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Kingdom kingdom;
@@ -36,6 +40,7 @@ public class Person {
     public Person(
             String name,
             String description,
+            String summary,
             Kingdom kingdom,
             PersonType type,
             Integer startYear,
@@ -43,6 +48,7 @@ public class Person {
     ) {
         this.name = name;
         this.description = description;
+        this.summary = summary;
         this.kingdom = kingdom;
         this.type = type;
         this.startYear = startYear;
