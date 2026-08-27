@@ -4,10 +4,12 @@ import com.tourism.itda.explore.data.HistoricalPersonData;
 import com.tourism.itda.explore.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Order(1)
 public class PersonDataInitializer implements CommandLineRunner {
 
     private final PersonRepository personRepository;

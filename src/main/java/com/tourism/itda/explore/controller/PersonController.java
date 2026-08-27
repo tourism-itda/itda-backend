@@ -2,6 +2,7 @@ package com.tourism.itda.explore.controller;
 
 import com.tourism.itda.explore.dto.KingdomContentResponse;
 import com.tourism.itda.explore.dto.PersonResponse;
+import com.tourism.itda.explore.dto.RelatedPlaceResponse;
 import com.tourism.itda.explore.service.PersonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -34,5 +35,12 @@ public class PersonController {
             @PathVariable Long personId
     ) {
         return personService.getContentsByPerson(personId);
+    }
+
+    @GetMapping("/{personId}/places")
+    public List<RelatedPlaceResponse> getPlacesByPerson(
+            @PathVariable Long personId
+    ) {
+        return personService.getPlacesByPerson(personId);
     }
 }
