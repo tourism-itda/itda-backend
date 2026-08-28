@@ -20,7 +20,10 @@ public class PersonDataInitializer implements CommandLineRunner {
 
         for (Person source : HistoricalPersonData.PEOPLE) {
 
-            personRepository.findByName(source.getName())
+            // findByName(이름만)으로 조회하면 같은 이름이 서로 다른 kingdom으로 존재해야 하는
+            // 인물(예: 고종 = 조선 왕 / 대한제국 황제)이 한 행으로 뭉개진다. PlaceDataInitializer가
+            // (이름, kingdom) 조합으로 조회하므로 여기도 동일한 키로 맞춘다.
+            personRepository.findByNameAndKingdom(source.getName(), source.getKingdom())
                     .ifPresentOrElse(
                             existing -> existing.update(
                                     source.getDescription(),

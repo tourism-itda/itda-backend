@@ -183,16 +183,21 @@ public class ContentService {
 
             var c = classification.get();
 
-            classifiedPerson =
-                    personRepository.findByName(c.personName())
-                            .orElse(null);
+            Kingdom kingdom =
+                    contentClassifier.parseKingdom(c.kingdom());
+
+            // 같은 이름이 서로 다른 kingdom으로 존재할 수 있다(예: 고종 = JOSEON/KOREAN_EMPIRE
+            // 두 행). kingdom을 모르면 이름만으로는 어느 행인지 확정할 수 없고(findByName은
+            // 동명이인이 있으면 IncorrectResultSizeDataAccessException), 잘못 아무 행이나
+            // 골라 연결하는 것보다는 아예 매칭하지 않는 게 안전하다. person 연결은 부가 정보라
+            // classifiedPerson이 null이어도 콘텐츠 저장 자체는 정상 진행된다(아래 전부 null-safe).
+            classifiedPerson = kingdom != null
+                    ? personRepository.findByNameAndKingdom(c.personName(), kingdom).orElse(null)
+                    : null;
 
             System.out.println("=== PERSON DEBUG ===");
             System.out.println("Claude personName = [" + c.personName() + "]");
             System.out.println("classifiedPerson = " + classifiedPerson);
-
-            Kingdom kingdom =
-                    contentClassifier.parseKingdom(c.kingdom());
 
             PersonType personType =
                     contentClassifier.parsePersonType(c.personType());
