@@ -1,0 +1,97 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ dev ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build jar
+        run: ./gradlew bootJar -x test
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Copy docker-compose to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: docker-compose.yml
+          target: ~/itda/
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        env:
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: DB_USERNAME,DB_PASSWORD,JWT_SECRET,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_API_KEY,TMDB_API_KEY,TMDB_ACCESS_TOKEN,KAKAO_REST_API_KEY,KAKAO_CLIENT_SECRET,ANTHROPIC_API_KEY,AWS_ACCESS_KEY,AWS_SECRET_KEY
+          script: |
+            mkdir -p ~/itda
+
+            cat > ~/itda/.env << EOF
+            DB_USERNAME=${DB_USERNAME}
+            DB_PASSWORD=${DB_PASSWORD}
+            JWT_SECRET=${JWT_SECRET}
+            MAIL_USERNAME=${MAIL_USERNAME}
+            MAIL_PASSWORD=${MAIL_PASSWORD}
+            PUBLIC_DATA_API_KEY=${PUBLIC_DATA_API_KEY}
+            TMDB_API_KEY=${TMDB_API_KEY}
+            TMDB_ACCESS_TOKEN=${TMDB_ACCESS_TOKEN}
+            KAKAO_REST_API_KEY=${KAKAO_REST_API_KEY}
+            KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
+            ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+            AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+            AWS_SECRET_KEY=${AWS_SECRET_KEY}
+            EOF
+
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose -f ~/itda/docker-compose.yml pull app
+            docker compose -f ~/itda/docker-compose.yml up -d
+            docker image prune -f

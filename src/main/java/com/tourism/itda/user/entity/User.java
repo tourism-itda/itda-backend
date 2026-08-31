@@ -102,6 +102,14 @@ public class User {
     }
 
     // 상태 변경이 필요한 필드만 의도가 드러나는 메서드로 노출
+    public void changeName(String name) {
+        this.name = name;
+    }
+
+    public void changeEmail(String email) {
+        this.email = email;
+    }
+
     public void changeNickname(String nickname) {
         this.nickname = nickname;
     }

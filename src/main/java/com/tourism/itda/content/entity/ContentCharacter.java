@@ -19,6 +19,9 @@ public class ContentCharacter {
 
     private String characterName;
 
+    private Boolean isHistorical;
+
+    private Integer sortOrder;
 
     public ContentCharacter(
             Long contentId,
@@ -28,5 +31,13 @@ public class ContentCharacter {
         this.contentId = contentId;
         this.actorName = actorName;
         this.characterName = characterName;
+    }
+
+    public void changeIsHistorical(Boolean isHistorical) {
+        this.isHistorical = isHistorical;
+    }
+
+    public void changeSortOrder(Integer sortOrder) {
+        this.sortOrder = sortOrder;
     }
 }

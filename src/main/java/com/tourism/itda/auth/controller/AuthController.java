@@ -17,7 +17,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public UserResponse signup(@RequestBody SignupRequest request){
+    public LoginResponse signup(@RequestBody SignupRequest request){
         return authService.signup(
                 request.loginId(),
                 request.password(),
@@ -37,9 +37,9 @@ public class AuthController {
         );
     }
 
-    @GetMapping("/kakao/callback")
-    public LoginResponse kakaoCallback(@RequestParam String code){
-        return authService.kakaoLogin(code);
+    @PostMapping("/kakao")
+    public LoginResponse kakaoLogin(@RequestBody KakaoLoginRequest request){
+        return authService.kakaoLogin(request.code());
     }
 
     @GetMapping("/session")

@@ -1,9 +1,12 @@
 package com.tourism.itda.user.controller;
 
 import com.tourism.itda.user.dto.CheckAvailableResponse;
+import com.tourism.itda.user.dto.PresignedUrlResponse;
 import com.tourism.itda.user.dto.SuccessResponse;
 import com.tourism.itda.user.dto.UpdateProfileRequest;
+import com.tourism.itda.user.dto.UpdateProfileResponse;
 import com.tourism.itda.user.dto.UserProfileResponse;
+import com.tourism.itda.user.service.S3Service;
 import com.tourism.itda.user.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final S3Service s3Service;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, S3Service s3Service) {
         this.userService = userService;
+        this.s3Service = s3Service;
     }
 
     @GetMapping("/check-login-id")
@@ -36,10 +41,10 @@ public class UserController {
     }
 
     @PatchMapping("/me")
-    public UserProfileResponse updateMyProfile(Authentication authentication,
-                                               @RequestBody UpdateProfileRequest request) {
+    public UpdateProfileResponse updateMyProfile(Authentication authentication,
+                                                 @RequestBody UpdateProfileRequest request) {
         Long userId = (Long) authentication.getPrincipal();
-        return userService.updateMyProfile(userId, request);
+        return new UpdateProfileResponse(userService.updateMyProfile(userId, request));
     }
 
     @DeleteMapping("/me")
@@ -49,5 +54,13 @@ public class UserController {
         return SuccessResponse.ok();
     }
 
+    @GetMapping("/me/avatar/presigned")
+    public PresignedUrlResponse getAvatarPresignedUrl(Authentication authentication,
+                                                       @RequestParam String contentType) {
+        Long userId = (Long) authentication.getPrincipal();
+        String presignedUrl = s3Service.generatePresignedUrl(userId, contentType);
+        String publicUrl = s3Service.getPublicUrl(presignedUrl);
+        return new PresignedUrlResponse(presignedUrl, publicUrl);
+    }
 
 }

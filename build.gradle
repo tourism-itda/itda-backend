@@ -17,6 +17,10 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+	anthropicVersion = '2.34.0'
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -29,6 +33,17 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 	runtimeOnly 'org.postgresql:postgresql'
+
+	// Docker/PostgreSQL 을 못 띄우는 환경에서의 스모크 테스트용 (h2 프로파일 한정)
+	runtimeOnly 'com.h2database:h2'
+
+	// Claude API — 추천 촬영지 큐레이션(SpotCurator)에만 사용.
+	// 동선·거리·순서·운영시간 판정은 전부 코드가 하고, LLM 은 코드가 좁힌 후보 중
+	// 선택 + 이유 작성만 담당한다. 키가 없으면 점수 1등으로 폴백하므로
+	// 이 의존성 없이도 기능 자체는 동작한다.
+	implementation "com.anthropic:anthropic-java:${anthropicVersion}"
+	implementation 'software.amazon.awssdk:s3:2.26.29'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
