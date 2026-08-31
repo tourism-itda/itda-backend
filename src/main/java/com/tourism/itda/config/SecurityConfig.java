@@ -47,7 +47,9 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://itda-frontend-peach.vercel.app"
+                "https://itda-frontend-peach.vercel.app",
+                "https://itda-travel.com",
+                "https://www.itda-travel.com"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
