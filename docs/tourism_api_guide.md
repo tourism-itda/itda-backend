@@ -1,5 +1,37 @@
 # 관광 API 가이드
 
+> ## ⚠️ 실호출로 확인한 정정 사항 (2026-08-26)
+>
+> **이 문서 아래쪽 파라미터 표에는 실제와 다른 부분이 있다.** 실제 키로 호출해 확인한 결과를
+> 여기 먼저 적어 둔다. 아래 표를 그대로 믿고 짜면 호출이 실패한다.
+>
+> ### KorService2 가 거부하는 파라미터 (`INVALID_REQUEST_PARAMETER_ERROR`)
+>
+> | 오퍼레이션 | 거부되는 파라미터 |
+> |---|---|
+> | 모든 목록 조회 (`searchKeyword2`, `locationBasedList2`, `areaBasedSyncList2`, `searchFestival2`) | **`listYN`** |
+> | `detailCommon2` | **`contentId` 외 전부** — `contentTypeId`, `defaultYN`, `overviewYN`, `addrinfoYN`, `mapinfoYN`, `firstImageYN` |
+> | `detailImage2` | **`subImageYN`** (`imageYN` 은 유효) |
+>
+> `detailCommon2` 는 파라미터 없이도 overview·좌표·주소·대표이미지를 기본으로 내려준다.
+> 이들은 KorService**1** 시절 파라미터다. 아래 3장·6장의 표에 남아 있으니 주의.
+>
+> ### `TarRlteTarService1/searchKeyword1` (8장) — 필수 파라미터가 다르다
+>
+> - 8장 표는 `signguCd`·`baseYm` 을 선택(X)으로 적어놨지만 **셋 다 필수**다.
+>   빠지면 `NO_MANDATORY_REQUEST_PARAMETERS_ERROR`.
+> - **`signguCd` 는 구(區) 단위까지 정확해야 한다.**
+>   `수원화성` + `41110`(수원시) → **0건** / `41115`(팔달구) → **50건**
+>   → 주소에서 뽑으려면 `global.tourapi.LdongCodeResolver` 를 쓴다.
+> - 커버리지가 전부가 아니다. 경복궁·수원화성·한국민속촌·뮤지엄산은 나오지만
+>   **창덕궁·남한산성·대장금파크는 0건.** 호출부는 폴백을 준비해야 한다.
+> - `baseYm` 은 202412~202606 어느 값이든 같은 결과다. 확인된 `202503` 을 기본값으로 쓴다.
+>
+> ### `searchKeyword2` 는 제목(title) 부분일치다
+>
+> overview 는 **검색 대상이 아니다.** "소개글에 작품명이 있는 곳"은 이 API 로 못 찾는다.
+> 콘텐츠-장소 매핑을 어떻게 푸는지는 **`docs/콘텐츠-장소_매핑_설계.md`** 참고.
+
 ## 공통 코드
 
 ### arrange (정렬 기준)

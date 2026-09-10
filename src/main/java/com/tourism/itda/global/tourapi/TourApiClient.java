@@ -40,6 +40,12 @@ public class TourApiClient {
     private static final String LOCATION_BASED_LIST = "locationBasedList2";
     private static final String DETAIL_INTRO = "detailIntro2";
     private static final String DETAIL_COMMON = "detailCommon2";
+    private static final String DETAIL_INFO = "detailInfo2";
+    private static final String SEARCH_KEYWORD = "searchKeyword2";
+    private static final String LDONG_CODE = "ldongCode2";
+
+    /** 여행코스. detailInfo2 로 코스에 속한 장소 목록을 꺼낼 수 있다. */
+    public static final String CONTENT_TYPE_COURSE = "25";
 
     private final TourApiProperties properties;
     private final ObjectMapper objectMapper;
@@ -90,19 +96,19 @@ public class TourApiClient {
      *
      * <p>사용자가 후보를 확정할 때 쓴다. 클라이언트가 보낸 이름·좌표를 그대로 저장하면
      * 임의의 place 행을 밀어 넣을 수 있으므로, 서버가 관광API 에서 다시 받아 저장한다.
+     *
+     * <p><b>KorService2 의 detailCommon2 는 {@code contentId} 외의 파라미터를 전부 거부한다.</b>
+     * KorService1 시절의 {@code defaultYN/overviewYN/addrinfoYN/mapinfoYN/firstImageYN} 은 물론
+     * {@code contentTypeId} 까지 {@code INVALID_REQUEST_PARAMETER_ERROR} 가 난다.
+     * overview·좌표·주소·대표이미지는 파라미터 없이도 기본으로 내려온다.
+     * (2026-08-26 실호출 확인. 이걸 붙여 보내는 동안 이 메서드는 항상 실패하고 있었다.)
      */
     public Optional<TourApiPlace> findDetail(String contentId, PlaceType type) {
         if (!properties.isConfigured() || contentId == null || contentId.isBlank()) {
             return Optional.empty();
         }
 
-        JsonNode items = callForItems(DETAIL_COMMON, Map.of(
-                "contentId", contentId,
-                "defaultYN", "Y",
-                "firstImageYN", "Y",
-                "addrinfoYN", "Y",
-                "mapinfoYN", "Y",
-                "overviewYN", "Y"));
+        JsonNode items = callForItems(DETAIL_COMMON, Map.of("contentId", contentId));
 
         for (JsonNode item : items) {
             Double lng = parseDouble(text(item, "mapx"));
@@ -111,14 +117,10 @@ public class TourApiClient {
                 continue;
             }
             String cat3 = text(item, "cat3");
-            String contentTypeId = text(item, "contenttypeid");
-            PlaceType resolved = (contentTypeId == null)
-                    ? type
-                    : TourApiCategory.toPlaceType(contentTypeId, cat3);
 
             return Optional.of(new TourApiPlace(
                     contentId,
-                    resolved,
+                    resolvePlaceType(text(item, "contenttypeid"), cat3, type),
                     text(item, "title"),
                     cat3,
                     firstNonBlank(text(item, "addr1"), text(item, "addr2")),
@@ -128,6 +130,132 @@ public class TourApiClient {
                     stripHtml(text(item, "overview"))));
         }
         return Optional.empty();
+    }
+
+    /**
+     * 제목 부분일치로 장소를 찾는다. 콘텐츠-장소 매핑의 앵커 발견에 쓴다.
+     *
+     * <p>searchKeyword2 는 <b>제목만</b> 검색한다 (overview 는 검색 대상이 아니다).
+     * 그래서 "작품명"·"인물명"·"지명"처럼 장소 이름에 실제로 박혀 있는 말로 물어야 한다.
+     *
+     * @param contentTypeId 관광API 콘텐츠 타입. null 이면 전체
+     */
+    public List<TourApiPlace> searchByTitle(String keyword, String contentTypeId, int limit) {
+        if (!properties.isConfigured() || keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+
+        Map<String, String> params = new java.util.LinkedHashMap<>();
+        params.put("keyword", keyword);
+        params.put("numOfRows", String.valueOf(limit));
+        params.put("pageNo", "1");
+        if (contentTypeId != null) {
+            params.put("contentTypeId", contentTypeId);
+        }
+
+        List<TourApiPlace> result = new ArrayList<>();
+        for (JsonNode item : callForItems(SEARCH_KEYWORD, params)) {
+            String id = text(item, "contentid");
+            if (id == null) {
+                continue;
+            }
+            // 여행코스(25)·축제(15) 는 좌표가 비어 있는 경우가 흔하다. 앵커 후보로는
+            // 이름만으로도 의미가 있으므로 좌표 없음을 이유로 버리지 않는다.
+            Double lng = parseDouble(text(item, "mapx"));
+            Double lat = parseDouble(text(item, "mapy"));
+            String cat3 = text(item, "cat3");
+
+            result.add(new TourApiPlace(
+                    id,
+                    resolvePlaceType(text(item, "contenttypeid"), cat3, PlaceType.SPOT),
+                    text(item, "title"),
+                    cat3,
+                    firstNonBlank(text(item, "addr1"), text(item, "addr2")),
+                    firstNonBlank(text(item, "firstimage"), text(item, "firstimage2")),
+                    (lat == null || lng == null) ? null : new Coord(lat, lng),
+                    null,
+                    null));
+        }
+        return result;
+    }
+
+    /**
+     * 여행코스(contentTypeId=25)에 속한 장소들을 순서대로 돌려준다.
+     *
+     * <p>관광공사가 이미 큐레이션해 둔 코스다. 예: "과거급제를 꿈꾸던 청년 이순신이 살던
+     * 그곳에서 놀기" → 현충사 · 아산 외암리 민속마을 · 점심식사(목화반점) · 당림미술관 ...
+     * {@code subcontentid} 가 실제 관광API contentId 라 좌표·영업시간까지 이어서 조회할 수 있다.
+     *
+     * @return 코스가 아니거나 조회 실패면 빈 리스트
+     */
+    public List<TourApiCourseStop> findCourseStops(String courseContentId) {
+        if (!properties.isConfigured() || courseContentId == null || courseContentId.isBlank()) {
+            return List.of();
+        }
+
+        JsonNode items = callForItems(DETAIL_INFO, Map.of(
+                "contentId", courseContentId,
+                "contentTypeId", CONTENT_TYPE_COURSE,
+                "numOfRows", "50",
+                "pageNo", "1"));
+
+        List<TourApiCourseStop> stops = new ArrayList<>();
+        for (JsonNode item : items) {
+            String subContentId = text(item, "subcontentid");
+            String name = text(item, "subname");
+            if (subContentId == null || name == null) {
+                continue;
+            }
+            stops.add(new TourApiCourseStop(
+                    subContentId, name, stripHtml(text(item, "subdetailoverview"))));
+        }
+        return stops;
+    }
+
+    /**
+     * 법정동 코드를 조회한다. 연관관광지(TarRlteTar)가 요구하는 {@code signguCd} 를 만들기 위한 것이다.
+     *
+     * @param regnCd null 이면 시도 목록(2자리 code), 시도코드를 주면 그 아래 시군구 목록(3자리 code)
+     */
+    public List<LdongCode> findLdongCodes(String regnCd) {
+        if (!properties.isConfigured()) {
+            return List.of();
+        }
+
+        Map<String, String> params = new java.util.LinkedHashMap<>();
+        params.put("numOfRows", "100");
+        params.put("pageNo", "1");
+        if (regnCd != null) {
+            params.put("lDongRegnCd", regnCd);
+        }
+
+        List<LdongCode> codes = new ArrayList<>();
+        for (JsonNode item : callForItems(LDONG_CODE, params)) {
+            String code = text(item, "code");
+            String name = text(item, "name");
+            if (code != null && name != null) {
+                codes.add(new LdongCode(code, name));
+            }
+        }
+        return codes;
+    }
+
+    /**
+     * 관광API contentTypeId 를 우리 PlaceType 으로 옮긴다.
+     *
+     * <p>{@link TourApiCategory#toPlaceType} 은 12·39 외에는 예외를 던진다. 촬영지 앵커로
+     * 문화시설(14)·축제(15)·여행코스(25)도 다루게 되면서 그 예외가 조회 자체를 깨뜨리므로,
+     * 모르는 타입은 요청한 타입으로 되돌린다.
+     */
+    private static PlaceType resolvePlaceType(String contentTypeId, String cat3, PlaceType fallback) {
+        if (contentTypeId == null) {
+            return fallback;
+        }
+        try {
+            return TourApiCategory.toPlaceType(contentTypeId, cat3);
+        } catch (RuntimeException e) {
+            return fallback;
+        }
     }
 
     /**
