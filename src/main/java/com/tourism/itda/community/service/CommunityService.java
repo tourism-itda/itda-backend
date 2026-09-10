@@ -110,6 +110,7 @@ public class CommunityService {
                     Place p = placeMap.get(ip.getPlaceId());
                     return new CommunityStopView(
                             ip.getId(),
+                            ip.getPlaceId(),
                             ip.getVisitOrder(),
                             p != null ? p.getName() : null,
                             p != null ? p.getCategory() : null,
