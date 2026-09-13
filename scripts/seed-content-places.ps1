@@ -159,13 +159,31 @@ function Invoke-Tour {
     return @($item)
 }
 
+<#
+지역을 아는 경우 시도 코드를 함께 넘겨야 동명 장소가 안 섞인다 (설계 문서 3-2).
+실측 사고: 「인천」의 "자유공원" 이 광주 5·18 자유공원을 물어 왔다 — 전혀 다른 사건이다.
+
+⚠️ 지역 한정은 `areaCode` 가 아니라 **`lDongRegnCd`(법정동 시도코드)** 를 써야 한다.
+KorService2 의 `areaCode` 는 keyword 와 같이 주면 결과를 잘못 거른다 (2026-09-13 실측):
+
+    다부동                    → 1건      다부동 + areaCode=35(경북)      → 0건 ❌
+    다부동 + lDongRegnCd=47   → 1건 ✅
+    경복궁                    → 12건     경복궁 + areaCode=1(서울)       → 1건 ❌
+    경복궁 + lDongRegnCd=11   → 8건 ✅
+
+코드는 ldongCode2 로 받은 실제 값이다(areaCode 체계와 번호가 다르다):
+  11 서울 · 12 전남광주통합 · 26 부산 · 27 대구 · 28 인천 · 30 대전 · 31 울산
+  41 경기 · 43 충북 · 44 충남 · 47 경북 · 48 경남 · 50 제주 · 51 강원 · 52 전북
+  36110 세종
+#>
 function Search-TourKeyword {
-    param([string]$Keyword, [string]$ContentTypeId, [int]$Limit = 20)
+    param([string]$Keyword, [string]$ContentTypeId, [string]$LdongRegnCd, [int]$Limit = 20)
 
     if ([string]::IsNullOrWhiteSpace($Keyword)) { return @() }
 
     $p = @{ keyword = $Keyword; numOfRows = $Limit; pageNo = 1 }
     if ($ContentTypeId) { $p['contentTypeId'] = $ContentTypeId }
+    if ($LdongRegnCd) { $p['lDongRegnCd'] = $LdongRegnCd }
     return Invoke-Tour -Op 'searchKeyword2' -Params $p
 }
 
@@ -224,9 +242,26 @@ function Resolve-Grade {
         return 'B'
     }
     if ($Path -like 'B-*') { return 'A' }   # content_person 기반
-    if ($Path -like 'C-*') { return 'A' }   # 관광공사 큐레이션 코스
-    return 'B'                              # 경로 D — 사람이 준 지명
+    return 'B'                              # 경로 C(여행코스) · D(지명) — 아래 참고
 }
+
+<#
+경로 C 를 A등급에서 B 로 내린 이유 (2026-09-13 실측).
+
+설계 문서 3-1 은 경로 C(여행코스)를 "품질 최상 / A등급"으로 적어놨다. **실측은 달랐다.**
+코스 *제목* 은 관련이 있어도 *구성 장소* 전부가 관련 있는 건 아니다:
+
+  「노량: 죽음의 바다」 ← 코스 "이순신 장군의 흔적을 따라가는 여행"
+      → 파라다이스 스파 도고 · 당림미술관 · 외암민속마을      ← 스파 호텔과 미술관
+  「서울의 봄」        ← 코스 "청계천을 돌아 경복궁에서 인사동까지"
+      → 북촌한옥마을 · 인사동 · 청계천                        ← 12·12 군사반란과 무관
+  「안시성」          ← 코스 "고구려 역사 되짚어보는 역사기행"
+      → 구리타워 · 고대산 · 구인사(단양)
+
+문서 1-5 가 "점심식사(목화반점)까지 포함된 완성된 하루 코스"라고 쓴 그 특성이 문제다.
+**루트 골격으로는 훌륭하지만 앵커로는 부적절하다.** 앵커는 "이 작품과 관련된 곳"이어야 하고
+식당·스파는 그게 아니다. 그래서 사람 검수(B)로 돌린다.
+#>
 
 <#
 같은 B 등급 안에서의 정렬 순서.
@@ -234,8 +269,43 @@ function Resolve-Grade {
 전쟁·사극 콘텐츠에서는 **지명이 제목보다 훨씬 정확한 신호**다.
 「인천」의 제목 일치(인천대공원)보다 지명 일치(인천상륙작전기념관)가 먼저 보여야
 검수자가 위에서부터 훑다가 좋은 걸 만난다. 이 순서가 검수 품질을 결정한다.
+
+경로 순서도 실측으로 뒤집혔다. 문서 3-1 은 C(여행코스)를 최상으로 봤지만
+실제로 가장 정확한 건 사건·지명(D)이었다:
+
+    인천상륙작전기념관 · 제주4·3평화공원 · 독립기념관 · 낙동강승전기념관   ← 전부 경로 D
 #>
-$PathRank = @{ 'C-여행코스' = 0; 'B-인물' = 1; 'D-지명' = 2; 'A-제목' = 3 }
+$PathRank = @{ 'D-지명' = 0; 'B-인물' = 1; 'A-제목' = 2; 'C-여행코스' = 3 }
+
+<#
+같은 경로 안에서의 정렬 순서 — 검색어가 장소명을 얼마나 정확히 지목했는가.
+
+실측 사고: 「태극기 휘날리며」의 검색어 "낙동강" 으로 낙동강하구에코센터·낙동강 생태탐방선·
+낙동강30리 벚꽃축제가 앞자리를 다 먹고, 정작 **다부동전적기념관이 12개 중 11번째**로
+밀렸다. 검수자가 위에서부터 훑으면 좋은 걸 놓친다.
+
+검색어가 장소명과 같거나 장소명이 그걸로 시작하면 그 검색어는 장소를 **지목한** 것이고,
+이름 중간에 끼어 있으면 그냥 **지역명이 겹친** 것이다. 전자를 앞으로 올린다.
+#>
+function Get-MatchRank {
+    param([string]$PlaceName, [string]$Keyword)
+
+    # 경로 C 의 키워드는 "인물 / 코스명" 형태라 장소명과 비교할 게 없다.
+    # 코스 구성 장소는 작품과의 연결이 한 다리 건너이므로 가장 뒤로 보낸다.
+    if ($Keyword -like '* / *') { return 3 }
+
+    $name = $PlaceName -replace '\s', ''
+    $kw = $Keyword -replace '\s', ''
+    if (-not $kw) { return 3 }
+
+    if ($name -eq $kw) { return 0 }          # 인천상륙작전기념관 ← 인천상륙작전기념관
+    if ($name.StartsWith($kw)) { return 1 }  # 다부동전적기념관   ← 다부동
+    return 2                                 # 낙동강하구에코센터 ← 낙동강
+}
+
+# 앵커로서의 적합도. 축제(15)는 날짜가 맞아야 의미가 있어 앵커로는 뒤로 보낸다
+# (축제는 4-3 의 실시간 슬롯에서 따로 다룬다). 여행코스(25)는 좌표가 자주 비어 있다.
+$TypeRank = @{ '12' = 0; '14' = 0; '25' = 1; '15' = 2 }
 
 function ConvertTo-Candidate {
     param($Item, [string]$Path, [string]$RelationType, [string]$Keyword)
@@ -366,7 +436,13 @@ function Invoke-Discover {
             $cid = [string]$row.content_id
             if (-not $contents.ContainsKey($cid)) { continue }
             if ([string]::IsNullOrWhiteSpace($row.keyword)) { continue }
-            [void]$contents[$cid].Manual.Add($row.keyword.Trim())
+            # ldong 열은 선택이다. 있으면 동명 장소를 그 시도로 한정한다 (법정동 시도코드).
+            $ldong = ''
+            if ($row.PSObject.Properties['ldong']) { $ldong = [string]$row.ldong }
+            [void]$contents[$cid].Manual.Add([pscustomobject]@{
+                Name  = $row.keyword.Trim()
+                Ldong = $ldong.Trim()
+            })
             $manual++
         }
         Write-Step ('수동 키워드 {0}건 ({1})' -f $manual, $KeywordCsv)
@@ -391,7 +467,8 @@ function Invoke-Discover {
 
         $accepted = New-Object System.Collections.ArrayList
         $persons = @($t.PersonNames | Select-Object -Unique)
-        $manuals = @($t.Manual | Select-Object -Unique)
+        # 이름+지역이 같으면 같은 검색어다.
+        $manuals = @($t.Manual | Group-Object { $_.Name + '|' + $_.Ldong } | ForEach-Object { $_.Group[0] })
 
         # 경로 A — 작품 제목 직접. 세트장·테마파크는 이름에 작품명이 박혀 있다.
         # 등급은 Resolve-Grade 가 이름을 보고 매긴다 (제목이 흔한 낱말이면 C).
@@ -407,17 +484,22 @@ function Invoke-Discover {
 
         # 경로 D — 사람이 준 사건·지명. 「인천」→ 인천상륙작전기념관·월미도 처럼
         # **제목보다 지명이 훨씬 정확한 신호**인 경우가 많다 (전쟁·사극 콘텐츠에서 특히).
-        foreach ($n in $manuals) {
-            $found += Search-TourKeyword -Keyword $n -Limit 20 |
-                ForEach-Object { ConvertTo-Candidate $_ 'D-지명' 'HISTORICAL' $n }
+        foreach ($m in $manuals) {
+            $found += Search-TourKeyword -Keyword $m.Name -LdongRegnCd $m.Ldong -Limit 20 |
+                ForEach-Object { ConvertTo-Candidate $_ 'D-지명' 'HISTORICAL' $m.Name }
         }
 
         # 경로 C — 여행코스(25). 관광공사가 이미 큐레이션해 둔 코스라 품질이 가장 높다.
         # 인물명뿐 아니라 지명으로도 잘 잡힌다("남한산성" 등).
-        foreach ($n in ($persons + $manuals)) {
+        $courseTerms = @($persons) + @($manuals | ForEach-Object { $_.Name })
+        foreach ($n in ($courseTerms | Select-Object -Unique)) {
             $courses = Search-TourKeyword -Keyword $n -ContentTypeId '25' -Limit 5
             foreach ($course in $courses) {
+                # 코스 하나가 6~8곳을 뱉어 후보 정원을 독점하는 일이 있었다
+                # (「명량」 후보 12건이 전부 여행코스였고 울돌목·명량대첩이 밀려났다).
+                $perCourse = 0
                 foreach ($stop in (Get-CourseStops -CourseContentId ([string]$course.contentid))) {
+                    if ($perCourse -ge 3) { break }
                     $sub = [string]$stop.subcontentid
                     if (-not $sub) { continue }
 
@@ -428,6 +510,7 @@ function Invoke-Discover {
                     $cand = ConvertTo-Candidate $detail 'C-여행코스' 'HISTORICAL' ('{0} / {1}' -f $n, $course.title)
                     if (-not $cand.name) { $cand.name = [string]$stop.subname }
                     $found += $cand
+                    $perCourse++
                 }
             }
         }
@@ -436,9 +519,12 @@ function Invoke-Discover {
         # **여기서 2~3건으로 자르지 않는다** — 자르면 검수자가 고를 여지가 없어지고,
         # 잘린 자리에 하필 쓰레기만 남으면 그 작품은 통째로 앵커 0건이 된다.
         $gradeRank = @{ 'A' = 0; 'B' = 1; 'C' = 2 }
+        # 검색어가 장소를 얼마나 정확히 지목했는가(MatchRank)가 경로보다 강한 신호다 — 실측 기준.
         $found = @($found | Sort-Object `
             @{ Expression = { $gradeRank[$_.grade] } }, `
-            @{ Expression = { $PathRank[$_.path] } })
+            @{ Expression = { Get-MatchRank -PlaceName $_.name -Keyword $_.keyword } }, `
+            @{ Expression = { $PathRank[$_.path] } }, `
+            @{ Expression = { $t = $TypeRank[$_.content_type_id]; if ($null -eq $t) { 3 } else { $t } } })
 
         foreach ($c in $found) {
             if ($accepted.Count -ge $MaxCandidatesPerContent) { break }
@@ -457,7 +543,7 @@ function Invoke-Discover {
             Write-Host '    후보 0건 — 경로 D(사건·지명) 수동 보강 대상' -ForegroundColor Yellow
             [void]$rows.Add([pscustomobject]@{
                 approve = ''; content_id = $t.ContentId; content_title = $t.Title
-                path = '없음'; grade = ''; relation_type = ''; keyword = (($persons + $manuals) -join ';')
+                path = '없음'; grade = ''; relation_type = ''; keyword = ($courseTerms -join ';')
                 external_id = ''; name = ''; content_type_id = ''; category = ''
                 address = ''; region = ''; latitude = 0; longitude = 0; first_image = ''
                 recommend_order = 0; note = '후보 0건 — 경로 D(지명) 수동 입력 필요'
