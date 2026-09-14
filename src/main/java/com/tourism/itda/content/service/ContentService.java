@@ -3,6 +3,7 @@ package com.tourism.itda.content.service;
 import com.tourism.itda.content.client.TmdbClient;
 import com.tourism.itda.content.dto.*;
 import com.tourism.itda.content.entity.Content;
+import com.tourism.itda.content.entity.ContentStatus;
 import com.tourism.itda.content.entity.ContentMedia;
 import com.tourism.itda.content.entity.ContentPlace;
 import com.tourism.itda.content.exception.ContentNotFoundException;
@@ -22,6 +23,7 @@ import com.tourism.itda.explore.enums.Kingdom;
 import com.tourism.itda.explore.enums.PersonType;
 import com.tourism.itda.explore.repository.ContentKingdomRepository;
 import com.tourism.itda.explore.repository.PersonRepository;
+import com.tourism.itda.explore.repository.PlaceKingdomRepository;
 import com.tourism.itda.place.entity.Place;
 import com.tourism.itda.place.entity.PlaceImage;
 import com.tourism.itda.place.repository.PlaceImageRepository;
@@ -60,6 +62,7 @@ public class ContentService {
     private final ContentKingdomRepository contentKingdomRepository;
     private final ContentPersonRepository contentPersonRepository;
     private final PersonRepository personRepository;
+    private final PlaceKingdomRepository placeKingdomRepository;
 
     public ContentService(
             TmdbClient tmdbClient,
@@ -78,7 +81,8 @@ public class ContentService {
             HistoryChronologyLoader chronologyLoader,
             ContentKingdomRepository contentKingdomRepository,
             ContentPersonRepository contentPersonRepository,
-            PersonRepository personRepository
+            PersonRepository personRepository,
+            PlaceKingdomRepository placeKingdomRepository
     ) {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
@@ -97,6 +101,7 @@ public class ContentService {
         this.contentKingdomRepository = contentKingdomRepository;
         this.contentPersonRepository = contentPersonRepository;
         this.personRepository = personRepository;
+        this.placeKingdomRepository = placeKingdomRepository;
     }
 
     /**
@@ -195,10 +200,6 @@ public class ContentService {
                     ? personRepository.findByNameAndKingdom(c.personName(), kingdom).orElse(null)
                     : null;
 
-            System.out.println("=== PERSON DEBUG ===");
-            System.out.println("Claude personName = [" + c.personName() + "]");
-            System.out.println("classifiedPerson = " + classifiedPerson);
-
             PersonType personType =
                     contentClassifier.parsePersonType(c.personType());
 
@@ -243,7 +244,20 @@ public class ContentService {
                         + contentData.getPosterPath()
         );
 
-        // 8. Content 저장
+        // 8. 실존 인물/장소 매칭 검증
+        // 우리 DB의 실존 인물과 매칭됐거나(classifiedPerson), 분류된 왕조에 실제 장소가 등록돼
+        // 있으면 "가볼 곳이 있는 실화 기반"으로 보고 노출(PUBLISHED)로 승격한다.
+        // 둘 다 아니면 기본값 PENDING(비노출 보류)으로 남겨, DB 확장 후 재검증 대상으로 둔다.
+        boolean matchedRealPlace =
+                classifiedPerson != null
+                        || (content.getKingdom() != null
+                        && !placeKingdomRepository.findByKingdom(content.getKingdom()).isEmpty());
+
+        if (matchedRealPlace) {
+            content.publish();
+        }
+
+        // 9. Content 저장
         Content savedContent =
                 contentRepository.save(content);
 
@@ -264,11 +278,6 @@ public class ContentService {
 
 // 인물-콘텐츠 연결
         if (classifiedPerson != null) {
-
-            System.out.println("=== CONTENT PERSON SAVE ===");
-            System.out.println("contentId = " + savedContent.getId());
-            System.out.println("personId = " + classifiedPerson.getPersonId());
-            System.out.println("personName = " + classifiedPerson.getName());
 
             contentPersonRepository.save(
                     new ContentPerson(
@@ -321,38 +330,53 @@ public class ContentService {
      */
     public int collectKoreanHistoryMovies(int limit) {
 
-        TmdbSearchResponse discovered =
-                tmdbClient.discoverKoreanHistory(1);
-
-        if (discovered == null
-                || discovered.getResults() == null) {
-            return 0;
-        }
-
         int saved = 0;
+        int page = 1;
+        int totalPages = 1;
 
-        for (TmdbSearchResponse.Result result : discovered.getResults()) {
+        /*
+         * limit편을 채우거나 마지막 페이지에 도달할 때까지 페이지를 순회한다.
+         * 이미 저장된 콘텐츠가 많으면 한 페이지로는 신규 limit편을 못 채우므로
+         * 다음 페이지까지 이어서 조회한다.
+         */
+        while (saved < limit && page <= totalPages) {
 
-            if (saved >= limit) {
+            TmdbSearchResponse discovered =
+                    tmdbClient.discoverKoreanHistory(page);
+
+            if (discovered == null
+                    || discovered.getResults() == null
+                    || discovered.getResults().isEmpty()) {
                 break;
             }
 
-            Long movieId = result.getId();
+            totalPages = discovered.getTotalPages();
 
-            /*
-             * 이미 저장된 콘텐츠는 건너뛴다.
-             */
-            if (contentRepository.existsById(movieId)) {
-                continue;
+            for (TmdbSearchResponse.Result result : discovered.getResults()) {
+
+                if (saved >= limit) {
+                    break;
+                }
+
+                Long movieId = result.getId();
+
+                /*
+                 * 이미 저장된 콘텐츠는 건너뛴다.
+                 */
+                if (contentRepository.existsById(movieId)) {
+                    continue;
+                }
+
+                /*
+                 * TMDB 조회 → Claude 분류 → DB 저장
+                 * → content_kingdom 저장
+                 */
+                saveContent(movieId);
+
+                saved++;
             }
 
-            /*
-             * TMDB 조회 → Claude 분류 → DB 저장
-             * → content_kingdom 저장
-             */
-            saveContent(movieId);
-
-            saved++;
+            page++;
         }
 
         return saved;
@@ -367,6 +391,11 @@ public class ContentService {
 
         Content content = contentRepository.findById(id)
                 .orElseGet(() -> saveContent(id));
+
+        // 매칭 실패로 보류(PENDING)된 콘텐츠는 사용자에게 노출하지 않는다.
+        if (content.getStatus() != ContentStatus.PUBLISHED) {
+            throw new ContentNotFoundException(id);
+        }
 
         return buildDetailResponse(content);
     }

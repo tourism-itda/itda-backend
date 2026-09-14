@@ -55,6 +55,10 @@ public class Content {
 
     private String thumbnailUrl;
 
+    // 기본값은 PENDING(보류). 실존 인물/장소 매칭이 확인될 때만 publish()로 노출 승격한다.
+    @Enumerated(EnumType.STRING)
+    private ContentStatus status = ContentStatus.PENDING;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -105,5 +109,10 @@ public class Content {
         this.kingdom = kingdom;
         this.personType = personType;
         this.personName = personName;
+    }
+
+    // 실존 인물/장소 매칭이 확인된 콘텐츠를 노출 상태로 승격한다.
+    public void publish() {
+        this.status = ContentStatus.PUBLISHED;
     }
 }
