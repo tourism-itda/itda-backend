@@ -23,7 +23,6 @@ import com.tourism.itda.explore.enums.Kingdom;
 import com.tourism.itda.explore.enums.PersonType;
 import com.tourism.itda.explore.repository.ContentKingdomRepository;
 import com.tourism.itda.explore.repository.PersonRepository;
-import com.tourism.itda.explore.repository.PlaceKingdomRepository;
 import com.tourism.itda.place.entity.Place;
 import com.tourism.itda.place.entity.PlaceImage;
 import com.tourism.itda.place.repository.PlaceImageRepository;
@@ -62,7 +61,6 @@ public class ContentService {
     private final ContentKingdomRepository contentKingdomRepository;
     private final ContentPersonRepository contentPersonRepository;
     private final PersonRepository personRepository;
-    private final PlaceKingdomRepository placeKingdomRepository;
 
     public ContentService(
             TmdbClient tmdbClient,
@@ -81,8 +79,7 @@ public class ContentService {
             HistoryChronologyLoader chronologyLoader,
             ContentKingdomRepository contentKingdomRepository,
             ContentPersonRepository contentPersonRepository,
-            PersonRepository personRepository,
-            PlaceKingdomRepository placeKingdomRepository
+            PersonRepository personRepository
     ) {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
@@ -101,7 +98,6 @@ public class ContentService {
         this.contentKingdomRepository = contentKingdomRepository;
         this.contentPersonRepository = contentPersonRepository;
         this.personRepository = personRepository;
-        this.placeKingdomRepository = placeKingdomRepository;
     }
 
     /**
@@ -244,16 +240,12 @@ public class ContentService {
                         + contentData.getPosterPath()
         );
 
-        // 8. 실존 인물/장소 매칭 검증
-        // 우리 DB의 실존 인물과 매칭됐거나(classifiedPerson), 분류된 왕조에 실제 장소가 등록돼
-        // 있으면 "가볼 곳이 있는 실화 기반"으로 보고 노출(PUBLISHED)로 승격한다.
-        // 둘 다 아니면 기본값 PENDING(비노출 보류)으로 남겨, DB 확장 후 재검증 대상으로 둔다.
-        boolean matchedRealPlace =
-                classifiedPerson != null
-                        || (content.getKingdom() != null
-                        && !placeKingdomRepository.findByKingdom(content.getKingdom()).isEmpty());
-
-        if (matchedRealPlace) {
+        // 8. 실존 인물 매칭 검증
+        // 우리 DB의 실존 인물과 매칭된 경우에만 노출(PUBLISHED)로 승격한다.
+        // 왕조만 맞으면(장소가 있어도) 오분류가 그대로 노출되므로(예: 조선으로 잘못 분류된 작품)
+        // 왕조 기준은 제외하고 인물 매칭만 기준으로 삼는다.
+        // 매칭 실패 시 기본값 PENDING(비노출 보류)으로 남겨, DB 확장 후 재검증 대상으로 둔다.
+        if (classifiedPerson != null) {
             content.publish();
         }
 
