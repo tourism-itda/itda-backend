@@ -15,5 +15,6 @@ public record EventSummaryResponse(
         String imageUrl,
         String address,
         LocalDate eventStartDate,
-        LocalDate eventEndDate) {
+        LocalDate eventEndDate,
+        String eventHomepage) {
 }

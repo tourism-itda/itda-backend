@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 한국관광공사 TourAPI(KorService2) 호출기.
@@ -44,6 +46,9 @@ public class TourApiClient {
     private static final String DETAIL_INTRO = "detailIntro2";
     private static final String DETAIL_COMMON = "detailCommon2";
     private static final String SEARCH_FESTIVAL = "searchFestival2";
+    // detailIntro2의 contentTypeId=15(행사/공연/축제)라야 eventhomepage 필드가 채워진다.
+    private static final String CONTENT_TYPE_FESTIVAL = "15";
+    private static final Pattern HREF_PATTERN = Pattern.compile("href=\"([^\"]+)\"");
 
     private final TourApiProperties properties;
     private final ObjectMapper objectMapper;
@@ -191,6 +196,30 @@ public class TourApiClient {
         return result;
     }
 
+    /**
+     * 축제 상세(eventhomepage)를 조회한다. searchFestival2(목록)에는 홈페이지 필드가 없어
+     * contentId로 detailIntro2를 다시 호출해야 한다.
+     *
+     * @return 홈페이지가 없거나 조회 실패 시 null
+     */
+    public String findFestivalHomepage(String contentId) {
+        if (!properties.isConfigured() || contentId == null || contentId.isBlank()) {
+            return null;
+        }
+
+        JsonNode items = callForItems(DETAIL_INTRO, Map.of(
+                "contentId", contentId,
+                "contentTypeId", CONTENT_TYPE_FESTIVAL));
+
+        for (JsonNode item : items) {
+            String homepage = extractUrl(text(item, "eventhomepage"));
+            if (homepage != null) {
+                return homepage;
+            }
+        }
+        return null;
+    }
+
     // ── 내부 ────────────────────────────────────────────────────────────────
 
     private JsonNode callForItems(String endpoint, Map<String, String> params) {
@@ -306,6 +335,21 @@ public class TourApiClient {
         } catch (DateTimeParseException e) {
             return null;
         }
+    }
+
+    /**
+     * eventhomepage 는 {@code <a href="URL" target="_blank">텍스트</a>} 형태로 오는 경우가 많고,
+     * 태그 없이 URL만 오는 경우도 있다. href 속성이 있으면 그 값을, 없으면 태그를 벗긴 텍스트를 쓴다.
+     */
+    private static String extractUrl(String s) {
+        if (s == null) {
+            return null;
+        }
+        Matcher matcher = HREF_PATTERN.matcher(s);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return stripHtml(s);
     }
 
     /** overview 에는 &lt;br&gt; 같은 태그가 섞여 온다. */

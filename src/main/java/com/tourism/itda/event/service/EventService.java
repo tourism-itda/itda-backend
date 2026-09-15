@@ -11,6 +11,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 오늘 이후 시작하는 축제·공연·행사 목록.
@@ -31,6 +33,10 @@ public class EventService {
     private volatile List<TourApiFestival> cache = List.of();
     private volatile Instant cachedAt = Instant.EPOCH;
 
+    // searchFestival2(목록)에는 홈페이지가 없어 contentId별로 detailIntro2를 따로 조회해야 한다.
+    // 매 요청마다 다시 부르면 낭비이므로 festivals() 캐시와 함께 갱신되는 별도 캐시에 담아 둔다.
+    private final Map<String, String> homepageCache = new ConcurrentHashMap<>();
+
     public List<EventSummaryResponse> getUpcoming(int limit) {
         LocalDate today = LocalDate.now();
         return festivals().stream()
@@ -39,8 +45,12 @@ public class EventService {
                 .limit(limit)
                 .map(f -> new EventSummaryResponse(
                         f.contentId(), f.title(), f.imageUrl(), f.address(),
-                        f.eventStartDate(), f.eventEndDate()))
+                        f.eventStartDate(), f.eventEndDate(), homepageFor(f.contentId())))
                 .toList();
+    }
+
+    private String homepageFor(String contentId) {
+        return homepageCache.computeIfAbsent(contentId, tourApiClient::findFestivalHomepage);
     }
 
     private List<TourApiFestival> festivals() {
@@ -59,6 +69,7 @@ public class EventService {
         // 크므로 기존 캐시를 그대로 둔다. 갱신 시점(cachedAt)만 미뤄서 다음 TTL 이후 다시 시도한다.
         if (!fetched.isEmpty() || cache.isEmpty()) {
             cache = fetched;
+            homepageCache.clear();
         }
         cachedAt = Instant.now();
         return cache;
