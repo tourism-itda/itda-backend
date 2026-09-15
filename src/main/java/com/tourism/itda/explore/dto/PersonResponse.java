@@ -13,6 +13,7 @@ public class PersonResponse {
 
     private final String name;
     private final String description;
+    private final String summary;
     private final String kingdom;
     private final String type;
 
@@ -23,6 +24,7 @@ public class PersonResponse {
         this.personId = person.getPersonId();
         this.name = person.getName();
         this.description = person.getDescription();
+        this.summary = person.getSummary();
         this.kingdom = person.getKingdom().name();
         this.type = person.getType().name();
         this.imageUrl = PersonImageData.getImageUrl(person);

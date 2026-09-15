@@ -15,6 +15,9 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +46,7 @@ public class TourApiClient {
     private static final String DETAIL_INFO = "detailInfo2";
     private static final String SEARCH_KEYWORD = "searchKeyword2";
     private static final String LDONG_CODE = "ldongCode2";
+    private static final String SEARCH_FESTIVAL = "searchFestival2";
 
     /** 여행코스. detailInfo2 로 코스에 속한 장소 목록을 꺼낼 수 있다. */
     public static final String CONTENT_TYPE_COURSE = "25";
@@ -286,6 +290,35 @@ public class TourApiClient {
         return TourApiIntro.empty();
     }
 
+    /**
+     * 오늘(또는 지정한 날짜) 이후 시작하는 축제·공연·행사를 조회한다.
+     *
+     * <p>searchFestival2 는 날짜순 정렬 파라미터가 없어서, 최신순 정렬은 호출부에서 처리한다.
+     *
+     * @return 호출 실패·결과 없음·키 미설정 모두 빈 리스트
+     */
+    public List<TourApiFestival> findUpcomingFestivals(LocalDate from, int numOfRows) {
+        if (!properties.isConfigured()) {
+            log.warn("관광API 키가 설정되지 않아 행사 조회를 건너뜁니다. itda.tour-api.api-key 를 확인하세요.");
+            return List.of();
+        }
+
+        Map<String, String> params = new java.util.LinkedHashMap<>();
+        params.put("eventStartDate", from.format(DateTimeFormatter.BASIC_ISO_DATE));
+        params.put("numOfRows", String.valueOf(numOfRows));
+        params.put("pageNo", "1");
+
+        JsonNode items = callForItems(SEARCH_FESTIVAL, params);
+        List<TourApiFestival> result = new ArrayList<>();
+        for (JsonNode item : items) {
+            TourApiFestival festival = toFestival(item);
+            if (festival != null) {
+                result.add(festival);
+            }
+        }
+        return result;
+    }
+
     // ── 내부 ────────────────────────────────────────────────────────────────
 
     private JsonNode callForItems(String endpoint, Map<String, String> params) {
@@ -374,6 +407,33 @@ public class TourApiClient {
                 firstNonBlank(text(item, "firstimage"), text(item, "firstimage2")),
                 new Coord(lat, lng),
                 dist == null ? null : Math.round(dist));
+    }
+
+    private TourApiFestival toFestival(JsonNode item) {
+        String contentId = text(item, "contentid");
+        String title = text(item, "title");
+        if (contentId == null || title == null) {
+            return null;
+        }
+
+        return new TourApiFestival(
+                contentId,
+                title,
+                firstNonBlank(text(item, "addr1"), text(item, "addr2")),
+                firstNonBlank(text(item, "firstimage"), text(item, "firstimage2")),
+                parseEventDate(text(item, "eventstartdate")),
+                parseEventDate(text(item, "eventenddate")));
+    }
+
+    private static LocalDate parseEventDate(String s) {
+        if (s == null) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     /** overview 에는 &lt;br&gt; 같은 태그가 섞여 온다. */

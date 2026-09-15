@@ -48,8 +48,10 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "http://localhost:5174",
-                "https://itda-frontend-peach.vercel.app"
+                "https://itda-frontend-peach.vercel.app",
+                "https://itda-travel.com",
+                "https://www.itda-travel.com",
+                "http://localhost:5174"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
@@ -72,6 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/check-login-id", "/api/users/check-nickname").permitAll()
                         .requestMatchers("/api/places/**").permitAll()
                         .requestMatchers("/api/explore/**").permitAll()
+                        .requestMatchers("/api/events/**").permitAll()
                         .requestMatchers("/api/contents/*/places").permitAll()
                         // 장소/일정 파트 — 인증 불필요 (저장 전 미리보기·후보 조회)
                         .requestMatchers(HttpMethod.GET, "/api/itineraries/recommend").permitAll()

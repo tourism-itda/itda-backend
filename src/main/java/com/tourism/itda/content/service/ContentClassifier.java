@@ -23,20 +23,14 @@ public class ContentClassifier {
             제목, 줄거리, 키워드, 태그라인을 보고 아래 규칙에 따라 분류해라.
 
             [Kingdom — 작품의 시대적 배경 왕조]
-            GOGURYEO: 고구려
-            BAEKJE: 백제
-            SILLA: 신라
-            GAYA: 가야
-            UNIFIED_SILLA: 통일신라
-            BALHAE: 발해
-            LATER_GOGURYEO: 후고구려
-            LATER_BAEKJE: 후백제
             GORYEO: 고려
             JOSEON: 조선
             KOREAN_EMPIRE: 대한제국
             JAPANESE_COLONY: 일제강점기
             FIRST_REPUBLIC_OF_KOREA: 대한민국 제1공화국
             현대극이거나 시대 배경이 불분명하면 kingdom은 null로 반환해라.
+            918년(고려 건국) 이전 시대(고구려·백제·신라·가야·통일신라·발해·후삼국)가
+            배경이면 서비스 대상이 아니므로 kingdom은 null로 반환해라.
 
             [PersonType — 작품에서 핵심적으로 다루는 역사적 인물 유형]
             KING: 왕·군주
@@ -50,7 +44,11 @@ public class ContentClassifier {
 
             [personName — 작품의 핵심 역사적 실존 인물 이름]
             작품이 특정 역사적 실존 인물을 중심으로 다룬다면 그 인물의 실제 이름을 한국어로 반환해라.
-            예: "세종", "이순신", "단종", "광개토대왕", "안중근"
+            예: "세종", "이순신", "단종", "안중근"
+            주인공이 가상 인물이더라도, 작품이 다루는 실제 역사적 사건에 그 사건을 이끈
+            실존 인물이 뚜렷하게 있다면 그 인물의 실제 이름을 반환해라.
+            예: "봉오동 전투"를 다루면 "홍범도", "청산리 대첩"을 다루면 "김좌진".
+            단, 사건의 실존 인물이 특정되지 않거나 확신이 없으면 억지로 지어내지 말고 null로 반환해라.
             특정 실존 인물이 중심이 아니거나 불분명하면 null로 반환해라.
             """;
 

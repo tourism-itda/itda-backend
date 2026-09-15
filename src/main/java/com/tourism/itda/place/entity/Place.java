@@ -108,4 +108,26 @@ public class Place {
         this.address = address;
         this.region = region;
     }
+
+    public static Place ofSeed(
+            String name,
+            String category,
+            String description,
+            double latitude,
+            double longitude,
+            String address,
+            String region
+    ) {
+        Place place = new Place();
+        place.source = PlaceSource.SEED;
+        place.placeType = PlaceType.SPOT;
+        place.name = name;
+        place.category = category;
+        place.description = description;
+        place.latitude = latitude;
+        place.longitude = longitude;
+        place.address = address;
+        place.region = region;
+        return place;
+    }
 }
