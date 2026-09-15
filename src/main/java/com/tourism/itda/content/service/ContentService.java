@@ -123,6 +123,12 @@ public class ContentService {
         final TmdbResponse contentData = fetchedContent;
         final String mediaType = fetchedMediaType;
 
+        // 줄거리(overview)가 없으면 분류의 근거가 없어 오분류(억지 인물 매칭)를 유발하므로
+        // 아예 저장하지 않는다. (예: 정보 없는 신작·기획 단계 항목)
+        if (contentData.getOverview() == null || contentData.getOverview().isBlank()) {
+            throw new ContentNotFoundException(contentId);
+        }
+
         // 3. 영화/TV에 따라 제목과 날짜 결정
         final String title = "MOVIE".equals(mediaType)
                 ? contentData.getTitle()
@@ -362,10 +368,15 @@ public class ContentService {
                 /*
                  * TMDB 조회 → Claude 분류 → DB 저장
                  * → content_kingdom 저장
+                 * 줄거리 없는 항목은 saveContent가 ContentNotFoundException을 던지므로
+                 * 건너뛰고 다음 후보로 넘어간다(배치가 중단되지 않도록).
                  */
-                saveContent(movieId);
-
-                saved++;
+                try {
+                    saveContent(movieId);
+                    saved++;
+                } catch (ContentNotFoundException e) {
+                    // 줄거리 없음 등으로 저장 대상이 아님 → skip
+                }
             }
 
             page++;
