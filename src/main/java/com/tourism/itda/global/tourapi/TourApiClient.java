@@ -96,6 +96,42 @@ public class TourApiClient {
     }
 
     /**
+     * 검색 원 안의 장소를 지정한 contentTypeId 로 바로 조회한다.
+     *
+     * <p>{@link #findNearby} 는 {@link PlaceType} 하나에 관광API contentTypeId 하나만 묶여 있어
+     * 문화시설(14)처럼 관광지(12) 외의 타입을 보강할 때는 쓸 수 없다. 그래서 contentTypeId 를
+     * 직접 받는 경로를 따로 둔다. 결과는 전부 {@link PlaceType#SPOT} 으로 취급한다
+     * (일반 관광명소 보강 용도로만 쓰기 때문).
+     *
+     * @return 호출 실패·결과 없음·키 미설정 모두 빈 리스트
+     */
+    public List<TourApiPlace> findNearbyByContentType(SearchArea area, String contentTypeId) {
+        if (!properties.isConfigured()) {
+            log.warn("관광API 키가 설정되지 않아 후보 검색을 건너뜁니다. itda.tour-api.api-key 를 확인하세요.");
+            return List.of();
+        }
+
+        Map<String, String> params = new java.util.LinkedHashMap<>();
+        params.put("contentTypeId", contentTypeId);
+        params.put("mapX", String.valueOf(area.center().longitude()));
+        params.put("mapY", String.valueOf(area.center().latitude()));
+        params.put("radius", String.valueOf(area.radiusMeters()));
+        params.put("arrange", "E");
+        params.put("numOfRows", String.valueOf(properties.numOfRows()));
+        params.put("pageNo", "1");
+
+        JsonNode items = callForItems(LOCATION_BASED_LIST, params);
+        List<TourApiPlace> result = new ArrayList<>();
+        for (JsonNode item : items) {
+            TourApiPlace place = toPlace(item, PlaceType.SPOT);
+            if (place != null) {
+                result.add(place);
+            }
+        }
+        return result;
+    }
+
+    /**
      * contentId 로 장소 1건을 조회한다.
      *
      * <p>사용자가 후보를 확정할 때 쓴다. 클라이언트가 보낸 이름·좌표를 그대로 저장하면

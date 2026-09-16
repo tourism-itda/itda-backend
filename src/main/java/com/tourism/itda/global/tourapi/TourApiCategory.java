@@ -23,6 +23,9 @@ public final class TourApiCategory {
     /** 관광지 — 촬영지 보강용. */
     public static final String CONTENT_TYPE_ATTRACTION = "12";
 
+    /** 문화시설 — 일반 관광명소 보강 시 관광지(12)와 함께 합쳐서 쓴다. */
+    public static final String CONTENT_TYPE_CULTURAL = "14";
+
     private static final String CAT1_FOOD = "A05";
     private static final String CAT2_FOOD = "A0502";
 
@@ -72,7 +75,7 @@ public final class TourApiCategory {
         if (CONTENT_TYPE_FOOD.equals(contentTypeId)) {
             return isCafe(cat3) ? PlaceType.CAFE : PlaceType.RESTAURANT;
         }
-        if (CONTENT_TYPE_ATTRACTION.equals(contentTypeId)) {
+        if (CONTENT_TYPE_ATTRACTION.equals(contentTypeId) || CONTENT_TYPE_CULTURAL.equals(contentTypeId)) {
             return PlaceType.SPOT;
         }
         throw new InvalidRequestException("지원하지 않는 관광API 콘텐츠 타입입니다: " + contentTypeId);

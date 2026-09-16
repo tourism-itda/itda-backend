@@ -5,16 +5,19 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import com.tourism.itda.planner.route.RouteCandidate;
+import com.tourism.itda.place.entity.PlaceSource;
 import com.tourism.itda.place.entity.PlaceType;
 
 /**
  * 지도에 핀으로 뿌릴 식당/카페 후보 하나.
  *
- * <p>{@code placeId} 가 아니라 {@code externalId}(관광API contentid)를 준다.
+ * <p>{@code placeId} 가 아니라 {@code externalId}(TourAPI contentId 또는 카카오 place id)를 준다.
  * 아직 place 테이블에 저장하지 않았기 때문이다 — 사용자가 고르지도 않은 후보 수십 건을
  * 매번 저장하면 테이블이 쓰레기로 찬다. 사용자가 하나를 고르면
  * {@code POST /places/import} 로 그때 저장하고 place_id 를 발급받는다.
  *
+ * @param source       이 후보가 어디서 왔는지(TOUR_API/KAKAO). 관광공사 데이터 활용 비중을
+ *                     응답에서 바로 확인할 수 있도록 노출한다.
  * @param detourMeters 이 곳을 들르면 동선이 늘어나는 거리(m)
  * @param detourKnown  false 면 {@code detourMeters} 는 우회거리가 아니라 앵커로부터의 거리다
  *                     (하루 마지막 구간은 뒤쪽 앵커가 없어 우회거리를 정의할 수 없다).
@@ -24,6 +27,7 @@ import com.tourism.itda.place.entity.PlaceType;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CandidateView(
         String externalId,
+        PlaceSource source,
         PlaceType placeType,
         String name,
         String category,
@@ -37,9 +41,10 @@ public record CandidateView(
     public static CandidateView of(RouteCandidate candidate) {
         var place = candidate.place();
         return new CandidateView(
-                place.contentId(),
-                place.placeType(),
-                place.title(),
+                place.externalId(),
+                place.source(),
+                candidate.placeType(),
+                place.name(),
                 place.category(),
                 place.address(),
                 place.imageUrl(),

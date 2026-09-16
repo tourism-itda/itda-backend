@@ -37,6 +37,10 @@ application-secret.yml
 *.pdf
 *.xlsx
 
+# Python 프로브 스크립트 부산물
+__pycache__/
+*.pyc
+
 # 개인 메모 / 로컬 실행 스크립트
 # (팀 공유용 문서는 docs/ 아래에 두고 커밋한다 — 여기 넣지 말 것)
 가이드_*.md

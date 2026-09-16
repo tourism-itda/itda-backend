@@ -25,6 +25,14 @@ import java.time.LocalTime;
  * @param detourWeight           촬영지 점수 중 동선(우회거리) 비중
  * @param orderWeight            촬영지 점수 중 recommend_order 비중
  * @param nightWeight            촬영지 점수 중 야간 운영 비중 (마지막 슬롯에만 적용)
+ * @param anchorClusterSpanMeters 앵커를 한 지역으로 묶는 반경(m). 이보다 멀리 떨어진 앵커는
+ *                               같은 하루 코스에 넣지 않는다. 전국에 흩어진 인물 연고지를
+ *                               억지로 잇는 것을 막는 장치다.
+ * @param maxLegDurationSeconds   명소 사이 한 구간의 차량 소요시간 상한(초). 기본 40분.
+ * @param maxTotalDurationSeconds 명소 사이 이동시간 합의 상한(초). 기본 80분.
+ *                               관람·식사·주차 시간은 포함하지 않은 값이다.
+ * @param orderVerifyAttempts     방문 순서 후보 중 길찾기 API 로 실제 검증할 개수.
+ *                               순서 하나당 구간 수만큼 호출하므로 쿼터와 직결된다.
  */
 @ConfigurationProperties(prefix = "itda.route")
 public record RouteProperties(
@@ -40,7 +48,11 @@ public record RouteProperties(
         int curatorShortlistSize,
         double detourWeight,
         double orderWeight,
-        double nightWeight) {
+        double nightWeight,
+        long anchorClusterSpanMeters,
+        long maxLegDurationSeconds,
+        long maxTotalDurationSeconds,
+        int orderVerifyAttempts) {
 
     public RouteProperties {
         if (dayStart == null) {
@@ -77,6 +89,18 @@ public record RouteProperties(
             detourWeight = 0.6;
             orderWeight = 0.3;
             nightWeight = 0.1;
+        }
+        if (anchorClusterSpanMeters <= 0) {
+            anchorClusterSpanMeters = 25_000L;
+        }
+        if (maxLegDurationSeconds <= 0) {
+            maxLegDurationSeconds = 2_400L;      // 40분
+        }
+        if (maxTotalDurationSeconds <= 0) {
+            maxTotalDurationSeconds = 4_800L;    // 80분
+        }
+        if (orderVerifyAttempts <= 0) {
+            orderVerifyAttempts = 3;
         }
     }
 

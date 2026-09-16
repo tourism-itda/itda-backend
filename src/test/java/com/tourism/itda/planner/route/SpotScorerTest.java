@@ -214,7 +214,8 @@ class SpotScorerTest {
         RouteProperties properties = new RouteProperties(
                 LocalTime.of(10, 0), spotDwell, restaurantDwell, cafeDwell,
                 LocalTime.of(20, 0), LocalTime.of(18, 0),
-                ALLOWANCE, 20_000L, 8, 5, detourWeight, orderWeight, nightWeight);
+                ALLOWANCE, 20_000L, 8, 5, detourWeight, orderWeight, nightWeight,
+                25_000L, 2_400L, 4_800L, 3);
         DetourFilter detourFilter = new DetourFilter(new HaversineDistanceCalculator(25));
         return new SpotScorer(detourFilter, new TimelineEstimator(detourFilter, properties), properties);
     }
