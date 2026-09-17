@@ -33,6 +33,10 @@ import java.time.LocalTime;
  *                               관람·식사·주차 시간은 포함하지 않은 값이다.
  * @param orderVerifyAttempts     방문 순서 후보 중 길찾기 API 로 실제 검증할 개수.
  *                               순서 하나당 구간 수만큼 호출하므로 쿼터와 직결된다.
+ * @param minSpotSeparationMeters 한 루트에 들어가는 명소끼리 최소한 떨어져 있어야 하는 거리(m).
+ *                               수원 화성과 화성행궁은 460m 떨어진 사실상 같은 관광지인데
+ *                               둘 다 뽑혀서 코스에 다양성이 없었다. 동선 점수만 보면
+ *                               붙어 있는 곳이 항상 이기므로 별도 하한이 필요하다.
  */
 @ConfigurationProperties(prefix = "itda.route")
 public record RouteProperties(
@@ -52,7 +56,8 @@ public record RouteProperties(
         long anchorClusterSpanMeters,
         long maxLegDurationSeconds,
         long maxTotalDurationSeconds,
-        int orderVerifyAttempts) {
+        int orderVerifyAttempts,
+        long minSpotSeparationMeters) {
 
     public RouteProperties {
         if (dayStart == null) {
@@ -101,6 +106,9 @@ public record RouteProperties(
         }
         if (orderVerifyAttempts <= 0) {
             orderVerifyAttempts = 3;
+        }
+        if (minSpotSeparationMeters <= 0) {
+            minSpotSeparationMeters = 1_000L;
         }
     }
 

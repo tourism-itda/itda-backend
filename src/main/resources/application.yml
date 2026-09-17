@@ -133,6 +133,9 @@ itda:
     max-total-duration-seconds: 4800    # 합계 80분
     # 방문 순서 후보 중 길찾기로 실제 검증할 개수. 순서당 구간 수만큼 호출한다.
     order-verify-attempts: 3
+    # 한 루트의 명소끼리 최소한 떨어져 있어야 하는 거리.
+    # 수원 화성과 화성행궁(460m)이 나란히 뽑혀 코스가 한 자리에 머문 적이 있다.
+    min-spot-separation-meters: 1000
 
   # 촬영지 큐레이션용 Claude — 선택 기능이라 기본 OFF.
   # 동선·거리·순서·운영시간 판정은 전부 코드가 하고, LLM 은 코드가 좁힌 후보 중

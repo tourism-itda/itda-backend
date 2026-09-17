@@ -166,6 +166,7 @@ public class RoutePlanner {
         while (selected.size() < target) {
             List<ContentSpot> remaining = allSpots.stream()
                     .filter(spot -> !selectedIds.contains(spot.placeId()))
+                    .filter(spot -> farEnoughFromSelected(spot, selected))
                     .toList();
 
             ScoringContext context = new ScoringContext(allSpots.size(), target, allowanceMeters);
@@ -191,6 +192,7 @@ public class RoutePlanner {
 
         if (selected.isEmpty()) {
             // 작품 관련 명소는 반드시 1곳 이상이어야 한다는 것이 이 서비스의 원칙이다.
+            // 위 거리 필터로 후보가 모두 걸러진 경우도 여기로 온다.
             // 점수·큐레이션이 하나도 못 고르는 경우에도 앵커 하나는 남긴다.
             ContentSpot first = allSpots.get(0);
             selected.add(first);
@@ -199,6 +201,19 @@ public class RoutePlanner {
         }
 
         return new Selection(List.copyOf(selected), filledBy, reasons);
+    }
+
+    /**
+     * 이미 고른 명소들과 충분히 떨어져 있는가.
+     *
+     * <p>동선 점수만 보면 바로 옆 장소가 항상 이긴다. 실제로 수원 화성과 화성행궁(460m)이
+     * 나란히 뽑혀 하루 코스가 한 자리에 머무는 결과가 나왔다. 사용자가 직접 고른 곳에는
+     * 적용하지 않는다 — 붙어 있어도 본인이 원한 것이기 때문이다.
+     */
+    private boolean farEnoughFromSelected(ContentSpot candidate, List<ContentSpot> selected) {
+        long minimum = properties.minSpotSeparationMeters();
+        return selected.stream()
+                .allMatch(chosen -> detourFilter.distance(chosen.coord(), candidate.coord()) >= minimum);
     }
 
     /**

@@ -30,10 +30,10 @@ import java.util.Map;
 public class GeneralSpotFinder {
 
     private static final long[] RADII_METERS = {5_000L, 10_000L, 15_000L};
-    private static final long MIN_DISTANCE_METERS = 250L;
 
     private final TourApiClient tourApiClient;
     private final DetourFilter detourFilter;
+    private final RouteProperties properties;
 
     /**
      * 앵커 주변의 일반 관광명소를 가까운 순으로 찾는다.
@@ -84,13 +84,16 @@ public class GeneralSpotFinder {
         if (spot.category() != null && spot.category().contains("여행코스")) {
             return false;
         }
+        // 앵커와 너무 가까우면 같은 관광지의 다른 입구이거나 사실상 같은 자리다.
+        // 기준은 앵커끼리의 최소 간격과 같은 값을 쓴다(RoutePlanner 참고).
+        long minimum = properties.minSpotSeparationMeters();
         for (Coord anchor : anchors) {
-            if (detourFilter.distance(anchor, spot.coord()) < MIN_DISTANCE_METERS) {
+            if (detourFilter.distance(anchor, spot.coord()) < minimum) {
                 return false;
             }
         }
         for (NearbySpot existing : picked.values()) {
-            if (detourFilter.distance(existing.coord(), spot.coord()) < MIN_DISTANCE_METERS) {
+            if (detourFilter.distance(existing.coord(), spot.coord()) < minimum) {
                 return false;
             }
         }

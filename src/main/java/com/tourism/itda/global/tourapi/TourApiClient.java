@@ -162,7 +162,9 @@ public class TourApiClient {
                     contentId,
                     resolvePlaceType(text(item, "contenttypeid"), cat3, type),
                     text(item, "title"),
-                    cat3,
+                    // place 행에 실제로 저장되는 경로다. cat3 코드를 그대로 두면
+                    // 장소 분류가 'A02010800' 으로 화면에 나간다.
+                    TourApiCategory.displayName(text(item, "contenttypeid"), cat3),
                     firstNonBlank(text(item, "addr1"), text(item, "addr2")),
                     firstNonBlank(text(item, "firstimage"), text(item, "firstimage2")),
                     new Coord(lat, lng),
@@ -438,7 +440,8 @@ public class TourApiClient {
                 contentId,
                 type,
                 text(item, "title"),
-                cat3,
+                // cat3 코드를 그대로 넣으면 화면에 'A02010800' 이 노출된다. 한국어 분류로 바꾼다.
+                TourApiCategory.displayName(contentTypeId, cat3),
                 firstNonBlank(text(item, "addr1"), text(item, "addr2")),
                 firstNonBlank(text(item, "firstimage"), text(item, "firstimage2")),
                 new Coord(lat, lng),
