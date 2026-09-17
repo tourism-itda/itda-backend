@@ -11,6 +11,10 @@ spring:
     username: sa
     password: ""
     driver-class-name: org.h2.Driver
+  # 메일 계정이 없어도 기동되도록 더미를 채운다. 실제 발송은 당연히 안 된다.
+  mail:
+    username: "local@example.com"
+    password: ""
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -26,8 +30,10 @@ spring:
 jwt:
   secret: "itda-local-h2-smoke-secret-key-change-me-32bytes-min"
 
+# .env 나 환경변수에 실제 키가 있으면 그걸 쓰고, 없으면 빈 값으로 기동만 한다.
+# 빈 값이면 TourApiClient 가 호출을 건너뛰고 빈 목록을 돌려주므로 기동에는 지장이 없다.
 public-data:
-  api-key: ""
+  api-key: ${PUBLIC_DATA_API_KEY:}
 
 tmdb:
   api:
@@ -38,6 +44,9 @@ kakao:
   client-id: ""
   client-secret: ""
 
+# AWS SDK 의 S3Presigner 는 빈 문자열 키를 거부한다("Access key ID cannot be blank").
+# 빈 값으로 두면 S3Config -> S3Service -> UserController 순으로 기동이 통째로 실패하므로
+# 형식만 맞는 더미를 넣는다. 실제 S3 호출은 당연히 실패한다.
 aws:
-  access-key: ""
-  secret-key: ""
+  access-key: "local-h2-dummy-access-key"
+  secret-key: "local-h2-dummy-secret-key"

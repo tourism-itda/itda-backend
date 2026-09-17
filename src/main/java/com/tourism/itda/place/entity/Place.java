@@ -109,6 +109,35 @@ public class Place {
         this.region = region;
     }
 
+    /**
+     * 카카오 로컬 API 로 검증한 장소를 저장하기 위한 팩토리.
+     * TourAPI 가 못 찾을 때의 보완재라 kakaoPlaceId 로 중복 적재를 막는다.
+     * (planner.discovery.AnchorDiscoveryBatch 에서 사용 — 작품 관련 명소 발굴 배치)
+     */
+    public static Place ofKakao(
+            String kakaoPlaceId,
+            String name,
+            String category,
+            String description,
+            double latitude,
+            double longitude,
+            String address,
+            String region
+    ) {
+        Place place = new Place();
+        place.kakaoPlaceId = kakaoPlaceId;
+        place.source = PlaceSource.KAKAO;
+        place.placeType = PlaceType.SPOT;
+        place.name = name;
+        place.category = category;
+        place.description = description;
+        place.latitude = latitude;
+        place.longitude = longitude;
+        place.address = address;
+        place.region = region;
+        return place;
+    }
+
     public static Place ofSeed(
             String name,
             String category,

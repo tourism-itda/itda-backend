@@ -63,6 +63,13 @@ public class PlaceController {
 
     // =====================================================================
     // 한국관광공사 API 패스스루 (기존)
+    //
+    // ⚠️ KorService2 는 KorService1 시절 파라미터 일부를 거부한다 (INVALID_REQUEST_PARAMETER_ERROR).
+    //    - listYN     : 모든 목록 오퍼레이션에서 거부
+    //    - subImageYN : detailImage2 에서 거부 (imageYN 은 유효)
+    //    - detailCommon2 : contentId 외 전부 거부 (contentTypeId 포함)
+    //    프론트가 이미 보내고 있을 수 있어 쿼리 파라미터 자체는 남겨 두되, 상류로 전달하지 않는다.
+    //    (2026-08-26 실호출 확인. 자세한 내용은 docs/tourism_api_guide.md 상단 주의사항)
     // =====================================================================
 
     // 위치기반 관광정보조회 - locationBasedList2
@@ -78,11 +85,11 @@ public class PlaceController {
             @RequestParam(required = false) String cat2,
             @RequestParam(required = false) String cat3,
             @RequestParam(required = false) String arrange,
-            @RequestParam(required = false) String listYN,
+            @RequestParam(required = false) String listYN,   // 무시됨 — KorService2 가 거부한다
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int numOfRows
     ) {
-        return placeService.getLocationBased(mapX, mapY, radius, contentTypeId, areaCode, sigunguCode, cat1, cat2, cat3, arrange, listYN, pageNo, numOfRows);
+        return placeService.getLocationBased(mapX, mapY, radius, contentTypeId, areaCode, sigunguCode, cat1, cat2, cat3, arrange, pageNo, numOfRows);
     }
 
     // 키워드 검색 조회 - searchKeyword2
@@ -96,11 +103,11 @@ public class PlaceController {
             @RequestParam(required = false) String cat2,
             @RequestParam(required = false) String cat3,
             @RequestParam(required = false) String arrange,
-            @RequestParam(required = false) String listYN,
+            @RequestParam(required = false) String listYN,   // 무시됨
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int numOfRows
     ) {
-        return placeService.searchByKeyword(keyword, contentTypeId, areaCode, sigunguCode, cat1, cat2, cat3, arrange, listYN, pageNo, numOfRows);
+        return placeService.searchByKeyword(keyword, contentTypeId, areaCode, sigunguCode, cat1, cat2, cat3, arrange, pageNo, numOfRows);
     }
 
     // 행사정보조회 - searchFestival2
@@ -111,18 +118,23 @@ public class PlaceController {
             @RequestParam(required = false) String areaCode,
             @RequestParam(required = false) String sigunguCode,
             @RequestParam(required = false) String arrange,
-            @RequestParam(required = false) String listYN,
+            @RequestParam(required = false) String listYN,   // 무시됨
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int numOfRows
     ) {
-        return placeService.searchFestivals(eventStartDate, eventEndDate, areaCode, sigunguCode, arrange, listYN, pageNo, numOfRows);
+        return placeService.searchFestivals(eventStartDate, eventEndDate, areaCode, sigunguCode, arrange, pageNo, numOfRows);
     }
 
-    // 공통정보조회 - detailCommon2
+    /**
+     * 공통정보조회 - detailCommon2.
+     *
+     * <p>KorService2 는 {@code contentId} 하나만 받는다. 나머지 파라미터는 받아도 버린다 —
+     * 넘기면 호출이 실패하기 때문이다. overview·좌표·주소·대표이미지는 기본으로 내려온다.
+     */
     @GetMapping("/common")
     public DetailCommonItem getDetailCommon(
             @RequestParam String contentId,
-            @RequestParam(required = false) String contentTypeId,
+            @RequestParam(required = false) String contentTypeId,   // 이하 전부 무시됨
             @RequestParam(required = false) String defaultYN,
             @RequestParam(required = false) String firstImageYN,
             @RequestParam(required = false) String areaInfoYN,
@@ -130,7 +142,7 @@ public class PlaceController {
             @RequestParam(required = false) String mapInfoYN,
             @RequestParam(required = false) String overviewYN
     ) {
-        return placeService.getDetailCommon(contentId, contentTypeId, defaultYN, firstImageYN, areaInfoYN, addrInfoYN, mapInfoYN, overviewYN);
+        return placeService.getDetailCommon(contentId);
     }
 
     // 소개정보조회 - detailIntro2
@@ -147,19 +159,26 @@ public class PlaceController {
     public List<DetailImageItem> getDetailImages(
             @RequestParam String contentId,
             @RequestParam(required = false) String imageYN,
-            @RequestParam(required = false) String subImageYN,
+            @RequestParam(required = false) String subImageYN,   // 무시됨 — KorService2 가 거부한다
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int numOfRows
     ) {
-        return placeService.getDetailImages(contentId, imageYN, subImageYN, pageNo, numOfRows);
+        return placeService.getDetailImages(contentId, imageYN, pageNo, numOfRows);
     }
 
-    // 키워드 검색 연관 관광지 정보 조회 - TarRlteTarService/searchKeyword1
+    /**
+     * 키워드 검색 연관 관광지 정보 조회 - TarRlteTarService1/searchKeyword1.
+     *
+     * <p>{@code signguCd} 는 <b>필수</b>이고 <b>구(區) 단위까지</b> 정확해야 한다
+     * (수원화성: {@code 41110} → 0건, {@code 41115} → 50건). 주소밖에 없다면
+     * {@link com.tourism.itda.global.tourapi.LdongCodeResolver} 로 먼저 변환한다.
+     * {@code baseYm} 을 비우면 서버가 확인된 기본값을 넣는다.
+     */
     @GetMapping("/related/keyword")
     public List<RelatedTourismItem> searchRelatedByKeyword(
             @RequestParam String keyword,
             @RequestParam String areaCd,
-            @RequestParam(required = false) String signguCd,
+            @RequestParam String signguCd,
             @RequestParam(required = false) String baseYm,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int numOfRows
@@ -177,11 +196,11 @@ public class PlaceController {
             @RequestParam(required = false) String cat2,
             @RequestParam(required = false) String cat3,
             @RequestParam(required = false) String arrange,
-            @RequestParam(required = false) String listYN,
+            @RequestParam(required = false) String listYN,   // 무시됨
             @RequestParam(required = false) String modifiedTime,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int numOfRows
     ) {
-        return placeService.getAreaBasedSync(areaCode, sigunguCode, contentTypeId, cat1, cat2, cat3, arrange, listYN, modifiedTime, pageNo, numOfRows);
+        return placeService.getAreaBasedSync(areaCode, sigunguCode, contentTypeId, cat1, cat2, cat3, arrange, modifiedTime, pageNo, numOfRows);
     }
 }

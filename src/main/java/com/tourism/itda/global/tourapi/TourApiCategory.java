@@ -23,6 +23,9 @@ public final class TourApiCategory {
     /** 관광지 — 촬영지 보강용. */
     public static final String CONTENT_TYPE_ATTRACTION = "12";
 
+    /** 문화시설 — 일반 관광명소 보강 시 관광지(12)와 함께 합쳐서 쓴다. */
+    public static final String CONTENT_TYPE_CULTURAL = "14";
+
     private static final String CAT1_FOOD = "A05";
     private static final String CAT2_FOOD = "A0502";
 
@@ -53,6 +56,29 @@ public final class TourApiCategory {
         return params;
     }
 
+    /**
+     * 사용자에게 보여줄 분류 이름.
+     *
+     * <p>관광API 는 분류를 {@code A02010800} 같은 코드로만 준다. 그대로 {@code place.category} 에
+     * 넣으면 화면에 코드가 노출된다(실제로 '수원사(수원)'의 분류가 A02010800 으로 나왔다).
+     * 시드 장소는 '성곽', '궁궐' 같은 한국어 라벨을 쓰므로 거기에 맞춘다.
+     *
+     * <p>cat3 코드를 이름으로 바꾸는 {@code categoryCode2} 조회는 장소마다 호출이 한 번 더
+     * 늘어나므로 쓰지 않는다. contentTypeId 수준의 굵은 분류로 충분하다.
+     */
+    public static String displayName(String contentTypeId, String cat3) {
+        if (CONTENT_TYPE_FOOD.equals(contentTypeId)) {
+            return isCafe(cat3) ? "카페" : "음식점";
+        }
+        if (CONTENT_TYPE_ATTRACTION.equals(contentTypeId)) {
+            return "관광지";
+        }
+        if (CONTENT_TYPE_CULTURAL.equals(contentTypeId)) {
+            return "문화시설";
+        }
+        return null;   // 분류를 모르면 비워 둔다. 코드를 그대로 내보내지 않는다.
+    }
+
     /** 이 항목이 카페인가. */
     public static boolean isCafe(String cat3) {
         return CAT3_CAFE.equals(cat3);
@@ -72,7 +98,7 @@ public final class TourApiCategory {
         if (CONTENT_TYPE_FOOD.equals(contentTypeId)) {
             return isCafe(cat3) ? PlaceType.CAFE : PlaceType.RESTAURANT;
         }
-        if (CONTENT_TYPE_ATTRACTION.equals(contentTypeId)) {
+        if (CONTENT_TYPE_ATTRACTION.equals(contentTypeId) || CONTENT_TYPE_CULTURAL.equals(contentTypeId)) {
             return PlaceType.SPOT;
         }
         throw new InvalidRequestException("지원하지 않는 관광API 콘텐츠 타입입니다: " + contentTypeId);

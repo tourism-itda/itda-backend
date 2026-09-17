@@ -64,6 +64,9 @@ jobs:
           TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
           KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
           KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          # 로그인 앱과 다른 앱의 REST 키다. 로그인 앱에는 카카오맵 제품이 꺼져 있어
+          # 로컬 API 가 403 이 나므로 분리했다. KAKAO_REST_API_KEY 로 합치면 로그인이 깨진다.
+          KAKAO_MAP_REST_KEY: ${{ secrets.KAKAO_MAP_REST_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
@@ -71,7 +74,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: DB_USERNAME,DB_PASSWORD,JWT_SECRET,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_API_KEY,TMDB_API_KEY,TMDB_ACCESS_TOKEN,KAKAO_REST_API_KEY,KAKAO_CLIENT_SECRET,ANTHROPIC_API_KEY,AWS_ACCESS_KEY,AWS_SECRET_KEY
+          envs: DB_USERNAME,DB_PASSWORD,JWT_SECRET,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_API_KEY,TMDB_API_KEY,TMDB_ACCESS_TOKEN,KAKAO_REST_API_KEY,KAKAO_CLIENT_SECRET,KAKAO_MAP_REST_KEY,ANTHROPIC_API_KEY,AWS_ACCESS_KEY,AWS_SECRET_KEY
           script: |
             mkdir -p ~/itda
 
@@ -86,6 +89,7 @@ jobs:
             TMDB_ACCESS_TOKEN=${TMDB_ACCESS_TOKEN}
             KAKAO_REST_API_KEY=${KAKAO_REST_API_KEY}
             KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
+            KAKAO_MAP_REST_KEY=${KAKAO_MAP_REST_KEY}
             ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
             AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
             AWS_SECRET_KEY=${AWS_SECRET_KEY}
