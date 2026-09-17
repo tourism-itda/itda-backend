@@ -20,6 +20,12 @@ public class PersonResponse {
     @JsonProperty("image_url")
     private final String imageUrl;
 
+    @JsonProperty("start_year")
+    private final Integer startYear;
+
+    @JsonProperty("end_year")
+    private final Integer endYear;
+
     public PersonResponse(Person person) {
         this.personId = person.getPersonId();
         this.name = person.getName();
@@ -28,5 +34,7 @@ public class PersonResponse {
         this.kingdom = person.getKingdom().name();
         this.type = person.getType().name();
         this.imageUrl = PersonImageData.getImageUrl(person);
+        this.startYear = person.getStartYear();
+        this.endYear = person.getEndYear();
     }
 }
