@@ -83,7 +83,10 @@
   <section>
     <div id="map"></div>
     <p class="note">보라색 = 작품 관련 명소, 초록색 = 일반 명소, 주황색 = 내가 고른 식당·카페.
-       선은 명소 사이 직선이며 실제 도로 경로가 아니다.</p>
+       <b>파란 타원</b>은 그 구간에서 식당·카페를 고를 수 있는 범위다 — 이 안의 가게를 들르면
+       동선이 허용거리만큼만 늘어난다. 서버가 후보를 거를 때 쓰는 조건과 같은 도형이라
+       타원 안에 뜨는 핀이 곧 후보 목록이다.
+       명소를 잇는 선은 직선이며 실제 도로 경로가 아니다.</p>
   </section>
 </main>
 
@@ -115,6 +118,63 @@ function initMap() {
 
 function clearOverlays() { overlays.forEach(o => o.setMap(null)); overlays = []; }
 
+/**
+ * 구간의 타원 경로. 서버가 후보를 거를 때 쓰는 조건과 같은 도형이다:
+ *   d(A,P) + d(P,B) <= d(A,B) + allowance
+ * 즉 이 안에 그려지는 핀이 곧 후보 목록과 일치한다.
+ *
+ * 카카오맵 SDK 에 타원 도형이 없어 Polygon 으로 근사한다.
+ * 수 km 범위라 미터 평면으로 바꿔 계산해도 오차가 무시할 수준이다.
+ */
+function ellipsePath(aLat, aLng, bLat, bLng, allowanceM, steps = 72) {
+  const toRad = Math.PI / 180;
+  const midLat = (aLat + bLat) / 2, midLng = (aLng + bLng) / 2;
+  const mPerLat = 111320, mPerLng = 111320 * Math.cos(midLat * toRad);
+
+  const dx = (bLng - aLng) * mPerLng, dy = (bLat - aLat) * mPerLat;
+  const d = Math.hypot(dx, dy);
+  const a = (d + allowanceM) / 2;          // 장반경
+  const c = d / 2;                         // 초점거리
+  const b = Math.sqrt(Math.max(0, a * a - c * c));   // 단반경
+  const theta = Math.atan2(dy, dx);        // 장축 방향
+
+  const path = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = (2 * Math.PI * i) / steps;
+    const ex = a * Math.cos(t), ey = b * Math.sin(t);
+    const rx = ex * Math.cos(theta) - ey * Math.sin(theta);
+    const ry = ex * Math.sin(theta) + ey * Math.cos(theta);
+    path.push(new kakao.maps.LatLng(midLat + ry / mPerLat, midLng + rx / mPerLng));
+  }
+  return path;
+}
+
+function drawSegments(bounds) {
+  (route.segments || []).forEach(seg => {
+    // 뒤쪽 앵커가 없는 꼬리 구간은 타원이 성립하지 않는다. 앵커 중심 원으로 그린다.
+    if (seg.end_latitude == null) {
+      const circle = new kakao.maps.Circle({
+        center: new kakao.maps.LatLng(seg.start_latitude, seg.start_longitude),
+        radius: seg.allowance_meters,
+        strokeWeight: 2, strokeColor: '#94a3b8', strokeOpacity: 0.6, strokeStyle: 'dash',
+        fillColor: '#94a3b8', fillOpacity: 0.06
+      });
+      circle.setMap(map);
+      overlays.push(circle);
+      return;
+    }
+    const path = ellipsePath(seg.start_latitude, seg.start_longitude,
+                             seg.end_latitude, seg.end_longitude, seg.allowance_meters);
+    const poly = new kakao.maps.Polygon({
+      path, strokeWeight: 2, strokeColor: '#2563eb', strokeOpacity: 0.55, strokeStyle: 'dash',
+      fillColor: '#2563eb', fillOpacity: seg.partial_coverage ? 0.03 : 0.07
+    });
+    poly.setMap(map);
+    overlays.push(poly);
+    path.forEach(p => bounds.extend(p));
+  });
+}
+
 function pin(lat, lng, text, color) {
   const marker = new kakao.maps.CustomOverlay({
     position: new kakao.maps.LatLng(lat, lng),
@@ -132,6 +192,9 @@ function drawRoute() {
   clearOverlays();
   const bounds = new kakao.maps.LatLngBounds();
   const path = [];
+
+  // 타원을 먼저 깔고 그 위에 핀을 얹는다.
+  drawSegments(bounds);
 
   route.slots.forEach(s => {
     const p = s.place || chosen[s.visit_order];
