@@ -53,5 +53,15 @@ dependencies {
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+	useJUnitPlatform {
+		// 'smoke' 태그는 관광공사·카카오 API 를 실제로 호출하고 네트워크와 키에 의존한다.
+		// 평소 빌드에서는 빼고, 필요할 때만 -Psmoke 로 켠다.
+		//   .\gradlew.bat test --tests "*SmokeTest" -Psmoke
+		if (!project.hasProperty('smoke')) {
+			excludeTags 'smoke'
+		}
+	}
+	testLogging {
+		showStandardStreams = project.hasProperty('smoke')
+	}
 }
