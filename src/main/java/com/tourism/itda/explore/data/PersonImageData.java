@@ -81,76 +81,74 @@ public final class PersonImageData {
             // 고려
             // ==================================================
 
-            Map.entry(new PersonImageKey("태조 왕건", Kingdom.GORYEO), "https://i.namu.wiki/i/Yk_OcEZWQw_zBULUwxgtkTKfZYvPU1f88uEAGLS8C_hs4Z22qOlyqNhbt-xOe3pIUI9IpHj2vGgLVufGQCCBUF58Qpn7R4dspOiow5eQA9OjSen43cLuYxkJw7H8hlVrwUQJeraHnH6uGzwVGq3pWw.webp"),
-            Map.entry(new PersonImageKey("광종", Kingdom.GORYEO), "https://i.namu.wiki/i/-mIcOacmJhYvqkiDo9LwK4NTwiXXP2Y93OdwNbYtPAIyL05RxI35UWkdiKfbnzqlcXEoyLYL6WQWeq5D3vzp8DK5987bwFj6OZhwPcDbZS9K7Bjwy7n4qOu5G-738FUg649Y6U41B1fYfgZWQtKrhg.webp"),
-            Map.entry(new PersonImageKey("공민왕", Kingdom.GORYEO), "https://i.namu.wiki/i/xo6mI8ExW1Ujgz_AtXsOwFNlQJBaQ4oDKRkDFRvFIIYoHz4PWrSkLMWuNmlQsEq2MWIxsYc4l2dsy1DFGXlk7RsclX5-LVXBJusrHuPuOW8HN_mN0sBByDIyHRG9F27nQqvann_KD86GhBMb27ZOsQ.webp"),
-            Map.entry(new PersonImageKey("서희", Kingdom.GORYEO), "https://i.namu.wiki/i/4wl8Em8dljJ1D5Bwjp5gmM0A5VTJnE6uR1mzXyzoQI-RrqhzMUTV8EvfaOeBAEIUHStRSMiEfVe4Ni8PTS9DH8V_lZY1bnF4bwVYwpH1vjgFdCCR5qcTClPWVlHyKesCYSpO6MZEfdUkaW4f_kWmKQ.webp"),
-            Map.entry(new PersonImageKey("강감찬", Kingdom.GORYEO), "https://i.namu.wiki/i/uVvUpMeU-0kst0OMZWIkScxBliI4b15Lo1PqXn9BRK_IHRFR5kskpbgI01NT20-0JCcTOspb9na0wFTB6tddtCyffOgdTtSSWx6P_KosUdT_F4UlkPd5ZaVO7s3c9JVpXh7i2pl0w3jqyMJOJS_wpA.webp"),
-            Map.entry(new PersonImageKey("최무선", Kingdom.GORYEO), "https://i.namu.wiki/i/P31_LqL99xCWcd7547wrLCWwwjeBXXVS6r5RmG7UJ-2_mFV8_Xs2ZcxBJF4QEJabBZOaf_EnnDyStrTcK5l9qYaEf5scBKfri8ZuiI0ab9LMF_fwTLOtvXoWlQCfc4skc1IJ6XPFC28JyFOKQBhmdw.webp"),
-
+            Map.entry(new PersonImageKey("태조 왕건", Kingdom.GORYEO), "/images/persons/taejo-wang-geon.png"),
+            Map.entry(new PersonImageKey("광종", Kingdom.GORYEO), "/images/persons/gwangjong.png"),
+            Map.entry(new PersonImageKey("공민왕", Kingdom.GORYEO), "/images/persons/gongminwang.png"),
+            Map.entry(new PersonImageKey("서희", Kingdom.GORYEO), "/images/persons/seo-hui.png"),
+            Map.entry(new PersonImageKey("강감찬", Kingdom.GORYEO), "/images/persons/gang-gamchan.png"),
+            Map.entry(new PersonImageKey("최무선", Kingdom.GORYEO), "/images/persons/choe-museon.png"),
             // ==================================================
             // 조선 - 왕
             // ==================================================
 
-            Map.entry(new PersonImageKey("태조", Kingdom.JOSEON), "https://i.namu.wiki/i/F_-4l5Pc2zMq62MYcbV8PCTj9qOnl7AkDVMUBlwjL7Cdd0z0hKjLEnBpDga8sSZLShzdEiGr9R-g9CF8wfYDdF8TbQ2gsMMhcYQslI3dqdXotevwCcETEK3s95_O4S0bbxjCkjfz61PMY0W_KHoKDQ.webp"),
-            Map.entry(new PersonImageKey("정종", Kingdom.JOSEON), "https://blog.kakaocdn.net/dna/bBUMXj/btsfeAl87z9/AAAAAAAAAAAAAAAAAAAAAH1DEmCMp42DL0gsrEdufIJJKVueiSBhOl6mI45IHgQs/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1788188399&allow_ip=&allow_referer=&signature=TgXFXHl8ctSAwWUPXBG1RnIGUZ8%3D"),
-            Map.entry(new PersonImageKey("태종", Kingdom.JOSEON), "/images/persons/taejong-heolleung.jpg"),
-            Map.entry(new PersonImageKey("세종", Kingdom.JOSEON), "https://i.namu.wiki/i/TgR3x1_R0yBYtqfYmK33Hb_DxuEZmUSIftA5Y89XVjr4OCiHZ7-zwQ_JvfsZmqEu9ciBLuoHopjMifCLhSawI_t1t5Ot6Msf0hEjm_9OXWBGTDFpCIB57CD5G6KCNMe5z-YlmCT4K7_9HQcTL0-PBA.webp"),
-            Map.entry(new PersonImageKey("문종", Kingdom.JOSEON), "/images/persons/munjong-hyeolleung.jpg"),
-            Map.entry(new PersonImageKey("단종", Kingdom.JOSEON), "https://i.namu.wiki/i/Ej1gSQnnDlrhwcdeNETCZWR7t7OfApVrH8Qid7fg77ErcTT40DXWxJ5XxNXkbZRMkgqdL0zUAsydW8sgmd9r2vmVtnDn9PdXZEcpLKHyQWxeNZo9289xNb_-P0ftMkBKBdK6wdYWNp2fO5joY-PmmA.webp"),
-            Map.entry(new PersonImageKey("세조", Kingdom.JOSEON), "https://i.namu.wiki/i/ssnoMH6I9yKfUrxqJeg8w0z-ln8V3fZTQWThjlJEJLxkP5xpRqKq1_FdG8s_nJzHT4pVhkamnb1YOIaOtTMToE66ZHjlhkhflMQ1YLDehHCQJUhS-tOaV37DW-Pw_6Qp3eCs5mONuhO_f3r4S1s-VQ.webp"),
-            Map.entry(new PersonImageKey("예종", Kingdom.JOSEON), "/images/persons/yejong-changneung.jpg"),
-            Map.entry(new PersonImageKey("성종", Kingdom.JOSEON), "/images/persons/seongjong-seolleung.jpg"),
-            Map.entry(new PersonImageKey("연산군", Kingdom.JOSEON), "/images/persons/yeonsangun-tomb.jpg"),
-            Map.entry(new PersonImageKey("중종", Kingdom.JOSEON), "/images/persons/jungjong-jeongneung.jpg"),
-            Map.entry(new PersonImageKey("인종", Kingdom.JOSEON), "https://i.namu.wiki/i/YwK6stA0FaXfUn_Sf77irDucYkmmjCbZwT4WzwYeDr4KES3HnsyFoDNw19UBCfRS7iMoQlGGbPrfPbeNUUM2daKNgO8eTMA73-7yV6tqgK6QO14mhbZbHZCdiEHCK5v4hKjLFhv9_pp_fmodPjVGLQ.webp"),
-            Map.entry(new PersonImageKey("명종", Kingdom.JOSEON), "/images/persons/myeongjong-gangneung.jpg"),
-            Map.entry(new PersonImageKey("선조", Kingdom.JOSEON), "https://i.namu.wiki/i/NypxZ7aTI0PIcasBP9PuBSfcqDb68M5nbwwZHJW7kYGa-UzufZHsJtuGabfYmdpB_hHT74Zuh45ZkUgJW0nflhsI0Js7NU8BrhLZu41lqZDDMhlyCmzlp3cZu24i5owLAKqTMAdVTGe_DfnS59qg8A.webp"),
-            Map.entry(new PersonImageKey("광해군", Kingdom.JOSEON), "/images/persons/gwanghaegun-tomb.jpg"),
-            Map.entry(new PersonImageKey("인조", Kingdom.JOSEON), "/images/persons/injo-jangneung.jpg"),
-            Map.entry(new PersonImageKey("효종", Kingdom.JOSEON), "https://upload.wikimedia.org/wikipedia/commons/1/1b/%EC%97%AC%EC%A3%BC_%EC%98%81%EB%A6%89%EA%B3%BC_%EC%98%81%EB%A6%89_%ED%9A%A8%EC%A2%85_%EC%98%81%EB%A6%89(%ED%9A%A8%EC%A2%85)_%EB%8A%A5%EC%B9%A8.jpg"),
-            Map.entry(new PersonImageKey("현종", Kingdom.JOSEON), "https://upload.wikimedia.org/wikipedia/commons/b/b8/The_Tomb_of_King_Hyeonjong.JPG"),
-            Map.entry(new PersonImageKey("숙종", Kingdom.JOSEON), "https://i.namu.wiki/i/vcHVT5kFvJwKW4fziwG9I33Djm0EZA76fqrKMzrWEEdkyt5gi3W1Z_7LC13NFtoaQyqoCLeNE0I1oxgFRj6_udyT2UCn3os-YSCWCZXENf1tCni-d4eo_MSWfZK6FMw0v-y1spDWuYM-I7juPgYewQ.webp"),
-            Map.entry(new PersonImageKey("경종", Kingdom.JOSEON), "https://upload.wikimedia.org/wikipedia/commons/2/21/Uireung%2C2018.jpg"),
-            Map.entry(new PersonImageKey("영조", Kingdom.JOSEON), "https://i.namu.wiki/i/ghbJYC5VeuUDgGm3CaDmiRVQrXVgS48Vkd40aohUnAcEhdJCLyem0jEv-Jm_nrLIIRICdrMbGHNb7mCXQImQqa9l6RwCBjtg2MUVRU_rPFZ5QEll9QWrNjRKbFCdiMFZyaIhF68fwGHYl7nM53FUVA.webp"),
-            Map.entry(new PersonImageKey("정조", Kingdom.JOSEON), "https://i.namu.wiki/i/F4wW4_85j-h8WenMA4Y5bAnMLCUBZLc5dgRXQwLYJ0bTlDbIvEjeOZfbbQgO8OC7BxlXZfCvcQRGznqLhtDbS_QbGRSEEwuRbOREo5tczxum20cey8QtZu3dHgI39TAmxYr1Z3PaI_8p7eXM_hgnMw.webp"),
-            Map.entry(new PersonImageKey("순조", Kingdom.JOSEON), "https://i.namu.wiki/i/8ddlbA5ste8x-jWnC1VdIBTQU5SM9oAocu4tq8qgRcqD209IGyenZEMcnuSJWFRwY1YS1vkX6BrbcmZh_OUs_5MMbb-OXn8mVClyNeTnuwfhKaEOOgAcduGWvSCAhFHCk4qXD1U5eroAzqD0qd8TLw.webp"),
-            Map.entry(new PersonImageKey("헌종", Kingdom.JOSEON), "https://i.namu.wiki/i/Ypc3IjLkfvaO3K546_5gjasKScE9-AMzyhFWGi6Or4jPxj-2tMOwcgEgFzIQte-dXyU_xdEDM5piJ1WvHJPWHsdkpyD9-G96XMjTVmUnVMK0pmTmXW9yABZILM-BWWbaSKe2h4ieoEzLLXeqDQl0Gg.webp"),
-            Map.entry(new PersonImageKey("철종", Kingdom.JOSEON), "https://i.namu.wiki/i/relv2cWQVxtpXUW2X6Ue20przh9uqfwpg2RgRVyYRyBdeltpOF5naSeAQgB6--9yXd9zEn_ynNunROONgn5bnwSmvp_XJjfyTs-qVw7-lvkz2lZcN_ebQzrW1yRVAjktXw3f-f6DwhP3LMg_VB8eHw.webp"),
-            Map.entry(new PersonImageKey("고종", Kingdom.JOSEON), "https://i.namu.wiki/i/gpRME_GgjwKqZ2v-IbkEwzwFIETIOoVhKxXS3JdUl-hlzY9XMi09p6gllrfFLJRhv-qae_c3048FKEIXGH1KHIHEtLyqib1CHpDNGTecgIxGIsCEJqAltKJg-AVl5hSIKnPKZVk2cogbUy28jsLrqg.webp"),
-            Map.entry(new PersonImageKey("순종", Kingdom.JOSEON), "https://i.namu.wiki/i/t747O_bRpYl8PBSmZYAXk3yxTOhGEoytlDAqEkx7BVDnPJ3HS0-nkKqH204U95l1hIAn3nM0qECrh5pKEn6c8yIgKkqmcqJEwGBtV2o7m-qQhD3KtLQF3MHxHUWG0pX3TfBnxVQ071Xkg6xZeh1W_Q.webp"),
+            Map.entry(new PersonImageKey("태조", Kingdom.JOSEON), "/images/persons/taejo.png"),
+            Map.entry(new PersonImageKey("정종", Kingdom.JOSEON), "/images/persons/jeongjong.png"),
+            Map.entry(new PersonImageKey("태종", Kingdom.JOSEON), "/images/persons/taejong.png"),
+            Map.entry(new PersonImageKey("세종", Kingdom.JOSEON), "/images/persons/sejong.png"),
+            Map.entry(new PersonImageKey("문종", Kingdom.JOSEON), "/images/persons/munjong.png"),
+            Map.entry(new PersonImageKey("단종", Kingdom.JOSEON), "/images/persons/danjong.png"),
+            Map.entry(new PersonImageKey("세조", Kingdom.JOSEON), "/images/persons/sejo.png"),
+            Map.entry(new PersonImageKey("예종", Kingdom.JOSEON), "/images/persons/yejong.png"),
+            Map.entry(new PersonImageKey("성종", Kingdom.JOSEON), "/images/persons/seongjong.png"),
+            Map.entry(new PersonImageKey("연산군", Kingdom.JOSEON), "/images/persons/yeonsangun.png"),
+            Map.entry(new PersonImageKey("중종", Kingdom.JOSEON), "/images/persons/jungjong.png"),
+            Map.entry(new PersonImageKey("인종", Kingdom.JOSEON), "/images/persons/injong.png"),
+            Map.entry(new PersonImageKey("명종", Kingdom.JOSEON), "/images/persons/myeongjong.png"),
+            Map.entry(new PersonImageKey("선조", Kingdom.JOSEON), "/images/persons/seonjo.png"),
+            Map.entry(new PersonImageKey("광해군", Kingdom.JOSEON), "/images/persons/gwanghaegun.png"),
+            Map.entry(new PersonImageKey("인조", Kingdom.JOSEON), "/images/persons/injo.png"),
+            Map.entry(new PersonImageKey("효종", Kingdom.JOSEON), "/images/persons/hyojong.png"),
+            Map.entry(new PersonImageKey("현종", Kingdom.JOSEON), "/images/persons/hyeonjong.png"),
+            Map.entry(new PersonImageKey("숙종", Kingdom.JOSEON), "/images/persons/sukjong.png"),
+            Map.entry(new PersonImageKey("경종", Kingdom.JOSEON), "/images/persons/gyeongjong.png"),
+            Map.entry(new PersonImageKey("영조", Kingdom.JOSEON), "/images/persons/yeongjo.png"),
+            Map.entry(new PersonImageKey("정조", Kingdom.JOSEON), "/images/persons/jeongjo.png"),
+            Map.entry(new PersonImageKey("순조", Kingdom.JOSEON), "/images/persons/sunjo.png"),
+            Map.entry(new PersonImageKey("헌종", Kingdom.JOSEON), "/images/persons/heonjong.png"),
+            Map.entry(new PersonImageKey("철종", Kingdom.JOSEON), "/images/persons/cheoljong.png"),
+            Map.entry(new PersonImageKey("고종", Kingdom.JOSEON), "/images/persons/gojong.png"),
+            Map.entry(new PersonImageKey("순종", Kingdom.JOSEON), "/images/persons/sunjong.png"),
 
-            // ==================================================
-            // 조선 - 주요 인물
-            // ==================================================
+// ==================================================
+// 조선 - 주요 인물
+// ==================================================
 
-            Map.entry(new PersonImageKey("이순신", Kingdom.JOSEON), "https://i.namu.wiki/i/gsI2NGWZWCwPfTbfFA86eznNH2Xc9u08BFY0lzHg6AHl074M0KDPVrIixQvvoxLN3SrF7FZtx6ZtJxvey3alvcGSJTH0loLpiMR9ZSx-In9M4epaIRJr7O3gOqLRnzPaHcMWEskTaaIA0Va_7j49iQ.webp"),
-            Map.entry(new PersonImageKey("장영실", Kingdom.JOSEON), "https://i.namu.wiki/i/Gqb8RfNs5muKqS7XdjFMVL6bBomLnilQ6SdMnx-Z80G0VTHTJeI63X41XjD3REk6RkGXBqW-sNq_EabwnbWWNo3pyRKWVPuVWkynJ-HGMyt89AGkoRfHOBi7QNuzFyuxUm8JccVhfYI3yOu2MuT1UQ.webp"),
-            Map.entry(new PersonImageKey("허준", Kingdom.JOSEON), "https://i.namu.wiki/i/RnCHXqa20a_6oqO91QY4-QhFGa_aNxnzSMOWGorbVFmwZpu6QzbrYHN1SZ2dvf7IboE7vQOpQivrfQ8c7tqbm8iC07y0AED6hhzxN0fheio908bt6DfWFC4xXPTNmANgv_vFlwCa8AUIW6pL36vcyw.webp"),
-            Map.entry(new PersonImageKey("정약용", Kingdom.JOSEON), "https://i.namu.wiki/i/y-Yk13IuR1JY7nnL1iqkBvN_ydWHRsfo1Bvs_8XMbUuQnFMozdkUMU2v5xOA0u82calMYGbz7qOXGFEVX9wJjf79j-3eBN5iy1d3NkBgdjfVM4RNELXLWhGsmMNszvU4Sg7wMcNoXLWS0J5USi5vFQ.webp"),
-            Map.entry(new PersonImageKey("이황", Kingdom.JOSEON), "https://i.namu.wiki/i/SCLxzb8mz3tdyjuc-j0W43pXD6RgtDpJB0QcbRxx1mmQ3BfZ_KdNntRY45NR1uemvx8j4Drj6cG3HJX63v0FwvgAkyHr7YjuY3b_CYufTPvv-M7-YWQz_N8azVcClDw34NgcXZ_NZmULW53K1l1xFw.webp"),
-            Map.entry(new PersonImageKey("이이", Kingdom.JOSEON), "https://i.namu.wiki/i/VCUFuoUsQwNuXgOGshUUJeaHirTsac5CYxEwUpkE3udwYafoFypvPlD_RpnW0ldOYN5P17YY6LbZI3ukGx66z94ZnK2SXmCv291PvVbO_7IVshe8XUUI7yEBCoiEHX2kwCXzRLCH59k2vBWQcrgybw.webp"),
+            Map.entry(new PersonImageKey("이순신", Kingdom.JOSEON), "/images/persons/yi-sun-sin.png"),
+            Map.entry(new PersonImageKey("장영실", Kingdom.JOSEON), "/images/persons/jang-yeong-sil.png"),
+            Map.entry(new PersonImageKey("허준", Kingdom.JOSEON), "/images/persons/heo-jun.png"),
+            Map.entry(new PersonImageKey("정약용", Kingdom.JOSEON), "/images/persons/jeong-yak-yong.png"),
+            Map.entry(new PersonImageKey("이황", Kingdom.JOSEON), "/images/persons/yi-hwang.png"),
+            Map.entry(new PersonImageKey("이이", Kingdom.JOSEON), "/images/persons/yi-i.png"),
 
-            // ==================================================
-            // 개화기 / 대한제국
-            // ==================================================
+// ==================================================
+// 개화기 / 대한제국
+// ==================================================
 
-            Map.entry(new PersonImageKey("명성황후", Kingdom.JOSEON), "https://i.namu.wiki/i/5WAwA2okkK48B95Px9CRUmYaEp51xGV1VFDn1m4ot7b9H7sEuHXTET5MIgsNAcqahze4gqo30sMhnxIDWYi1QC-QwDkmhAMOlTBstLJmxpNKM1f4jKGxthyu3X9ZfZkv8C6rNh2wEsdNfgNMiQlCRA.webp"),
-            Map.entry(new PersonImageKey("고종", Kingdom.KOREAN_EMPIRE), "https://i.namu.wiki/i/cPw7r66I2A12MXl6Kv79G-DzuWT2SefKV6NHweKc9_N7QrVD3EcvPyuXqcIGlPrCGgMhMqoHQfDclCV0yBgsuv447-ELgw4MaZ5SBCvu1UyZD-5L9hJ3uLEUcNZkG2k5G2Au66PGzswCCCFzKwN3Mg.webp"),
+            Map.entry(new PersonImageKey("명성황후", Kingdom.JOSEON), "/images/persons/myeongseong-hwanghu.png"),
+            Map.entry(new PersonImageKey("고종", Kingdom.KOREAN_EMPIRE), "/images/persons/gojong-korean-empire.png"),
 
-            // ==================================================
-            // 일제강점기
-            // ==================================================
+// ==================================================
+// 일제강점기
+// ==================================================
 
-            Map.entry(new PersonImageKey("안중근", Kingdom.JAPANESE_COLONY), "https://i.namu.wiki/i/SnDX4lJSJwEOvREGKRMmGYHMN-7X156JvxWVDgH3b1ldwWIxtdEBJaXeB4AXhFMCZFKuwjqGtab464IQ6A9miguvtdKcUAvBTkH8-13aRzzttQwwweICjympg4jo8BxUajhJWzLwznay6LvqiimQpw.webp"),
-            Map.entry(new PersonImageKey("유관순", Kingdom.JAPANESE_COLONY), "https://i.namu.wiki/i/CpXfH1CBe74yXbEFzC-Zi-cZorflghlv-uIFa22s2n5TmzvbUCcvcCTd_TVlAl3rWduWUP-UiTVP0hdNyqZIaphW3NlP97CF-fSNBIVDOKAWzW1kRdUa3XWuC6W1rw6gTjiBost7UTVgiyEs9WBwDg.webp"),
-            Map.entry(new PersonImageKey("김구", Kingdom.JAPANESE_COLONY), "https://i.namu.wiki/i/FjdzlrQja7I9qDf5PGk3CgOUMVXunWVdehLqmTT82RFMOr6nQNx8q079s9LdrcdehfV5aSwrV4P4vtYCRAm2dwT7CBqdciNtXcSu3HnbCnD2zxSTWJZS7nsND4_r2TDNhmzyjrtr0MSJP9rdbbZVQA.webp"),
+            Map.entry(new PersonImageKey("안중근", Kingdom.JAPANESE_COLONY), "/images/persons/an-jung-geun.png"),
+            Map.entry(new PersonImageKey("유관순", Kingdom.JAPANESE_COLONY), "/images/persons/yu-gwan-sun.png"),
+            Map.entry(new PersonImageKey("김구", Kingdom.JAPANESE_COLONY), "/images/persons/kim-gu.png"),
 
-            // ==================================================
-            // 대한민국 제1공화국
-            // ==================================================
-
-            Map.entry(new PersonImageKey("이승만", Kingdom.FIRST_REPUBLIC_OF_KOREA), "https://i.namu.wiki/i/n53DnvoP_Pnz7SntVHOI7FHJdJ2HLW9qYHjX9Bg42kWdjI2kNnsGOQXzNOlKAYaUaW1CExmt0chuWEkizEliti8sAJE76u3YtkwPpn2kksqdqDbs3zKey1f2ueJhO8CaVUbVd0ChcJ3EEvEVPGYyTg.webp")
+// ==================================================
+// 대한민국 제1공화국
+// ==================================================
+    Map.entry(new PersonImageKey("이승만", Kingdom.FIRST_REPUBLIC_OF_KOREA), "/images/persons/syngman-rhee.png")
     );
 
     public static String getImageUrl(Person person) {
