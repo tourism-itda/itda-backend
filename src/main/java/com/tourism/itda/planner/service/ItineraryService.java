@@ -190,6 +190,10 @@ public class ItineraryService {
     public ShareItineraryResponse share(Long userId, Long itineraryId, ShareItineraryRequest req) {
         Itinerary itinerary = loadOwned(userId, itineraryId);
 
+        if (itinerary.getSourceItineraryId() != null) {
+            throw new ForbiddenException("가져온 일정은 공유할 수 없습니다.");
+        }
+
         itinerary.changeIsShared(true);
 
         if (req != null) {
@@ -230,6 +234,10 @@ public class ItineraryService {
 
         if (!source.isShared()) {
             throw new ForbiddenException("공유되지 않은 일정은 가져올 수 없습니다.");
+        }
+
+        if (itineraryRepository.existsByUserIdAndSourceItineraryIdAndDeletedAtIsNull(userId, source.getId())) {
+            throw new InvalidRequestException("이미 가져온 일정입니다.");
         }
 
         Itinerary copy = Itinerary.builder()
