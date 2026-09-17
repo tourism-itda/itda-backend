@@ -19,6 +19,11 @@ import java.util.List;
  * </ul>
  *
  * @param spotPlaceIds    사용자가 "꼭 가고 싶다"고 고른 촬영지. 최대 3개.
+ * @param excludePlaceIds 이번 추천에서 빼고 싶은 place_id. "다른 코스 보기"(재생성)에 쓴다.
+ *                        직전에 받은 루트의 명소 place_id 를 그대로 넘기면 다른 조합이 나온다.
+ *                        작품 관련 명소가 하나도 안 남게 되는 경우에는 이 제외를 무시한다 —
+ *                        관련 명소 0곳짜리 루트를 만들지 않는 것이 더 중요하기 때문이다.
+ *                        {@code spotPlaceIds} 로 명시한 곳에는 적용하지 않는다.
  * @param allowanceMeters 동선이 몇 m 늘어나도 되는지. 타원의 두께를 정한다.
  *                        생략하면 서버 기본값(3km).
  */
@@ -27,9 +32,14 @@ import java.util.List;
 public record RoutePlanRequest(
         @NotNull Long contentId,
         List<Long> spotPlaceIds,
+        List<Long> excludePlaceIds,
         Long allowanceMeters) {
 
     public List<Long> spotPlaceIdsOrEmpty() {
         return spotPlaceIds == null ? List.of() : spotPlaceIds;
+    }
+
+    public List<Long> excludePlaceIdsOrEmpty() {
+        return excludePlaceIds == null ? List.of() : excludePlaceIds;
     }
 }
