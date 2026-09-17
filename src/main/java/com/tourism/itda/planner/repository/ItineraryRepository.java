@@ -23,4 +23,7 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
 
     /** No.41 커뮤니티 상세 — 공유 중이고 soft delete 안 된 것만 조회 가능. */
     Optional<Itinerary> findByIdAndSharedTrueAndDeletedAtIsNull(Long id);
+
+    /** No.42 가져오기 중복 방지 — 같은 유저가 같은 원본을 이미 가져왔는지(soft delete 제외) 확인. */
+    boolean existsByUserIdAndSourceItineraryIdAndDeletedAtIsNull(Long userId, Long sourceItineraryId);
 }
