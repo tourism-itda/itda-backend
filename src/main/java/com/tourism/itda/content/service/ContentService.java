@@ -556,11 +556,12 @@ public class ContentService {
                         )
                 );
     }
-
     public ContentListResponse searchContents(
             String q,
             String mediaType,
             Long categoryId,
+            String kingdom,
+            Long personId,
             String sort,
             int page,
             int limit
@@ -575,6 +576,18 @@ public class ContentService {
                 (mediaType != null && !mediaType.isBlank())
                         ? mediaType
                         : null;
+
+        Kingdom kingdomEnum = null;
+
+        if (kingdom != null && !kingdom.isBlank()) {
+            try {
+                kingdomEnum = Kingdom.valueOf(kingdom.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(
+                        "존재하지 않는 kingdom입니다: " + kingdom
+                );
+            }
+        }
 
         Sort sortOrder =
                 "popular".equalsIgnoreCase(sort)
@@ -599,6 +612,8 @@ public class ContentService {
                         likePattern,
                         type,
                         categoryId,
+                        kingdomEnum,
+                        personId,
                         pageable
                 );
 
@@ -613,6 +628,7 @@ public class ContentService {
                 result.getTotalElements()
         );
     }
+
 
     private ContentListItemResponse toListItem(
             Content content

@@ -26,11 +26,22 @@ public class ContentController {
             @RequestParam(required = false) String q,
             @RequestParam(name = "media_type", required = false) String mediaType,
             @RequestParam(name = "category_id", required = false) Long categoryId,
+            @RequestParam(required = false) String kingdom,
+            @RequestParam(name = "person_id", required = false) Long personId,
             @RequestParam(defaultValue = "recent") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int limit
     ) {
-        return contentService.searchContents(q, mediaType, categoryId, sort, page, limit);
+        return contentService.searchContents(
+                q,
+                mediaType,
+                categoryId,
+                kingdom,
+                personId,
+                sort,
+                page,
+                limit
+        );
     }
 
     @PostMapping("/{contentId}")
@@ -73,7 +84,10 @@ public class ContentController {
             Authentication authentication,
             @PathVariable Long contentId
     ) {
-        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
+        Long userId = authentication != null
+                ? (Long) authentication.getPrincipal()
+                : null;
+
         return contentService.getRelatedPlaces(contentId, userId);
     }
 }
