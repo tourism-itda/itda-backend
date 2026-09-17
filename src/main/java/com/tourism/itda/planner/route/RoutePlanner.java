@@ -83,9 +83,11 @@ public class RoutePlanner {
 
         long allowance = properties.clampAllowance(request.allowanceMeters());
         List<Long> requestedIds = request.spotPlaceIdsOrEmpty();
+        Set<Long> exclude = Set.copyOf(request.excludePlaceIdsOrEmpty());
 
-        Selection selection = selectSpots(allSpots, requestedIds, content.getTitle(), allowance);
-        selection = fillWithGeneralSpots(selection, allSpots);
+        Selection selection = selectSpots(
+                anchorsAfterExclusion(allSpots, exclude), requestedIds, content.getTitle(), allowance);
+        selection = fillWithGeneralSpots(selection, allSpots, exclude);
 
         VisitOrderOptimizer.OrderedRoute ordered = visitOrderOptimizer.optimize(selection.spots());
         List<ContentSpot> spots = ordered.spots();
@@ -204,6 +206,28 @@ public class RoutePlanner {
     }
 
     /**
+     * "다른 코스 보기"로 제외 요청이 온 앵커를 걸러낸다.
+     *
+     * <p>다만 <b>전부 걸러지면 제외를 통째로 무시한다.</b> 작품 관련 명소가 최소 1곳은 있어야
+     * 그 작품의 루트라고 할 수 있는데, 앵커가 1곳뿐인 작품이 20편이라 제외를 그대로 적용하면
+     * 재생성 한 번에 루트가 사라진다. 그런 작품은 관련 명소를 유지하고 일반 명소만 바뀐다.
+     */
+    private List<ContentSpot> anchorsAfterExclusion(List<ContentSpot> allSpots, Set<Long> exclude) {
+        if (exclude.isEmpty()) {
+            return allSpots;
+        }
+        List<ContentSpot> kept = allSpots.stream()
+                .filter(spot -> !exclude.contains(spot.placeId()))
+                .toList();
+        if (kept.isEmpty()) {
+            log.info("제외 요청을 적용하면 작품 관련 명소가 0곳이 되어 제외를 무시합니다. 앵커 {}곳",
+                    allSpots.size());
+            return allSpots;
+        }
+        return kept;
+    }
+
+    /**
      * 이미 고른 명소들과 충분히 떨어져 있는가.
      *
      * <p>동선 점수만 보면 바로 옆 장소가 항상 이긴다. 실제로 수원 화성과 화성행궁(460m)이
@@ -226,8 +250,11 @@ public class RoutePlanner {
      *
      * <p>일반명소를 목표만큼 못 찾아도 예외를 던지지 않는다 — {@link DayTemplate#forSpotCount}
      * 가 2곳·1곳도 처리하므로 찾은 만큼으로 진행한다.
+     *
+     * <p>{@code exclude} 는 "다른 코스 보기"로 들어온 제외 목록이다. 앵커가 1곳뿐인 작품에서는
+     * 여기서 바뀌는 일반 명소가 재생성의 유일한 변화이므로, 제외한 수만큼 후보를 더 받아 둔다.
      */
-    private Selection fillWithGeneralSpots(Selection selection, List<ContentSpot> allSpots) {
+    private Selection fillWithGeneralSpots(Selection selection, List<ContentSpot> allSpots, Set<Long> exclude) {
         int missing = DayTemplate.MAX_SPOTS - selection.spots().size();
         if (missing <= 0) {
             return selection;
@@ -239,23 +266,23 @@ public class RoutePlanner {
         List<ContentSpot> center = selection.spots().isEmpty() ? allSpots : selection.spots();
         List<Coord> anchorCoords = center.stream().map(ContentSpot::coord).toList();
 
-        List<NearbySpot> nearby = generalSpotFinder.find(anchorCoords, missing);
+        // 제외 대상이 후보 앞쪽을 차지하고 있을 수 있으니 그만큼 더 받는다.
+        // 이미 저장된 장소는 importPlace 가 DB 조회로 끝내므로 추가 API 호출이 늘지 않는다.
+        List<NearbySpot> nearby = generalSpotFinder.find(anchorCoords, missing + exclude.size());
 
         List<ContentSpot> merged = new ArrayList<>(selection.spots());
         Map<Long, SlotFilledBy> filledBy = new HashMap<>(selection.filledBy());
         Map<Long, String> reasons = new HashMap<>(selection.reasons());
 
-        int order = merged.size() + 1;
-        for (NearbySpot spot : nearby) {
-            if (merged.size() >= DayTemplate.MAX_SPOTS) {
-                break;
-            }
-            Place place = tourApiPlaceImporter.importPlace(spot.externalId(), PlaceType.SPOT);
-            if (!takenIds.add(place.getId())) {
-                continue;   // 이미 앵커로 들어간 place 다.
-            }
-            merged.add(new ContentSpot(place, order++));
-            filledBy.put(place.getId(), SlotFilledBy.GENERAL);
+        int[] order = {merged.size() + 1};
+        appendGeneralSpots(nearby, merged, filledBy, takenIds, exclude, order);
+
+        // 제외를 지키느라 3곳을 못 채웠다면 제외를 풀고 다시 채운다.
+        // 재생성을 여러 번 누르면 주변 후보가 고갈되는데, 그때 코스가 2곳으로 짧아지는 것보다
+        // 이전에 봤던 곳이 다시 나오는 편이 낫다.
+        if (merged.size() < DayTemplate.MAX_SPOTS && !exclude.isEmpty()) {
+            log.info("제외를 지키면 {}곳뿐이라 제외를 풀고 채웁니다.", merged.size());
+            appendGeneralSpots(nearby, merged, filledBy, takenIds, Set.of(), order);
         }
 
         if (merged.size() < DayTemplate.MAX_SPOTS) {
@@ -264,6 +291,29 @@ public class RoutePlanner {
         }
 
         return new Selection(List.copyOf(merged), filledBy, reasons);
+    }
+
+    /** 후보를 훑어 빈 자리를 채운다. 제외 목록을 바꿔 두 번 호출할 수 있도록 분리했다. */
+    private void appendGeneralSpots(List<NearbySpot> nearby,
+                                    List<ContentSpot> merged,
+                                    Map<Long, SlotFilledBy> filledBy,
+                                    Set<Long> takenIds,
+                                    Set<Long> exclude,
+                                    int[] order) {
+        for (NearbySpot spot : nearby) {
+            if (merged.size() >= DayTemplate.MAX_SPOTS) {
+                return;
+            }
+            Place place = tourApiPlaceImporter.importPlace(spot.externalId(), PlaceType.SPOT);
+            if (exclude.contains(place.getId())) {
+                continue;   // 직전 루트에 나왔던 곳 — 재생성이니 다른 곳을 준다.
+            }
+            if (!takenIds.add(place.getId())) {
+                continue;   // 이미 이 루트에 들어간 place 다.
+            }
+            merged.add(new ContentSpot(place, order[0]++));
+            filledBy.put(place.getId(), SlotFilledBy.GENERAL);
+        }
     }
 
     // ── 구간 ────────────────────────────────────────────────────────────────

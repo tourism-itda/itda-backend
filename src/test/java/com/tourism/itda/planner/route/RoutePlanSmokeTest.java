@@ -88,7 +88,7 @@ class RoutePlanSmokeTest {
     @DisplayName("인물 체인으로 앵커를 잡고 관련 2 + 일반 1 로 구성한다")
     void 루트를_생성한다() throws Exception {
         RoutePlanResponse response = routePlanner.plan(
-                new RoutePlanRequest(TEST_CONTENT_ID, null, null));
+                new RoutePlanRequest(TEST_CONTENT_ID, null, null, null));
 
         System.out.println("=== 루트 응답 ===");
         System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
