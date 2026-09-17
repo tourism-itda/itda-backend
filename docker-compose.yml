@@ -25,6 +25,9 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       PUBLIC_DATA_API_KEY: ${PUBLIC_DATA_API_KEY}
+      # 연관 관광지 전용 키. 국문과 다른 계정에서 활용신청하면 키가 갈린다.
+      # 비워 두면 PUBLIC_DATA_API_KEY 를 그대로 쓴다.
+      TAR_RLTE_API_KEY: ${TAR_RLTE_API_KEY}
       TMDB_API_KEY: ${TMDB_API_KEY}
       TMDB_ACCESS_TOKEN: ${TMDB_ACCESS_TOKEN}
       KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY}

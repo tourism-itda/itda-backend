@@ -32,9 +32,6 @@ public class PlaceService {
     private final PublicDataClient publicDataClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${public-data.tar-rlte-url}")
-    private String tarRlteUrl;
-
     public List<FestivalItem> searchFestivals(String eventStartDate, String eventEndDate, String areaCode, String sigunguCode, String arrange, int pageNo, int numOfRows) {
         Map<String, String> params = new HashMap<>();
         params.put("eventStartDate", eventStartDate);
@@ -154,19 +151,17 @@ public class PlaceService {
         params.put("baseYm", (baseYm == null || baseYm.isBlank()) ? DEFAULT_BASE_YM : baseYm);
         params.put("pageNo", String.valueOf(pageNo));
         params.put("numOfRows", String.valueOf(numOfRows));
-        return parseList(tarRlteUrl, "/searchKeyword1", params, RelatedTourismItem.class);
+        // 연관 관광지는 서비스키가 국문과 다를 수 있어 전용 경로로 부른다.
+        return parse(publicDataClient.getRelated("/searchKeyword1", params), "/searchKeyword1",
+                RelatedTourismItem.class);
     }
 
     private <T> List<T> parseList(String endpoint, Map<String, String> params, Class<T> type) {
-        return parseList(null, endpoint, params, type);
+        return parse(publicDataClient.get(endpoint, params), endpoint, type);
     }
 
-    private <T> List<T> parseList(String customBaseUrl, String endpoint, Map<String, String> params, Class<T> type) {
+    private <T> List<T> parse(String raw, String endpoint, Class<T> type) {
         try {
-            String raw = customBaseUrl != null
-                    ? publicDataClient.get(customBaseUrl, endpoint, params)
-                    : publicDataClient.get(endpoint, params);
-
             JsonNode items = objectMapper.readTree(raw)
                     .path("response").path("body").path("items").path("item");
             if (items.isMissingNode() || items.isNull()) return Collections.emptyList();

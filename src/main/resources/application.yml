@@ -39,7 +39,12 @@ jwt:
 public-data:
   base-url: https://apis.data.go.kr/B551011/KorService2/
   tar-rlte-url: https://apis.data.go.kr/B551011/TarRlteTarService1/
+  # 국문 관광정보(KorService2) 서비스키. data.go.kr 15101578 활용신청분.
   api-key: ${PUBLIC_DATA_API_KEY}
+  # 연관 관광지(TarRlteTarService1) 서비스키. data.go.kr 15128560 활용신청분.
+  # 포털은 데이터셋 단위로 활용신청을 받아서, 둘을 다른 계정에서 신청하면 키가 갈린다.
+  # 한쪽 키로 다른 서비스를 부르면 403 이다. 비워 두면 위 api-key 를 그대로 쓴다.
+  tar-rlte-api-key: ${TAR_RLTE_API_KEY:}
 
 
 
