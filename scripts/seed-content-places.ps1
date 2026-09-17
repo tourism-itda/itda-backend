@@ -659,7 +659,7 @@ INSERT INTO content_place (content_id, place_id, recommend_order)
 SELECT $($r.content_id), p.place_id, $($r.recommend_order)
 FROM place p
 WHERE p.source = 'TOUR_API' AND p.external_id = $(ConvertTo-SqlLiteral $r.external_id)
-  AND EXISTS (SELECT 1 FROM content c WHERE c.content_id = $($r.content_id))
+  AND EXISTS (SELECT 1 FROM content c WHERE c.id = $($r.content_id))
   AND NOT EXISTS (
       SELECT 1 FROM content_place cp WHERE cp.content_id = $($r.content_id) AND cp.place_id = p.place_id
   );

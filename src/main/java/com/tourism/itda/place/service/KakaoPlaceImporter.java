@@ -29,8 +29,9 @@ import java.util.Optional;
  * 없어서, 받은 이름·좌표로 <i>검색</i>한 뒤 <b>id 가 일치하는 결과만</b> 채택하고 저장값은
  * 전부 카카오 응답에서 가져온다. 클라이언트 값은 검색 힌트 이상의 힘이 없다.
  *
- * <p>영업시간은 채우지 않는다 — 카카오 로컬 API 에 영업시간 필드가 없다. 사진도 마찬가지라
- * {@link NaverPlaceImageFinder} 로 보완한다.
+ * <p>영업시간도 사진도 채우지 않는다 — 카카오 로컬 API 에 그 필드가 아예 없다
+ * ({@code place_name/category_name/x/y/place_url} 뿐). 사진은 응답을 만들 때
+ * {@link PlaceholderImages} 가 분류에 맞는 기본 이미지로 메운다.
  */
 @Slf4j
 @Service
@@ -46,8 +47,6 @@ public class KakaoPlaceImporter {
 
     private final KakaoLocalClient kakaoLocalClient;
     private final PlaceRepository placeRepository;
-    private final PlaceImageService placeImageService;
-    private final NaverPlaceImageFinder naverPlaceImageFinder;
 
     /**
      * 이미 저장된 장소면 그대로 재사용하고, 없으면 카카오에서 검증해 새로 저장한다.
@@ -95,10 +94,7 @@ public class KakaoPlaceImporter {
                 address,
                 AddressRegion.of(address));
 
-        Place saved = placeRepository.save(place);
-        naverPlaceImageFinder.find(verified.name(), address)
-                .ifPresent(url -> placeImageService.savePrimaryIfAbsent(saved.getId(), url));
-        return saved;
+        return placeRepository.save(place);
     }
 
     /**

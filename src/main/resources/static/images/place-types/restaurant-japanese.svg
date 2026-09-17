@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="일식">
+  <rect width="400" height="300" fill="#EDF1F4"/>
+  <rect x="112" y="150" width="176" height="20" rx="6" fill="#BFCBD6"/>
+  <rect x="128" y="108" width="40" height="42" rx="8" fill="#FBFCFD"/>
+  <rect x="128" y="108" width="40" height="14" rx="7" fill="#D98E86"/>
+  <rect x="180" y="108" width="40" height="42" rx="8" fill="#FBFCFD"/>
+  <rect x="180" y="108" width="40" height="14" rx="7" fill="#E0A96D"/>
+  <rect x="232" y="108" width="40" height="42" rx="8" fill="#FBFCFD"/>
+  <rect x="232" y="108" width="40" height="14" rx="7" fill="#8FAE9B"/>
+  <rect x="120" y="186" width="160" height="8" rx="4" fill="#A9B7C4"/>
+  <text x="200" y="258" text-anchor="middle" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif" font-size="18" fill="#7E8C99">일식</text>
+</svg>

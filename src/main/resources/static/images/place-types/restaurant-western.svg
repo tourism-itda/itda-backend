@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="양식">
+  <rect width="400" height="300" fill="#EFEFEA"/>
+  <circle cx="200" cy="146" r="72" fill="#DCDCD3"/>
+  <circle cx="200" cy="146" r="52" fill="#FBFBF8"/>
+  <path d="M112 84v44a10 10 0 0 0 10 10v66a5 5 0 0 0 10 0v-66a10 10 0 0 0 10-10V84a4 4 0 0 0-8 0v34h-4V84a4 4 0 0 0-8 0v34h-4V84a4 4 0 0 0-6 0z" fill="#B3B3A6"/>
+  <path d="M276 84c10 0 16 14 16 32s-6 28-16 28v60a5 5 0 0 0 10 0V84z" fill="#B3B3A6"/>
+  <text x="200" y="258" text-anchor="middle" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif" font-size="18" fill="#8C8C80">양식</text>
+</svg>

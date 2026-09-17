@@ -199,7 +199,7 @@ class SpotScorerTest {
 
     private static ContentSpot spot(Long id, double lat, double lng, int recommendOrder, boolean nightOpen) {
         Place place = Place.ofTourApi(
-                "ext-" + id, PlaceType.SPOT, "장소" + id, "카테고리", lat, lng, "주소", "지역");
+                "ext-" + id, PlaceType.SPOT, "장소" + id, "카테고리", null, lat, lng, "주소", "지역");
         ReflectionTestUtils.setField(place, "id", id);
         ReflectionTestUtils.setField(place, "nightOpen", nightOpen);
         return new ContentSpot(place, recommendOrder);

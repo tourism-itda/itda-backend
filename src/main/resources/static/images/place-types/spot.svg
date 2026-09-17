@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="관광지">
+  <rect width="400" height="300" fill="#E9EEE9"/>
+  <circle cx="300" cy="82" r="26" fill="#D3E0D3"/>
+  <path d="M0 214l104-86 70 58 66-52 160 94v74H0z" fill="#B9CCB9"/>
+  <path d="M0 232l112-72 72 50 74-42 142 80v52H0z" fill="#9DB79E"/>
+  <path d="M200 96c-19 0-34 15-34 34 0 25 34 60 34 60s34-35 34-60c0-19-15-34-34-34z" fill="#7E9A80"/>
+  <circle cx="200" cy="129" r="13" fill="#F2F6F2"/>
+  <text x="200" y="272" text-anchor="middle" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif" font-size="18" fill="#5F7A62">관광지</text>
+</svg>

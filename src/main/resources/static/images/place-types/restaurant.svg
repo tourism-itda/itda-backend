@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="음식점">
+  <rect width="400" height="300" fill="#F1EDE7"/>
+  <circle cx="200" cy="146" r="74" fill="#E0D8CC"/>
+  <circle cx="200" cy="146" r="54" fill="#FBF8F4"/>
+  <path d="M118 86v42a10 10 0 0 0 10 10v66a5 5 0 0 0 10 0v-66a10 10 0 0 0 10-10V86a4 4 0 0 0-8 0v32h-4V86a4 4 0 0 0-8 0v32h-4V86a4 4 0 0 0-6 0z" fill="#BCAF9D"/>
+  <path d="M272 86c11 0 17 13 17 30s-6 27-17 27v61a5 5 0 0 0 10 0V86z" fill="#BCAF9D"/>
+  <text x="200" y="258" text-anchor="middle" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif" font-size="18" fill="#948977">음식점</text>
+</svg>

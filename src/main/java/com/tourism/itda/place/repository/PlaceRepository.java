@@ -40,6 +40,26 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
             """)
     List<Place> findWithoutPrimaryImage(Pageable pageable);
 
+    /**
+     * 사진이나 설명이 비어 있는 장소. 백필 배치({@code PlaceBackfillBatch})가 쓴다.
+     *
+     * <p>둘 다 관광API {@code detailCommon2} 한 번으로 채워지므로 한 목록으로 뽑는다.
+     */
+    @Query("""
+            select p from Place p
+            where not exists (
+                select 1 from PlaceImage i
+                where i.placeId = p.id and i.primary = true
+            )
+            or p.description is null or p.description = ''
+            order by p.id asc
+            """)
+    List<Place> findNeedingBackfill(Pageable pageable);
+
+    /** 설명이 비어 있는 장소 수. 백필 현황 조회용. */
+    @Query("select count(p) from Place p where p.description is null or p.description = ''")
+    long countWithoutDescription();
+
     /** 출처별 전체 장소 수. 사진 현황 조회용. */
     @Query("select p.source as source, count(p) as total from Place p group by p.source")
     List<SourceCount> countBySource();

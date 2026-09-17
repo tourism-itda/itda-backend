@@ -47,6 +47,7 @@ public class TourApiClient {
     private static final String DETAIL_COMMON = "detailCommon2";
     private static final String DETAIL_INFO = "detailInfo2";
     private static final String SEARCH_KEYWORD = "searchKeyword2";
+    private static final String DETAIL_IMAGE = "detailImage2";
     private static final String LDONG_CODE = "ldongCode2";
     private static final String SEARCH_FESTIVAL = "searchFestival2";
     // detailIntro2의 contentTypeId=15(행사/공연/축제)라야 eventhomepage 필드가 채워진다.
@@ -224,6 +225,41 @@ public class TourApiClient {
                     null));
         }
         return result;
+    }
+
+    /**
+     * 장소 1건의 사진들을 가져온다.
+     *
+     * <p>{@code detailCommon2.firstimage} 는 대표 사진 <b>한 장</b>이고 비어 있는 장소도 있다.
+     * 이쪽은 여러 장을 주고, <b>firstimage 가 없어도 사진이 있는 경우가 있다</b>
+     * (예: 전일빌딩245 — firstimage 없음, detailImage2 5장). 그래서 사진 백필의 보조 경로로 쓴다.
+     *
+     * <p>{@code subImageYN} 은 KorService2 가 거부한다. {@code imageYN=Y} 만 유효하다.
+     *
+     * @return 원본 이미지 URL 목록. 없거나 실패하면 빈 리스트
+     */
+    public List<String> findImages(String contentId, int limit) {
+        if (!properties.isConfigured() || contentId == null || contentId.isBlank() || limit <= 0) {
+            return List.of();
+        }
+
+        JsonNode items = callForItems(DETAIL_IMAGE, Map.of(
+                "contentId", contentId,
+                "imageYN", "Y",
+                "numOfRows", String.valueOf(limit),
+                "pageNo", "1"));
+
+        List<String> urls = new ArrayList<>();
+        for (JsonNode item : items) {
+            String url = firstNonBlank(text(item, "originimgurl"), text(item, "smallimageurl"));
+            if (url != null && !urls.contains(url)) {
+                urls.add(url);
+            }
+            if (urls.size() >= limit) {
+                break;
+            }
+        }
+        return urls;
     }
 
     /**

@@ -163,6 +163,8 @@ public class AnchorDiscoveryBatch {
                 PlaceType.SPOT,
                 anchor.name(),
                 anchor.category(),
+                // 발굴 사유를 설명으로 남긴다. 관광API overview 는 백필 배치가 뒤에 채운다.
+                anchor.reason(),
                 anchor.coord().latitude(),
                 anchor.coord().longitude(),
                 anchor.address(),

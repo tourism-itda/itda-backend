@@ -6,9 +6,8 @@ import com.tourism.itda.content.entity.Content;
 import com.tourism.itda.content.repository.ContentRepository;
 import com.tourism.itda.planner.dto.*;
 import com.tourism.itda.place.entity.Place;
-import com.tourism.itda.place.entity.PlaceImage;
 import com.tourism.itda.place.entity.PlaceType;
-import com.tourism.itda.place.repository.PlaceImageRepository;
+import com.tourism.itda.place.service.PlaceImageService;
 import com.tourism.itda.place.service.TourApiPlaceImporter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +59,7 @@ public class RoutePlanner {
 
     private final ContentRepository contentRepository;
     private final ContentAnchorResolver anchorResolver;
-    private final PlaceImageRepository placeImageRepository;
+    private final PlaceImageService placeImageService;
     private final DetourFilter detourFilter;
     private final TimelineEstimator timelineEstimator;
     private final SpotScorer spotScorer;
@@ -408,13 +407,16 @@ public class RoutePlanner {
         return anchorResolver.resolve(contentId).spots();
     }
 
+    /**
+     * 루트 카드에 쓸 대표 이미지. 사진이 없는 장소는 분류에 맞는 기본 이미지가 들어오므로
+     * <b>모든 place_id 에 값이 있다</b> ({@code PlaceholderImages}).
+     */
     public Map<Long, String> primaryImages(List<ContentSpot> spots) {
-        List<Long> ids = spots.stream().map(ContentSpot::placeId).filter(Objects::nonNull).toList();
-        if (ids.isEmpty()) {
-            return Map.of();
-        }
-        return placeImageRepository.findByPlaceIdInAndPrimaryIsTrue(ids).stream()
-                .collect(Collectors.toMap(PlaceImage::getPlaceId, PlaceImage::getImageUrl, (a, b) -> a));
+        List<Place> places = spots.stream()
+                .map(ContentSpot::place)
+                .filter(place -> place.getId() != null)
+                .toList();
+        return placeImageService.imageUrlsOrPlaceholders(places);
     }
 
     /** 촬영지 선택 결과와 그 출처. */

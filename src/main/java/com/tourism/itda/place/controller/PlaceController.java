@@ -74,9 +74,9 @@ public class PlaceController {
                         request.name(), request.latitude(), request.longitude())
                 : tourApiPlaceImporter.importPlace(request.externalId(), request.placeType());
 
-        // 임포트 시점에 대표 이미지를 남기므로 응답에 바로 실어 준다.
-        // (예전에는 무조건 null 이라 확정 직후 카드에서 사진이 사라졌다.)
-        return RoutePlaceView.of(place, placeImageService.primaryImageUrl(place.getId()).orElse(null));
+        // 임포트 시점에 대표 이미지를 남기므로 응답에 바로 실어 준다. 사진이 없으면 기본 이미지가
+        // 들어간다. (예전에는 무조건 null 이라 확정 직후 카드에서 사진이 사라졌다.)
+        return RoutePlaceView.of(place, placeImageService.imageUrlOrPlaceholder(place));
     }
 
     // =====================================================================

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="카페">
+  <rect width="400" height="300" fill="#EFE8E1"/>
+  <path d="M132 112h116v54c0 26-21 47-47 47h-22c-26 0-47-21-47-47v-54z" fill="#C7A183"/>
+  <path d="M144 124h92v42c0 19-16 35-35 35h-22c-19 0-35-16-35-35v-42z" fill="#FBF6F1"/>
+  <path d="M248 128h14c14 0 24 11 24 25s-10 25-24 25h-14v-14h14c6 0 10-5 10-11s-4-11-10-11h-14z" fill="#C7A183"/>
+  <rect x="120" y="222" width="160" height="10" rx="5" fill="#B08C70"/>
+  <path d="M176 86c0-8 8-10 8-18s-8-10-8-18" stroke="#D3BCA6" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M206 86c0-8 8-10 8-18s-8-10-8-18" stroke="#D3BCA6" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <text x="200" y="272" text-anchor="middle" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif" font-size="18" fill="#8F7358">카페</text>
+</svg>

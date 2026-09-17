@@ -13,6 +13,8 @@ import com.tourism.itda.planner.entity.ItineraryPlace;
 import com.tourism.itda.planner.entity.ItineraryPlaceStatus;
 import com.tourism.itda.planner.entity.ItineraryTag;
 import com.tourism.itda.planner.dto.*;
+import com.tourism.itda.planner.route.ContentAnchorResolver;
+import com.tourism.itda.planner.route.ContentSpot;
 import com.tourism.itda.planner.repository.ItineraryPlaceRepository;
 import com.tourism.itda.planner.repository.ItineraryRepository;
 import com.tourism.itda.planner.repository.ItineraryTagRepository;
@@ -40,40 +42,52 @@ public class ItineraryService {
     private final PlaceImageRepository placeImageRepository;
     private final ContentRepository contentRepository;
     private final ContentPlaceRepository contentPlaceRepository;
+    private final ContentAnchorResolver anchorResolver;
     private final DistanceCalculator distanceCalculator;
 
     // =========================================================
     // No.24 추천 일정 (비저장)
     // =========================================================
+    /**
+     * 작품의 추천 장소를 돌려준다.
+     *
+     * <p>장소를 찾는 일은 {@link ContentAnchorResolver} 에 맡긴다. 예전에는 여기서
+     * {@code content_place} 만 직접 읽어서, 승인 매핑이 없는 작품은 전부 404 였다 —
+     * 공개 88편 중 <b>62편</b>이 그랬다. 그런데 그중 22편은 인물 체인
+     * ({@code content_person → place_person})으로 장소를 이미 갖고 있었고,
+     * {@code POST /itineraries/route} 는 같은 작품에 대해 정상으로 루트를 만들고 있었다.
+     * 같은 데이터를 보는 두 엔드포인트가 서로 다르게 답하던 셈이다.
+     *
+     * <p><b>장소가 0곳이어도 예외를 던지지 않는다.</b> 아직 준비되지 않은 작품과 서버 오류는
+     * 프론트에서 구분돼야 한다. {@code anchor_source=NONE} + 빈 {@code slots} 로 내려보낸다.
+     */
     public RecommendItineraryResponse recommend(Long contentId) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new NotFoundException("콘텐츠를 찾을 수 없습니다."));
 
-        List<ContentPlace> mappings = contentPlaceRepository
-                .findByIdContentIdOrderByRecommendOrderAsc(contentId);
-        if (mappings.isEmpty()) {
-            throw new NotFoundException("추천할 장소가 없습니다.");
+        ContentAnchorResolver.Anchors anchors = anchorResolver.resolve(contentId);
+        List<ContentSpot> spots = anchors.spots();
+        if (spots.isEmpty()) {
+            return new RecommendItineraryResponse(
+                    contentId, content.getTitle(), null,
+                    ContentAnchorResolver.AnchorSource.NONE.name(), List.of());
         }
 
-        List<Long> placeIds = mappings.stream().map(cp -> cp.getId().getPlaceId()).toList();
-        Map<Long, Place> placeMap = placeMap(placeIds);
+        List<Long> placeIds = spots.stream().map(ContentSpot::placeId).toList();
         Map<Long, String> imageMap = primaryImageMap(placeIds);
 
         String region = null;
         List<RecommendSlot> slots = new ArrayList<>();
-        for (int i = 0; i < mappings.size(); i++) {
-            ContentPlace cp = mappings.get(i);
-            Place p = placeMap.get(cp.getId().getPlaceId());
-            if (p == null) continue;
+        for (int i = 0; i < spots.size(); i++) {
+            Place p = spots.get(i).place();
             if (region == null) region = p.getRegion();
 
             long[] toNext = {-1, -1};
-            if (i + 1 < mappings.size()) {
-                Place np = placeMap.get(mappings.get(i + 1).getId().getPlaceId());
-                if (np != null) toNext = distanceBetween(p, np);
+            if (i + 1 < spots.size()) {
+                toNext = distanceBetween(p, spots.get(i + 1).place());
             }
             slots.add(new RecommendSlot(
-                    cp.getRecommendOrder(),
+                    spots.get(i).recommendOrder(),
                     new RecommendSlot.RecommendPlace(
                             p.getId(), p.getName(), p.getCategory(), p.getDescription(),
                             imageMap.get(p.getId()), p.getOpeningHours(),
@@ -82,7 +96,8 @@ public class ItineraryService {
                             p.getLatitude(), p.getLongitude())));
         }
 
-        return new RecommendItineraryResponse(contentId, content.getTitle(), region, slots);
+        return new RecommendItineraryResponse(
+                contentId, content.getTitle(), region, anchors.source().name(), slots);
     }
 
     // =========================================================

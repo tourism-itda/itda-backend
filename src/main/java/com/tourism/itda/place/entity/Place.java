@@ -65,11 +65,17 @@ public class Place {
     @Column(name = "night_open", nullable = false)
     private boolean nightOpen = false;
 
-    /** 관광API 에서 가져온 식당/카페를 place 에 저장하기 위한 팩토리. */
+    /**
+     * 관광API 에서 가져온 장소를 place 에 저장하기 위한 팩토리.
+     *
+     * @param description {@code detailCommon2.overview}. 장소 상세 화면의 설명글이다.
+     *                    목록 조회에는 없는 값이라 단건 조회로 왔을 때만 채워진다.
+     */
     public static Place ofTourApi(String externalId,
                                   PlaceType placeType,
                                   String name,
                                   String category,
+                                  String description,
                                   double latitude,
                                   double longitude,
                                   String address,
@@ -80,11 +86,31 @@ public class Place {
         place.placeType = placeType;
         place.name = name;
         place.category = category;
+        place.description = description;
         place.latitude = latitude;
         place.longitude = longitude;
         place.address = address;
         place.region = region;
         return place;
+    }
+
+    /**
+     * 비어 있는 설명을 뒤늦게 채운다. 백필 배치가 쓴다.
+     *
+     * <p>이미 설명이 있으면 덮어쓰지 않는다 — 카카오로 발굴한 장소의 설명은 사람이 검수한
+     * 발굴 사유라, 관광API overview 로 갈아치울 이유가 없다.
+     *
+     * @return 실제로 채웠으면 true
+     */
+    public boolean fillDescriptionIfBlank(String description) {
+        if (description == null || description.isBlank()) {
+            return false;
+        }
+        if (this.description != null && !this.description.isBlank()) {
+            return false;
+        }
+        this.description = description;
+        return true;
     }
 
     /**

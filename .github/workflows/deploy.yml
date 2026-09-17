@@ -67,10 +67,6 @@ jobs:
           # 로그인 앱과 다른 앱의 REST 키다. 로그인 앱에는 카카오맵 제품이 꺼져 있어
           # 로컬 API 가 403 이 나므로 분리했다. KAKAO_REST_API_KEY 로 합치면 로그인이 깨진다.
           KAKAO_MAP_REST_KEY: ${{ secrets.KAKAO_MAP_REST_KEY }}
-          # 네이버 검색 API(이미지). 카카오 로컬 API 에 사진 필드가 없어 장소 사진의 마지막 수단이다.
-          # developers.naver.com > 애플리케이션 등록 > 사용 API "검색" 추가로 발급한다.
-          NAVER_SEARCH_CLIENT_ID: ${{ secrets.NAVER_SEARCH_CLIENT_ID }}
-          NAVER_SEARCH_CLIENT_SECRET: ${{ secrets.NAVER_SEARCH_CLIENT_SECRET }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
@@ -78,7 +74,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: DB_USERNAME,DB_PASSWORD,JWT_SECRET,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_API_KEY,TMDB_API_KEY,TMDB_ACCESS_TOKEN,KAKAO_REST_API_KEY,KAKAO_CLIENT_SECRET,KAKAO_MAP_REST_KEY,NAVER_SEARCH_CLIENT_ID,NAVER_SEARCH_CLIENT_SECRET,ANTHROPIC_API_KEY,AWS_ACCESS_KEY,AWS_SECRET_KEY
+          envs: DB_USERNAME,DB_PASSWORD,JWT_SECRET,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_API_KEY,TMDB_API_KEY,TMDB_ACCESS_TOKEN,KAKAO_REST_API_KEY,KAKAO_CLIENT_SECRET,KAKAO_MAP_REST_KEY,ANTHROPIC_API_KEY,AWS_ACCESS_KEY,AWS_SECRET_KEY
           script: |
             mkdir -p ~/itda
 
@@ -94,8 +90,6 @@ jobs:
             KAKAO_REST_API_KEY=${KAKAO_REST_API_KEY}
             KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
             KAKAO_MAP_REST_KEY=${KAKAO_MAP_REST_KEY}
-            NAVER_SEARCH_CLIENT_ID=${NAVER_SEARCH_CLIENT_ID}
-            NAVER_SEARCH_CLIENT_SECRET=${NAVER_SEARCH_CLIENT_SECRET}
             ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
             AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
             AWS_SECRET_KEY=${AWS_SECRET_KEY}

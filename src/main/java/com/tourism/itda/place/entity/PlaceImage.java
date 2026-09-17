@@ -38,11 +38,19 @@ public class PlaceImage {
      * <p>{@code sortOrder} 는 0 이다 — 부가 이미지를 뒤에 붙일 여지를 남긴다.
      */
     public static PlaceImage primaryOf(Long placeId, String imageUrl) {
+        return of(placeId, imageUrl, true, 0);
+    }
+
+    /**
+     * 사진 한 장. 장소 상세 화면({@code PlaceDetailResponse.images})은 {@code sortOrder} 순으로
+     * 갤러리를 만들므로, 관광API {@code detailImage2} 가 준 순서를 그대로 넣으면 된다.
+     */
+    public static PlaceImage of(Long placeId, String imageUrl, boolean primary, int sortOrder) {
         PlaceImage image = new PlaceImage();
         image.placeId = placeId;
         image.imageUrl = imageUrl;
-        image.primary = true;
-        image.sortOrder = 0;
+        image.primary = primary;
+        image.sortOrder = sortOrder;
         return image;
     }
 }

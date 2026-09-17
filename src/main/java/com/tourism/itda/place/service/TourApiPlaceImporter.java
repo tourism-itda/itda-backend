@@ -35,7 +35,6 @@ public class TourApiPlaceImporter {
     private final TourApiClient tourApiClient;
     private final PlaceRepository placeRepository;
     private final PlaceImageService placeImageService;
-    private final NaverPlaceImageFinder naverPlaceImageFinder;
     private final RouteProperties routeProperties;
 
     /**
@@ -60,6 +59,8 @@ public class TourApiPlaceImporter {
                 fetched.placeType(),
                 fetched.title(),
                 fetched.category(),
+                // detailCommon2.overview — 장소 상세의 설명글. 이것도 받아 놓고 버리고 있었다.
+                fetched.overview(),
                 fetched.coord().latitude(),
                 fetched.coord().longitude(),
                 fetched.address(),
@@ -72,19 +73,16 @@ public class TourApiPlaceImporter {
     }
 
     /**
-     * 대표 이미지를 남긴다. 관광API {@code firstimage} 가 1순위다.
+     * 대표 이미지를 남긴다. 관광API {@code firstimage} 를 그대로 쓴다.
      *
      * <p>지금까지 {@code firstimage} 를 받아 놓고 그냥 버려서 관광지·식당 사진이 전부 비어 있었다.
-     * 관광API 가 사진을 안 주는 장소(앵커 실측 기준 약 11%)는 네이버 이미지 검색으로 보완한다.
      *
-     * <p>사진을 못 구해도 예외를 던지지 않는다 — 사진이 없다고 일정 생성을 막을 이유는 없다.
+     * <p>관광API 가 사진을 안 주는 장소(앵커 실측 기준 약 11%)는 여기서 아무것도 저장하지 않는다.
+     * 그런 장소는 응답을 만들 때 {@link PlaceholderImages} 가 분류에 맞는 기본 이미지를 끼워 준다 —
+     * 기본 이미지를 DB 에 넣어 버리면 나중에 진짜 사진이 생겨도 백필이 대상에서 빼 버린다.
      */
     private void applyPrimaryImage(Place place, TourApiPlace fetched) {
-        String imageUrl = fetched.imageUrl();
-        if (imageUrl == null || imageUrl.isBlank()) {
-            imageUrl = naverPlaceImageFinder.find(fetched.title(), fetched.address()).orElse(null);
-        }
-        placeImageService.savePrimaryIfAbsent(place.getId(), imageUrl);
+        placeImageService.savePrimaryIfAbsent(place.getId(), fetched.imageUrl());
     }
 
     /**
