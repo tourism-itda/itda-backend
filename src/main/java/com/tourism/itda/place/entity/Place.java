@@ -112,10 +112,14 @@ public class Place {
     /**
      * 카카오 로컬 API 로 검증한 장소를 저장하기 위한 팩토리.
      * TourAPI 가 못 찾을 때의 보완재라 kakaoPlaceId 로 중복 적재를 막는다.
-     * (planner.discovery.AnchorDiscoveryBatch 에서 사용 — 작품 관련 명소 발굴 배치)
+     *
+     * <p>쓰는 곳이 둘이라 {@code placeType} 을 받는다:
+     * 작품 관련 명소 발굴 배치({@code planner.discovery.AnchorDiscoveryBatch})는 SPOT 으로,
+     * 사용자가 고른 식당·카페 확정({@code place.service.KakaoPlaceImporter})은 RESTAURANT/CAFE 로 부른다.
      */
     public static Place ofKakao(
             String kakaoPlaceId,
+            PlaceType placeType,
             String name,
             String category,
             String description,
@@ -127,7 +131,7 @@ public class Place {
         Place place = new Place();
         place.kakaoPlaceId = kakaoPlaceId;
         place.source = PlaceSource.KAKAO;
-        place.placeType = PlaceType.SPOT;
+        place.placeType = placeType;
         place.name = name;
         place.category = category;
         place.description = description;

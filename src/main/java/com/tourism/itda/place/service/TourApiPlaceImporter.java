@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>후보 목록 조회 시점이 아니라 <b>사용자가 하나를 고른 시점</b>에만 저장한다.
  * 지도에 뿌린 후보 수십 건을 매번 저장하면 테이블이 쓰레기로 찬다.
  *
- * <p>영업시간({@code detailIntro2})도 이때 한 번만 채운다.
+ * <p>영업시간({@code detailIntro2})과 대표 이미지({@code firstimage})도 이때 한 번만 채운다.
  */
 @Slf4j
 @Service
@@ -34,6 +34,8 @@ public class TourApiPlaceImporter {
 
     private final TourApiClient tourApiClient;
     private final PlaceRepository placeRepository;
+    private final PlaceImageService placeImageService;
+    private final NaverPlaceImageFinder naverPlaceImageFinder;
     private final RouteProperties routeProperties;
 
     /**
@@ -61,10 +63,28 @@ public class TourApiPlaceImporter {
                 fetched.coord().latitude(),
                 fetched.coord().longitude(),
                 fetched.address(),
-                regionOf(fetched.address()));
+                AddressRegion.of(fetched.address()));
 
         applyOpeningHours(place, externalId, fetched.placeType());
-        return placeRepository.save(place);
+        Place saved = placeRepository.save(place);
+        applyPrimaryImage(saved, fetched);
+        return saved;
+    }
+
+    /**
+     * 대표 이미지를 남긴다. 관광API {@code firstimage} 가 1순위다.
+     *
+     * <p>지금까지 {@code firstimage} 를 받아 놓고 그냥 버려서 관광지·식당 사진이 전부 비어 있었다.
+     * 관광API 가 사진을 안 주는 장소(앵커 실측 기준 약 11%)는 네이버 이미지 검색으로 보완한다.
+     *
+     * <p>사진을 못 구해도 예외를 던지지 않는다 — 사진이 없다고 일정 생성을 막을 이유는 없다.
+     */
+    private void applyPrimaryImage(Place place, TourApiPlace fetched) {
+        String imageUrl = fetched.imageUrl();
+        if (imageUrl == null || imageUrl.isBlank()) {
+            imageUrl = naverPlaceImageFinder.find(fetched.title(), fetched.address()).orElse(null);
+        }
+        placeImageService.savePrimaryIfAbsent(place.getId(), imageUrl);
     }
 
     /**
@@ -82,14 +102,4 @@ public class TourApiPlaceImporter {
                 intro.openingHours(), parsed.openTime(), parsed.closeTime(), parsed.nightOpen());
     }
 
-    /**
-     * 주소 앞머리에서 시/도를 뽑는다. region 은 일정 목록 표시에만 쓰여서 이 정도면 충분하다.
-     */
-    private static String regionOf(String address) {
-        if (address == null || address.isBlank()) {
-            return null;
-        }
-        String first = address.trim().split("\\s+")[0];
-        return first.length() > 50 ? first.substring(0, 50) : first;
-    }
 }

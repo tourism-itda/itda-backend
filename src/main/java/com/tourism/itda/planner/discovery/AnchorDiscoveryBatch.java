@@ -173,6 +173,7 @@ public class AnchorDiscoveryBatch {
     private Place createKakaoPlace(DiscoveredAnchor anchor) {
         Place place = Place.ofKakao(
                 anchor.externalId(),
+                PlaceType.SPOT,
                 anchor.name(),
                 anchor.category(),
                 anchor.reason(),

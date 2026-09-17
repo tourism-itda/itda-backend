@@ -102,6 +102,19 @@ itda:
     rest-api-key: ${KAKAO_MAP_REST_KEY:}
     size: 15
 
+  # 네이버 검색 API(이미지) — 장소 사진의 마지막 수단.
+  #
+  # 사진 출처 우선순위는 관광API firstimage > 네이버 이미지 검색이다. 카카오 로컬 API 에는
+  # 사진 필드가 아예 없어서(place_name/category_name/x/y/place_url 뿐) 카카오로 보충한
+  # 식당·카페는 여기가 유일한 경로다. 관광API 가 사진을 안 주는 관광지(실측 약 11%)도 여기로 온다.
+  #
+  # 키 발급: developers.naver.com > 애플리케이션 등록 > "검색" API 추가 (무료, 하루 25,000건).
+  # 키가 없으면 사진 없이 넘어갈 뿐, 앱은 정상 기동한다.
+  naver-search:
+    client-id: ${NAVER_SEARCH_CLIENT_ID:}
+    client-secret: ${NAVER_SEARCH_CLIENT_SECRET:}
+    display: 10
+
   # 하루 일정 템플릿: 장소 → 식당(점심) → 카페 → 장소 → 식당(저녁) → 장소
   route:
     # 10:00 시작 + 체류 120/90/60 으로는 마지막 촬영지 도착이 18:22 로 계산됐다.
