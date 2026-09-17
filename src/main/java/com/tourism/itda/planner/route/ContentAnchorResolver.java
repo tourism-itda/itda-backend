@@ -159,8 +159,17 @@ public class ContentAnchorResolver {
      * 가장 많은 앵커가 모여 있는 지역 하나만 남기고, recommend_order 로 정렬한다.
      *
      * <p>각 앵커를 중심으로 반경 안에 들어오는 이웃 수를 세고 가장 큰 무리를 고른다.
-     * 동점이면 서로 더 가까운 쪽이 이긴다. 앵커가 2곳 이하면 그대로 둔다 —
-     * 이 경우 거리 판정은 뒤의 동선 검증이 맡는다.
+     * 동점이면 서로 더 가까운 쪽이 이긴다.
+     *
+     * <p><b>앵커가 2곳일 때도 반드시 검사해야 한다.</b> 예전에는 2곳 이하를 그냥 통과시키고
+     * "거리는 뒤의 동선 검증이 걸러준다"고 뒀는데, {@link VisitOrderOptimizer} 는 순서만 정하고
+     * 후보를 버리지는 않는다. 그 결과 이순신(현충사 아산 ↔ 한산도 통영, 265km),
+     * 장영실(경복궁 ↔ 영릉, 94km)처럼 장소가 정확히 2곳인 인물에서 전국을 가로지르는
+     * 코스가 그대로 나갔다. 하필 이런 인물이 많다.
+     *
+     * <p>둘이 서로 멀면 무리 크기가 1로 같아지므로 목록의 첫 앵커가 남는다.
+     * 인물 연고지 목록은 대표성이 높은 곳이 앞에 오도록 정리돼 있어(이순신은 현충사,
+     * 장영실은 경복궁) 이 선택이 합리적이다.
      */
     private List<ContentSpot> clusterAndOrder(List<ContentSpot> spots) {
         List<ContentSpot> clustered = densestCluster(spots);
@@ -170,7 +179,7 @@ public class ContentAnchorResolver {
     }
 
     private List<ContentSpot> densestCluster(List<ContentSpot> spots) {
-        if (spots.size() <= 2) {
+        if (spots.size() <= 1) {
             return spots;
         }
 
