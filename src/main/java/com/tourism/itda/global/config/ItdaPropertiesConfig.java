@@ -1,6 +1,7 @@
 package com.tourism.itda.global.config;
 
 import com.tourism.itda.global.kakao.KakaoLocalProperties;
+import com.tourism.itda.global.naver.NaverSearchProperties;
 import com.tourism.itda.global.tourapi.TourApiProperties;
 import com.tourism.itda.planner.route.LlmProperties;
 import com.tourism.itda.planner.route.RouteProperties;
@@ -19,7 +20,8 @@ import org.springframework.context.annotation.Configuration;
         TourApiProperties.class,
         RouteProperties.class,
         LlmProperties.class,
-        KakaoLocalProperties.class
+        KakaoLocalProperties.class,
+        NaverSearchProperties.class
 })
 public class ItdaPropertiesConfig {
 }

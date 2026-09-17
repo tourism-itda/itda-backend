@@ -83,7 +83,7 @@ public class RoutePlanner {
 
         long allowance = properties.clampAllowance(request.allowanceMeters());
         List<Long> requestedIds = request.spotPlaceIdsOrEmpty();
-        Set<Long> exclude = Set.copyOf(request.excludePlaceIdsOrEmpty());
+        Set<Long> exclude = excludeWithoutUserPicks(request.excludePlaceIdsOrEmpty(), requestedIds);
 
         Selection selection = selectSpots(
                 anchorsAfterExclusion(allSpots, exclude), requestedIds, content.getTitle(), allowance);
@@ -133,6 +133,25 @@ public class RoutePlanner {
                 ordered.withinLimits());
     }
 
+    /**
+     * 제외 목록에서 사용자가 직접 고른 촬영지를 빼낸다.
+     *
+     * <p>"루트 변경하기"는 직전 루트의 place_id 를 그대로 제외로 보내는 방식이라, 사용자가 고른
+     * 촬영지도 그 목록에 딸려 들어온다. 그걸 그대로 적용하면 <b>고른 곳이 루트에서 사라진다</b> —
+     * 광해에서 창덕궁을 고르고 변경하기를 누르면 창덕궁이 빠지고 종묘가 대신 들어왔다.
+     *
+     * <p>{@code spot_place_ids} 는 "꼭 가고 싶다"는 뜻이므로 제외보다 우선한다. 프론트가 직전 루트를
+     * 통째로 제외에 넣어도 안전하도록 서버에서 걸러 낸다.
+     */
+    static Set<Long> excludeWithoutUserPicks(List<Long> excludeIds, List<Long> requestedIds) {
+        if (excludeIds.isEmpty() || requestedIds.isEmpty()) {
+            return Set.copyOf(excludeIds);
+        }
+        Set<Long> exclude = new LinkedHashSet<>(excludeIds);
+        exclude.removeAll(requestedIds);
+        return Set.copyOf(exclude);
+    }
+
     // ── 촬영지 선택 ──────────────────────────────────────────────────────────
 
     /**
@@ -140,6 +159,11 @@ public class RoutePlanner {
      *
      * <p>사용자가 아무것도 안 고르면 자동추천 모드로, 전부 서버가 고른다.
      * 상한을 넘겨 보내면 앞에서부터 상한까지만 쓴다 — UI 에서도 막지만 서버가 최종 방어.
+     *
+     * <p><b>사용자가 골랐으면 그 개수를 그대로 지킨다</b>({@link #relatedSpotTarget}).
+     * 예전에는 목표치를 {@code min(2, 앵커수)} 로 고정해서, 앵커가 2곳인 작품(덕혜옹주 등)에서
+     * 사용자가 1곳만 골라도 나머지 1곳이 자동으로 따라 들어갔다. 고른 대로 나오지 않으니
+     * 선택 UI 자체가 무의미해진다.
      */
     private Selection selectSpots(List<ContentSpot> allSpots, List<Long> requestedIds,
                                   String contentTitle, long allowanceMeters) {
@@ -163,8 +187,7 @@ public class RoutePlanner {
         Map<Long, String> reasons = new HashMap<>();
         selected.forEach(spot -> filledBy.put(spot.placeId(), SlotFilledBy.USER));
 
-        // 앵커가 3곳 이상 있어도 2곳까지만 쓴다. 나머지 한 칸은 일반 명소 몫이다.
-        int target = Math.min(MAX_RELATED_SPOTS, allSpots.size());
+        int target = relatedSpotTarget(selected.size(), allSpots.size());
         while (selected.size() < target) {
             List<ContentSpot> remaining = allSpots.stream()
                     .filter(spot -> !selectedIds.contains(spot.placeId()))
@@ -203,6 +226,26 @@ public class RoutePlanner {
         }
 
         return new Selection(List.copyOf(selected), filledBy, reasons);
+    }
+
+    /**
+     * 이번 루트에 넣을 작품 관련 명소의 목표 개수.
+     *
+     * <p>사용자가 골랐으면 <b>그 개수 그대로</b>다. 1곳을 골랐으면 1곳만 들어가고 남은 두 칸은
+     * 일반 명소가 채운다 — 고른 것 외에 관련 명소를 더 끼워 넣으면 선택이 무시된 것으로 보인다.
+     *
+     * <p>아무것도 안 골랐을 때만 서버가 {@link #MAX_RELATED_SPOTS} 까지 채운다. 앵커가 3곳 이상
+     * 있어도 2곳까지만 쓴다 — 나머지 한 칸은 일반 명소 몫이라는 것이 팀 결정이다.
+     *
+     * @param userPickedCount 사용자가 고른 것 중 <b>이 작품의 앵커가 맞는</b> 개수.
+     *                        0 이면 자동추천 모드다 (엉뚱한 id 만 보낸 경우도 여기로 온다).
+     * @param anchorCount     이 작품이 가진 앵커 수
+     */
+    static int relatedSpotTarget(int userPickedCount, int anchorCount) {
+        if (userPickedCount > 0) {
+            return userPickedCount;
+        }
+        return Math.min(MAX_RELATED_SPOTS, anchorCount);
     }
 
     /**

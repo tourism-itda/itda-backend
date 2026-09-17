@@ -32,6 +32,10 @@ services:
       # 지도·검색·길찾기용. 로그인 앱과 다른 앱의 키라 위와 합치면 로그인이 깨진다.
       # .env 에만 있고 여기 없으면 컨테이너에 전달되지 않아 길찾기가 조용히 꺼진다.
       KAKAO_MAP_REST_KEY: ${KAKAO_MAP_REST_KEY}
+      # 장소 사진의 마지막 수단(네이버 이미지 검색). 카카오 로컬 API 에는 사진 필드가 없어서
+      # 카카오로 보충한 식당·카페는 이 키가 없으면 사진이 계속 빈다.
+      NAVER_SEARCH_CLIENT_ID: ${NAVER_SEARCH_CLIENT_ID}
+      NAVER_SEARCH_CLIENT_SECRET: ${NAVER_SEARCH_CLIENT_SECRET}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
       AWS_SECRET_KEY: ${AWS_SECRET_KEY}

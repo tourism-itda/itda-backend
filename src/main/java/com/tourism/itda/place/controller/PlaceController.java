@@ -2,6 +2,10 @@ package com.tourism.itda.place.controller;
 
 import com.tourism.itda.global.auth.LoginUser;
 import com.tourism.itda.place.dto.*;
+import com.tourism.itda.place.entity.Place;
+import com.tourism.itda.place.entity.PlaceSource;
+import com.tourism.itda.place.service.KakaoPlaceImporter;
+import com.tourism.itda.place.service.PlaceImageService;
 import com.tourism.itda.place.service.PlaceQueryService;
 import com.tourism.itda.place.service.PlaceService;
 import com.tourism.itda.place.service.TourApiPlaceImporter;
@@ -26,6 +30,8 @@ public class PlaceController {
     private final PlaceService placeService;
     private final PlaceQueryService placeQueryService;
     private final TourApiPlaceImporter tourApiPlaceImporter;
+    private final KakaoPlaceImporter kakaoPlaceImporter;
+    private final PlaceImageService placeImageService;
 
     // =====================================================================
     // 장소/일정 파트 (권승훈) — 저장된 place 테이블 조회
@@ -48,17 +54,29 @@ public class PlaceController {
     }
 
     /**
-     * 사용자가 고른 관광API 후보(식당/카페)를 place 로 확정하고 place_id 를 발급한다.
+     * 사용자가 고른 후보(식당/카페)를 place 로 확정하고 place_id 를 발급한다.
      *
-     * <p>일정 저장(No.28)은 place_id 를 요구하는데 관광API 장소는 place 테이블에 없으므로,
+     * <p>일정 저장(No.28)은 place_id 를 요구하는데 후보는 place 테이블에 없으므로,
      * 사용자가 후보를 확정한 이 시점에 저장한다. 이미 저장된 곳이면 기존 행을 재사용한다.
+     *
+     * <p><b>후보 목록({@code CandidateView})을 그대로 실어 보내면 된다.</b> 출처에 따라
+     * 확정 경로가 갈린다 — TourAPI 는 contentId 로 재조회하고, 카카오는 id 단건 조회가 없어
+     * 이름·좌표로 검색한 뒤 id 가 일치하는 것만 채택한다. {@code source} 를 빼면 TOUR_API 로
+     * 본다(기존 프론트 호환).
      *
      * <p>⚠️ 명세서 v4 에 없는 신규 엔드포인트 — 팀·프론트 합의 필요.
      */
     @PostMapping("/import")
     public RoutePlaceView importPlace(@Valid @RequestBody ImportPlaceRequest request) {
-        var place = tourApiPlaceImporter.importPlace(request.externalId(), request.placeType());
-        return RoutePlaceView.of(place, null);
+        Place place = (request.sourceOrTourApi() == PlaceSource.KAKAO)
+                ? kakaoPlaceImporter.importPlace(
+                        request.externalId(), request.placeType(),
+                        request.name(), request.latitude(), request.longitude())
+                : tourApiPlaceImporter.importPlace(request.externalId(), request.placeType());
+
+        // 임포트 시점에 대표 이미지를 남기므로 응답에 바로 실어 준다.
+        // (예전에는 무조건 null 이라 확정 직후 카드에서 사진이 사라졌다.)
+        return RoutePlaceView.of(place, placeImageService.primaryImageUrl(place.getId()).orElse(null));
     }
 
     // =====================================================================
