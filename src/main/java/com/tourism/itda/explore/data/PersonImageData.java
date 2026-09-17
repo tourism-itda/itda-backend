@@ -148,7 +148,47 @@ public final class PersonImageData {
 // ==================================================
 // 대한민국 제1공화국
 // ==================================================
-    Map.entry(new PersonImageKey("이승만", Kingdom.FIRST_REPUBLIC_OF_KOREA), "/images/persons/syngman-rhee.png")
+    Map.entry(new PersonImageKey("이승만", Kingdom.FIRST_REPUBLIC_OF_KOREA), "/images/persons/syngman-rhee.png"),
+            // ==================================================
+// 조선 - 추가 주요 인물
+// ==================================================
+
+            Map.entry(new PersonImageKey("정도전", Kingdom.JOSEON), "images/persons/jeong-do-jeon.png"),
+            Map.entry(new PersonImageKey("김종서", Kingdom.JOSEON), "images/persons/kim-jong-seo.png"),
+            Map.entry(new PersonImageKey("사도세자", Kingdom.JOSEON), "images/persons/sado-seja.png"),
+            Map.entry(new PersonImageKey("정약전", Kingdom.JOSEON), "images/persons/jeong-yak-jeon.png"),
+            Map.entry(new PersonImageKey("장승업", Kingdom.JOSEON), "images/persons/jang-seung-eop.png"),
+            Map.entry(new PersonImageKey("김홍도", Kingdom.JOSEON), "images/persons/kim-hong-do.png"),
+            Map.entry(new PersonImageKey("신사임당", Kingdom.JOSEON), "images/persons/shin-saimdang.png"),
+            Map.entry(new PersonImageKey("황진이", Kingdom.JOSEON), "images/persons/hwang-jini.png"),
+            Map.entry(new PersonImageKey("전봉준", Kingdom.JOSEON), "images/persons/jeon-bong-jun.png"),
+            Map.entry(new PersonImageKey("김옥균", Kingdom.JOSEON), "images/persons/kim-ok-gyun.png"),
+
+// ==================================================
+// 개화기
+// ==================================================
+
+            Map.entry(new PersonImageKey("흥선대원군", Kingdom.JOSEON), "images/persons/heungseon-daewongun.png"),
+
+// ==================================================
+// 일제강점기 - 추가 인물
+// ==================================================
+
+            Map.entry(new PersonImageKey("윤봉길", Kingdom.JAPANESE_COLONY), "images/persons/yun-bong-gil.png"),
+            Map.entry(new PersonImageKey("이봉창", Kingdom.JAPANESE_COLONY), "images/persons/yi-bong-chang.png"),
+            Map.entry(new PersonImageKey("안창호", Kingdom.JAPANESE_COLONY), "images/persons/an-chang-ho.png"),
+            Map.entry(new PersonImageKey("신채호", Kingdom.JAPANESE_COLONY), "images/persons/shin-chae-ho.png"),
+            Map.entry(new PersonImageKey("홍범도", Kingdom.JAPANESE_COLONY), "images/persons/hong-beom-do.png"),
+            Map.entry(new PersonImageKey("김좌진", Kingdom.JAPANESE_COLONY), "images/persons/kim-jwa-jin.png"),
+            Map.entry(new PersonImageKey("김원봉", Kingdom.JAPANESE_COLONY), "images/persons/kim-won-bong.png"),
+            Map.entry(new PersonImageKey("한용운", Kingdom.JAPANESE_COLONY), "images/persons/han-yong-un.png"),
+            Map.entry(new PersonImageKey("윤동주", Kingdom.JAPANESE_COLONY), "images/persons/yun-dong-ju.png"),
+            Map.entry(new PersonImageKey("이육사", Kingdom.JAPANESE_COLONY), "images/persons/yi-yuk-sa.png"),
+            Map.entry(new PersonImageKey("이회영", Kingdom.JAPANESE_COLONY), "images/persons/yi-hoe-yeong.png"),
+            Map.entry(new PersonImageKey("지청천", Kingdom.JAPANESE_COLONY), "images/persons/ji-cheong-cheon.png"),
+            Map.entry(new PersonImageKey("박열", Kingdom.JAPANESE_COLONY), "images/persons/park-yeol.png"),
+            Map.entry(new PersonImageKey("남자현", Kingdom.JAPANESE_COLONY), "images/persons/nam-ja-hyeon.png"),
+            Map.entry(new PersonImageKey("김두한", Kingdom.JAPANESE_COLONY), "images/persons/kim-du-han.png")
     );
 
     public static String getImageUrl(Person person) {
