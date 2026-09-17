@@ -1,6 +1,7 @@
 package com.tourism.itda.place.controller;
 
 import com.tourism.itda.global.auth.LoginUser;
+import com.tourism.itda.global.exception.NotFoundException;
 import com.tourism.itda.place.dto.*;
 import com.tourism.itda.place.entity.Place;
 import com.tourism.itda.place.entity.PlaceSource;
@@ -12,6 +13,7 @@ import com.tourism.itda.place.service.TourApiPlaceImporter;
 import com.tourism.itda.planner.dto.RoutePlaceView;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/places")
 @RequiredArgsConstructor
@@ -61,22 +64,52 @@ public class PlaceController {
      *
      * <p><b>후보 목록({@code CandidateView})을 그대로 실어 보내면 된다.</b> 출처에 따라
      * 확정 경로가 갈린다 — TourAPI 는 contentId 로 재조회하고, 카카오는 id 단건 조회가 없어
-     * 이름·좌표로 검색한 뒤 id 가 일치하는 것만 채택한다. {@code source} 를 빼면 TOUR_API 로
-     * 본다(기존 프론트 호환).
+     * 이름·좌표로 검색한 뒤 id 가 일치하는 것만 채택한다.
+     *
+     * <p>{@code source} 를 빼면 TOUR_API 로 본다(기존 프론트 호환). 다만 그 경우에도
+     * <b>관광API 에서 못 찾고 이름·좌표가 왔으면 카카오로 한 번 더 시도한다</b> — 프론트의 어느
+     * 한 화면에서 {@code source} 만 빠져도 그 후보가 통째로 저장 불가가 되던 문제가 있었다
+     * (「윤군커피 옥련점」 contentId=1292635388 — 10자리 카카오 id 인데 관광API 로 조회됐다).
      *
      * <p>⚠️ 명세서 v4 에 없는 신규 엔드포인트 — 팀·프론트 합의 필요.
      */
     @PostMapping("/import")
     public RoutePlaceView importPlace(@Valid @RequestBody ImportPlaceRequest request) {
         Place place = (request.sourceOrTourApi() == PlaceSource.KAKAO)
-                ? kakaoPlaceImporter.importPlace(
-                        request.externalId(), request.placeType(),
-                        request.name(), request.latitude(), request.longitude())
-                : tourApiPlaceImporter.importPlace(request.externalId(), request.placeType());
+                ? importFromKakao(request)
+                : importFromTourApiOrKakao(request);
 
         // 임포트 시점에 대표 이미지를 남기므로 응답에 바로 실어 준다. 사진이 없으면 기본 이미지가
         // 들어간다. (예전에는 무조건 null 이라 확정 직후 카드에서 사진이 사라졌다.)
         return RoutePlaceView.of(place, placeImageService.imageUrlOrPlaceholder(place));
+    }
+
+    /**
+     * 관광API 로 먼저 시도하고, 못 찾으면 카카오로 한 번 더 시도한다.
+     *
+     * <p>{@code source} 가 안 왔을 때의 경로다. 카카오는 id 단건 조회가 없어서 이름·좌표가
+     * 있어야만 되물을 수 있다 — 그것마저 없으면 어느 쪽으로도 확정할 수 없으므로,
+     * 무엇이 빠졌는지 알려 주는 편이 프론트가 고치기 쉽다.
+     */
+    private Place importFromTourApiOrKakao(ImportPlaceRequest request) {
+        try {
+            return tourApiPlaceImporter.importPlace(request.externalId(), request.placeType());
+        } catch (NotFoundException tourApiMiss) {
+            if (!request.hasKakaoHints()) {
+                throw new NotFoundException(
+                        "관광API 에서 장소를 찾을 수 없습니다. (external_id=" + request.externalId() + ") "
+                                + "카카오 후보라면 요청에 source·name·latitude·longitude 를 함께 보내야 합니다.");
+            }
+            log.info("관광API 에서 못 찾아 카카오로 재시도합니다. external_id={} name={}",
+                    request.externalId(), request.name());
+            return importFromKakao(request);
+        }
+    }
+
+    private Place importFromKakao(ImportPlaceRequest request) {
+        return kakaoPlaceImporter.importPlace(
+                request.externalId(), request.placeType(),
+                request.name(), request.latitude(), request.longitude());
     }
 
     // =====================================================================

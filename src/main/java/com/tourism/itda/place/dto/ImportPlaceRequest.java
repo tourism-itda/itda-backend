@@ -39,4 +39,17 @@ public record ImportPlaceRequest(
     public PlaceSource sourceOrTourApi() {
         return (source == null) ? PlaceSource.TOUR_API : source;
     }
+
+    /**
+     * 카카오에 되물을 수 있을 만큼의 힌트가 왔는가.
+     *
+     * <p>카카오 로컬 API 에는 id 단건 조회가 없어서 <b>이름이나 좌표 중 하나는 있어야</b>
+     * 검색해서 id 를 대조할 수 있다. {@code source} 가 빠진 요청을 카카오로 재시도할지
+     * 판단하는 기준이다.
+     */
+    public boolean hasKakaoHints() {
+        boolean hasName = name != null && !name.isBlank();
+        boolean hasCoords = latitude != null && longitude != null;
+        return hasName || hasCoords;
+    }
 }
