@@ -115,4 +115,9 @@ public class Content {
     public void publish() {
         this.status = ContentStatus.PUBLISHED;
     }
+
+    // 관련 장소가 없는 등 노출 요건을 못 갖춘 콘텐츠를 비노출 보류 상태로 되돌린다.
+    public void markPending() {
+        this.status = ContentStatus.PENDING;
+    }
 }
