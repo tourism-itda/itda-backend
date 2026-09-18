@@ -39,7 +39,9 @@ public class AnchorDiscoveryBatch {
      */
     @Transactional
     public DiscoveryReport run(boolean onlyMissing, int maxContents) {
-        List<Content> candidates = discoveryContentRepository.findByStatusOrderByIdAsc(ContentStatus.PUBLISHED);
+        // PUBLISHED(노출 중) + PENDING(보류 중) 모두 대상. 보류 작품도 장소가 새로 생기면 다시 노출로 승격시킨다.
+        List<Content> candidates = discoveryContentRepository.findByStatusInOrderByIdAsc(
+                List.of(ContentStatus.PUBLISHED, ContentStatus.PENDING));
 
         List<Content> targets = new ArrayList<>();
         for (Content content : candidates) {
@@ -70,50 +72,50 @@ public class AnchorDiscoveryBatch {
                 List<DiscoveredAnchor> anchors = anchorDiscoveryService.discover(content);
 
                 if (anchors.isEmpty()) {
-                    withZero++;
-                    zeroAnchorContents.add(new DiscoveryReport.ZeroAnchorContent(content.getId(), content.getTitle()));
                     log.info("[{}/{}] '{}' — 관련 명소 0곳", processed, targets.size(), content.getTitle());
-                    continue;
-                }
-
-                int order = nextRecommendOrder(content);
-                int addedForThisContent = 0;
-                for (DiscoveredAnchor anchor : anchors) {
-                    if (anchor.source() == PlaceSource.TOUR_API) {
-                        tourApiVerified++;
-                    } else {
-                        kakaoVerified++;
-                    }
-
-                    PlaceUpsertResult upsert = upsertPlace(anchor);
-                    if (upsert.created()) {
-                        placesCreated++;
-                    }
-
-                    if (contentPlaceExists(content.getId(), upsert.place().getId())) {
-                        // 이미 이 작품에 매핑된 장소면 건너뛴다.
-                        continue;
-                    }
-
-                    ContentPlace mapping = new ContentPlace(content, upsert.place(), order++);
-                    contentPlaceRepository.save(mapping);
-                    mappingsCreated++;
-                    addedForThisContent++;
-                }
-
-                if (addedForThisContent > 0) {
-                    withAnchors++;
                 } else {
-                    // 발굴은 됐지만 전부 기존 매핑과 겹쳐 새로 추가된 게 없는 경우.
-                    withZero++;
-                    zeroAnchorContents.add(new DiscoveryReport.ZeroAnchorContent(content.getId(), content.getTitle()));
-                }
+                    int order = nextRecommendOrder(content);
+                    int addedForThisContent = 0;
+                    for (DiscoveredAnchor anchor : anchors) {
+                        if (anchor.source() == PlaceSource.TOUR_API) {
+                            tourApiVerified++;
+                        } else {
+                            kakaoVerified++;
+                        }
 
-                log.info("[{}/{}] '{}' — 관련 명소 {}곳 신규 추가", processed, targets.size(), content.getTitle(), addedForThisContent);
+                        PlaceUpsertResult upsert = upsertPlace(anchor);
+                        if (upsert.created()) {
+                            placesCreated++;
+                        }
+
+                        if (contentPlaceExists(content.getId(), upsert.place().getId())) {
+                            // 이미 이 작품에 매핑된 장소면 건너뛴다.
+                            continue;
+                        }
+
+                        ContentPlace mapping = new ContentPlace(content, upsert.place(), order++);
+                        contentPlaceRepository.save(mapping);
+                        mappingsCreated++;
+                        addedForThisContent++;
+                    }
+
+                    log.info("[{}/{}] '{}' — 관련 명소 {}곳 신규 추가", processed, targets.size(), content.getTitle(), addedForThisContent);
+                }
 
             } catch (Exception e) {
                 log.warn("작품 '{}'(id={}) 명소 발굴 처리 실패 — 건너뜁니다: {}",
                         content.getTitle(), content.getId(), e.toString());
+            }
+
+            // 관련 장소(content_place)가 하나라도 있으면 노출(PUBLISHED), 하나도 없으면 비노출(PENDING).
+            // 관광앱 특성상 "가볼 장소가 없는 작품"은 사용자에게 노출하지 않는다.
+            boolean hasPlaces = !contentPlaceRepository
+                    .findByIdContentIdOrderByRecommendOrderAsc(content.getId()).isEmpty();
+            if (hasPlaces) {
+                content.publish();
+                withAnchors++;
+            } else {
+                content.markPending();
                 withZero++;
                 zeroAnchorContents.add(new DiscoveryReport.ZeroAnchorContent(content.getId(), content.getTitle()));
             }
