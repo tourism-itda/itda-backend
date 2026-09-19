@@ -36,27 +36,32 @@ public class ContentReprocessBatch {
     /**
      * @param dryRun          true 면 스토리 재생성 없이 분류/연표 매칭 결과만 리포트한다(아무것도 저장 안 함).
      * @param onlyMissingStory true 면 storyBody 가 비어 있는 작품만 대상으로 한다.
-     * @param maxContents     이번 실행에서 처리할 최대 작품 수(호출량·비용 방어).
+     * @param offset          id 오름차순으로 정렬된 대상에서 앞에서부터 건너뛸 개수(페이징용).
+     * @param maxContents     이번 실행에서 처리할 최대 작품 수(호출량·비용·프록시 타임아웃 방어).
      */
     @Transactional
-    public ContentReprocessReport run(boolean dryRun, boolean onlyMissingStory, int maxContents) {
+    public ContentReprocessReport run(boolean dryRun, boolean onlyMissingStory, int offset, int maxContents) {
 
-        List<Content> targets = new ArrayList<>();
+        // id 오름차순으로 필터링된 전체 대상을 만든 뒤 offset~offset+maxContents 구간만 처리한다.
+        // 한 요청이 프록시 타임아웃(60s) 안에 끝나도록 작게 나눠 반복 호출하는 페이징 용도다.
+        List<Content> eligible = new ArrayList<>();
         for (Content content : contentRepository.findAll(Sort.by(Sort.Direction.ASC, "id"))) {
-            if (targets.size() >= maxContents) {
-                break;
-            }
             if (onlyMissingStory && content.getStoryBody() != null && !content.getStoryBody().isBlank()) {
                 continue;
             }
-            targets.add(content);
+            eligible.add(content);
         }
+
+        List<Content> targets = offset >= eligible.size()
+                ? List.of()
+                : eligible.subList(offset, Math.min(offset + maxContents, eligible.size()));
 
         int processed = 0, storyRegenerated = 0, byPerson = 0, byEvent = 0, noChronology = 0, classifyFailed = 0;
         List<ContentReprocessReport.Item> items = new ArrayList<>();
 
-        log.info("콘텐츠 스토리 재처리 배치 시작 — 대상 {}편 (dryRun={}, onlyMissingStory={}, maxContents={})",
-                targets.size(), dryRun, onlyMissingStory, maxContents);
+        log.info("콘텐츠 스토리 재처리 배치 시작 — 이번 처리 {}편 / 전체대상 {}편 "
+                        + "(dryRun={}, onlyMissingStory={}, offset={}, maxContents={})",
+                targets.size(), eligible.size(), dryRun, onlyMissingStory, offset, maxContents);
 
         for (Content content : targets) {
             processed++;

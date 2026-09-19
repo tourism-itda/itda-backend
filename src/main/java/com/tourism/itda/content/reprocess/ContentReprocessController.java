@@ -29,7 +29,8 @@ public class ContentReprocessController {
     public ContentReprocessReport reprocessStory(
             @RequestParam(name = "dry_run", defaultValue = "true") boolean dryRun,
             @RequestParam(name = "only_missing_story", defaultValue = "false") boolean onlyMissingStory,
+            @RequestParam(name = "offset", defaultValue = "0") int offset,
             @RequestParam(name = "max_contents", defaultValue = "10") int maxContents) {
-        return contentReprocessBatch.run(dryRun, onlyMissingStory, maxContents);
+        return contentReprocessBatch.run(dryRun, onlyMissingStory, offset, maxContents);
     }
 }
