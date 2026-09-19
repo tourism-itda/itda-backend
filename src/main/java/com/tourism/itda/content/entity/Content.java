@@ -51,6 +51,10 @@ public class Content {
     @Column(columnDefinition = "TEXT")
     private String storyBody;
 
+    // 줄거리가 연표 기반인지(CHRONICLE) AI 창작인지(AI_GENERATED) 나타내는 출처 라벨.
+    @Enumerated(EnumType.STRING)
+    private StorySource storySource;
+
     private Long viewCount = 0L;
 
     private String thumbnailUrl;
@@ -95,6 +99,10 @@ public class Content {
 
     public void changeStoryBody(String storyBody) {
         this.storyBody = storyBody;
+    }
+
+    public void changeStorySource(StorySource storySource) {
+        this.storySource = storySource;
     }
 
     public void changeThumbnailUrl(String thumbnailUrl) {
