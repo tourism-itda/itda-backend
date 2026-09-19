@@ -18,10 +18,12 @@ import com.tourism.itda.content.repository.ContentStorySectionRepository;
 import com.tourism.itda.content.service.HistoryChronologyLoader.ChronologyEvent;
 import com.tourism.itda.explore.data.HistoricalPersonData;
 import com.tourism.itda.explore.entity.ContentKingdom;
+import com.tourism.itda.explore.entity.HistoricalEvent;
 import com.tourism.itda.explore.entity.Person;
 import com.tourism.itda.explore.enums.Kingdom;
 import com.tourism.itda.explore.enums.PersonType;
 import com.tourism.itda.explore.repository.ContentKingdomRepository;
+import com.tourism.itda.explore.repository.HistoricalEventRepository;
 import com.tourism.itda.explore.repository.PersonRepository;
 import com.tourism.itda.place.entity.Place;
 import com.tourism.itda.place.entity.PlaceImage;
@@ -41,6 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class ContentService {
 
@@ -61,6 +66,7 @@ public class ContentService {
     private final ContentKingdomRepository contentKingdomRepository;
     private final ContentPersonRepository contentPersonRepository;
     private final PersonRepository personRepository;
+    private final HistoricalEventRepository historicalEventRepository;
 
     public ContentService(
             TmdbClient tmdbClient,
@@ -79,7 +85,8 @@ public class ContentService {
             HistoryChronologyLoader chronologyLoader,
             ContentKingdomRepository contentKingdomRepository,
             ContentPersonRepository contentPersonRepository,
-            PersonRepository personRepository
+            PersonRepository personRepository,
+            HistoricalEventRepository historicalEventRepository
     ) {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
@@ -98,6 +105,7 @@ public class ContentService {
         this.contentKingdomRepository = contentKingdomRepository;
         this.contentPersonRepository = contentPersonRepository;
         this.personRepository = personRepository;
+        this.historicalEventRepository = historicalEventRepository;
     }
 
     /**
@@ -176,69 +184,15 @@ public class ContentService {
                 contentData.getTagline()
         );
 
-        // 6. Claude를 이용한 역사적 시대/인물 분류
-        Person classifiedPerson = null;
-
-        var classification = contentClassifier.classify(
+        // 6. Claude 분류 + 연표 기반 스토리 생성 (재처리 배치와 공유하는 로직)
+        StoryReprocessResult classificationResult = classifyAndGenerateStory(
+                content,
                 title,
                 contentData.getOverview(),
                 keywords,
                 contentData.getTagline()
         );
-
-        if (classification.isPresent()) {
-
-            var c = classification.get();
-
-            Kingdom kingdom =
-                    contentClassifier.parseKingdom(c.kingdom());
-
-            // 같은 이름이 서로 다른 kingdom으로 존재할 수 있다(예: 고종 = JOSEON/KOREAN_EMPIRE
-            // 두 행). kingdom을 모르면 이름만으로는 어느 행인지 확정할 수 없고(findByName은
-            // 동명이인이 있으면 IncorrectResultSizeDataAccessException), 잘못 아무 행이나
-            // 골라 연결하는 것보다는 아예 매칭하지 않는 게 안전하다. person 연결은 부가 정보라
-            // classifiedPerson이 null이어도 콘텐츠 저장 자체는 정상 진행된다(아래 전부 null-safe).
-            classifiedPerson = kingdom != null
-                    ? personRepository.findByNameAndKingdom(c.personName(), kingdom).orElse(null)
-                    : null;
-
-            PersonType personType =
-                    contentClassifier.parsePersonType(c.personType());
-
-            content.classify(
-                    kingdom,
-                    personType,
-                    classifiedPerson != null
-                            ? classifiedPerson.getName()
-                            : null
-            );
-
-            final List<ChronologyEvent> events =
-                    classifiedPerson != null
-                            ? chronologyLoader.getEventsBetween(
-                            classifiedPerson.getStartYear(),
-                            classifiedPerson.getEndYear()
-                    )
-                            : List.of();
-
-            final String personName =
-                    classifiedPerson != null
-                            ? classifiedPerson.getName()
-                            : null;
-
-            storytellingGenerator.generate(
-                    title,
-                    contentData.getOverview(),
-                    keywords,
-                    contentData.getTagline(),
-                    personName,
-                    events
-            ).ifPresent(s -> {
-                content.changeSummary(s.summary());
-                content.changeStoryIntro(s.storyIntro());
-                content.changeStoryBody(s.storyBody());
-            });
-        }
+        Person classifiedPerson = classificationResult.matchedPerson();
 
         // 7. 썸네일
         content.changeThumbnailUrl(
@@ -246,14 +200,10 @@ public class ContentService {
                         + contentData.getPosterPath()
         );
 
-        // 8. 실존 인물 매칭 검증
-        // 우리 DB의 실존 인물과 매칭된 경우에만 노출(PUBLISHED)로 승격한다.
-        // 왕조만 맞으면(장소가 있어도) 오분류가 그대로 노출되므로(예: 조선으로 잘못 분류된 작품)
-        // 왕조 기준은 제외하고 인물 매칭만 기준으로 삼는다.
-        // 매칭 실패 시 기본값 PENDING(비노출 보류)으로 남겨, DB 확장 후 재검증 대상으로 둔다.
-        if (classifiedPerson != null) {
-            content.publish();
-        }
+        // 8. 노출 상태는 '장소(content_place) 유무'로만 결정한다.
+        // 적재 시점에는 아직 관련 장소가 발굴되지 않았으므로 기본값 PENDING(비노출 보류)으로 둔다.
+        // 이후 장소 발굴 배치(AnchorDiscoveryBatch)가 관련 장소를 확보하면 PUBLISHED 로 승격한다.
+        // (인물/사건 매칭은 연표 기반 줄거리 생성에만 쓰이고, 노출 여부와는 무관하다.)
 
         // 9. Content 저장
         Content savedContent =
@@ -286,6 +236,132 @@ public class ContentService {
         }
 
         return savedContent;
+    }
+
+    /**
+     * 분류→연표→스토리 재생성 결과. 재처리 배치의 리포트와 saveContent 의 인물 매핑에 쓰인다.
+     *
+     * @param chronologySource 연표 구간을 무엇에서 뽑았는지: "PERSON", "EVENT", "NONE"
+     */
+    public record StoryReprocessResult(
+            Kingdom kingdom,
+            Person matchedPerson,
+            String usedEventName,
+            String chronologySource,
+            boolean storyRegenerated
+    ) {}
+
+    /**
+     * Claude 분류 결과로 (인물/사건) 연표 구간을 정하고, 그 구간의 실제 연표를 근거로 스토리를 재생성해
+     * {@code content} 의 kingdom/personType/personName 및 summary/storyIntro/storyBody 를 갱신한다.
+     *
+     * <p>연표 구간 우선순위: 인물(가장 정밀) > 검수된 사건 > 없음. 분류가 비면 아무것도 바꾸지 않는다.
+     * 인물-콘텐츠 매핑 저장은 반환된 {@link StoryReprocessResult#matchedPerson()} 을 보고 호출측이 처리한다.
+     */
+    public StoryReprocessResult classifyAndGenerateStory(
+            Content content, String title, String overview, String keywords, String tagline) {
+
+        ResolvedClassification r = resolveClassification(title, overview, keywords, tagline);
+        if (r == null) {
+            return new StoryReprocessResult(null, null, null, "NONE", false);
+        }
+
+        content.classify(r.kingdom(), r.personType(),
+                r.matchedPerson() != null ? r.matchedPerson().getName() : null);
+
+        String personName = r.matchedPerson() != null ? r.matchedPerson().getName() : null;
+        boolean storyRegenerated = storytellingGenerator.generate(
+                        title, overview, keywords, tagline, personName, r.events())
+                .map(s -> {
+                    content.changeSummary(s.summary());
+                    content.changeStoryIntro(s.storyIntro());
+                    content.changeStoryBody(s.storyBody());
+                    return true;
+                })
+                .orElse(false);
+
+        return new StoryReprocessResult(
+                r.kingdom(), r.matchedPerson(),
+                r.matchedEvent() != null ? r.matchedEvent().getName() : null,
+                r.chronologySource(), storyRegenerated);
+    }
+
+    /**
+     * 스토리를 재생성하지 않고 분류/연표 매칭 결과만 미리 본다(재처리 배치의 dryRun 용).
+     * {@code content} 를 변경하지 않으므로 트랜잭션 커밋 시에도 아무것도 저장되지 않는다.
+     */
+    public StoryReprocessResult previewClassification(
+            String title, String overview, String keywords, String tagline) {
+
+        ResolvedClassification r = resolveClassification(title, overview, keywords, tagline);
+        if (r == null) {
+            return new StoryReprocessResult(null, null, null, "NONE", false);
+        }
+        return new StoryReprocessResult(
+                r.kingdom(), r.matchedPerson(),
+                r.matchedEvent() != null ? r.matchedEvent().getName() : null,
+                r.chronologySource(), false);
+    }
+
+    private record ResolvedClassification(
+            Kingdom kingdom, PersonType personType,
+            Person matchedPerson, HistoricalEvent matchedEvent,
+            String chronologySource, List<ChronologyEvent> events) {}
+
+    /**
+     * Claude 분류 → 인물/사건 매칭 → 연표 구간 선정까지의 (스토리 생성 이전) 해석 단계.
+     * 분류가 비면 null 을 반환한다. content 를 변경하지 않는 순수 조회 로직이다.
+     */
+    private ResolvedClassification resolveClassification(
+            String title, String overview, String keywords, String tagline) {
+
+        var classification = contentClassifier.classify(title, overview, keywords, tagline);
+        if (classification.isEmpty()) {
+            return null;
+        }
+
+        var c = classification.get();
+        Kingdom kingdom = contentClassifier.parseKingdom(c.kingdom());
+
+        // 같은 이름이 서로 다른 kingdom으로 존재할 수 있어(예: 고종 = JOSEON/KOREAN_EMPIRE)
+        // kingdom을 모르면 이름만으로는 어느 행인지 확정할 수 없다. 잘못 연결하느니 매칭하지 않는다.
+        Person classifiedPerson = kingdom != null
+                ? personRepository.findByNameAndKingdom(c.personName(), kingdom).orElse(null)
+                : null;
+
+        PersonType personType = contentClassifier.parsePersonType(c.personType());
+
+        // 연표 구간 결정 — 인물 매칭이 실패해도, 허구 인물이 실제 역사 사건을 배경으로 하면
+        // 검수된 사건의 연도 구간으로 연표를 뽑는다. 연도는 항상 사람이 검수한 값이라 오추론 오염이 없다.
+        HistoricalEvent matchedEvent =
+                (classifiedPerson == null && c.eventName() != null)
+                        ? historicalEventRepository.findByName(c.eventName()).orElse(null)
+                        : null;
+
+        // 안전장치: 사건의 왕조와 분류된 왕조가 어긋나면(오분류) 연표를 쓰지 않는다.
+        if (matchedEvent != null && kingdom != null && matchedEvent.getKingdom() != kingdom) {
+            log.warn("사건-왕조 불일치로 연표 미적용 - title={}, event={}({}), kingdom={}",
+                    title, matchedEvent.getName(), matchedEvent.getKingdom(), kingdom);
+            matchedEvent = null;
+        }
+
+        final List<ChronologyEvent> events;
+        final String chronologySource;
+        if (classifiedPerson != null) {
+            events = chronologyLoader.getEventsBetween(
+                    classifiedPerson.getStartYear(), classifiedPerson.getEndYear());
+            chronologySource = "PERSON";
+        } else if (matchedEvent != null) {
+            events = chronologyLoader.getEventsBetween(
+                    matchedEvent.getStartYear(), matchedEvent.getEndYear());
+            chronologySource = "EVENT";
+        } else {
+            events = List.of();
+            chronologySource = "NONE";
+        }
+
+        return new ResolvedClassification(
+                kingdom, personType, classifiedPerson, matchedEvent, chronologySource, events);
     }
 
     /**

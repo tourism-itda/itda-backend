@@ -1,0 +1,145 @@
+package com.tourism.itda.explore.data;
+
+import com.tourism.itda.explore.entity.HistoricalEvent;
+import com.tourism.itda.explore.enums.Kingdom;
+
+import java.util.List;
+
+/**
+ * 검수된 시대/사건 시드. 연표(918~2008) 범위 안의 주요 시대·사건을 사람이 검수한 연도 구간으로 정의한다.
+ *
+ * <p>{@code name} 은 Claude 분류 결과의 eventName 과 정확히 일치하는 키이자,
+ * 분류 프롬프트에 노출되는 후보 목록이다({@code ContentClassifier} 가 이 목록으로 프롬프트를 만든다).
+ * 즉 여기가 "선택 가능한 사건"의 단일 출처(single source of truth)다.
+ */
+public class HistoricalEventData {
+
+    public static final List<HistoricalEvent> EVENTS = List.of(
+            // ── 고려 (918~1392) ──
+            new HistoricalEvent("후삼국 통일",
+                    "왕건이 918년 고려를 건국한 뒤 936년 후백제를 무너뜨리고 후삼국을 통일한 시기.",
+                    "고려의 후삼국 통일", Kingdom.GORYEO, 918, 943),
+            new HistoricalEvent("광종의 개혁",
+                    "고려 제4대 광종이 노비안검법과 과거제를 도입하고 호족을 억눌러 왕권을 강화한 시기.",
+                    "광종의 왕권 강화", Kingdom.GORYEO, 949, 975),
+            new HistoricalEvent("거란의 침입",
+                    "993년 서희의 외교 담판부터 1019년 강감찬의 귀주대첩까지 이어진 거란(요)과의 세 차례 전쟁.",
+                    "고려-거란 전쟁", Kingdom.GORYEO, 993, 1019),
+            new HistoricalEvent("이자겸의 난과 묘청의 난",
+                    "외척 이자겸의 권력 남용(1126)과 묘청의 서경 천도 운동·반란(1135)으로 이어진 고려 중기 정치 혼란.",
+                    "고려 중기 내란", Kingdom.GORYEO, 1126, 1135),
+            new HistoricalEvent("무신정변",
+                    "1170년 정중부 등 무신들이 문신을 제거하고 권력을 잡은 정변과 그 직후의 혼란기.",
+                    "1170년 무신정변", Kingdom.GORYEO, 1170, 1196),
+            new HistoricalEvent("최씨 무신정권",
+                    "1196년 최충헌 집권 이후 4대 60여 년간 이어진 최씨 무신 정권기.",
+                    "최씨 무신 집권기", Kingdom.GORYEO, 1196, 1258),
+            new HistoricalEvent("몽골의 침입",
+                    "1231년부터 여러 차례 이어진 몽골(원)의 침입과 강화도 천도·대몽 항쟁 시기.",
+                    "고려-몽골 전쟁", Kingdom.GORYEO, 1231, 1259),
+            new HistoricalEvent("원 간섭기",
+                    "삼별초 항쟁 이후 원의 부마국으로 내정 간섭을 받던 시기.",
+                    "고려 원 간섭기", Kingdom.GORYEO, 1259, 1351),
+            new HistoricalEvent("공민왕의 반원개혁",
+                    "공민왕이 원의 간섭에서 벗어나 쌍성총관부를 수복하고 신돈을 등용해 개혁을 편 시기.",
+                    "공민왕의 자주 개혁", Kingdom.GORYEO, 1351, 1374),
+            new HistoricalEvent("고려 말 혼란기",
+                    "왜구·홍건적의 침입과 권문세족의 횡포, 신진사대부의 성장이 교차한 고려 멸망 직전 시기.",
+                    "고려 말 격변기", Kingdom.GORYEO, 1374, 1392),
+
+            // ── 조선 (1392~1897) ──
+            new HistoricalEvent("조선 건국",
+                    "1388년 위화도 회군으로 실권을 잡은 이성계가 1392년 조선을 건국하고 새 왕조의 기틀을 세운 시기.",
+                    "위화도 회군과 조선 개국", Kingdom.JOSEON, 1388, 1398),
+            new HistoricalEvent("왕자의 난",
+                    "1398년과 1400년 두 차례에 걸쳐 이방원이 왕위 계승을 두고 벌인 골육상쟁.",
+                    "제1·2차 왕자의 난", Kingdom.JOSEON, 1398, 1400),
+            new HistoricalEvent("태종의 왕권 강화",
+                    "태종 이방원이 사병을 혁파하고 육조직계제를 시행해 국왕 중심 체제를 세운 시기.",
+                    "태종의 집권기", Kingdom.JOSEON, 1400, 1418),
+            new HistoricalEvent("세종의 치세",
+                    "세종이 훈민정음 창제와 과학·문화·국방의 전성기를 이끈 시기.",
+                    "세종의 태평성대", Kingdom.JOSEON, 1418, 1450),
+            new HistoricalEvent("계유정난과 단종 폐위",
+                    "1453년 수양대군이 계유정난으로 실권을 잡고 조카 단종을 폐위·사사한 사건.",
+                    "수양대군의 왕위 찬탈", Kingdom.JOSEON, 1452, 1457),
+            new HistoricalEvent("사화의 시대",
+                    "무오·갑자·기묘·을사사화로 이어진 훈구와 사림의 정치 투쟁과 선비들의 수난기.",
+                    "네 차례 사화", Kingdom.JOSEON, 1498, 1545),
+            new HistoricalEvent("임진왜란",
+                    "1592년 일본의 침략으로 시작되어 1598년까지 이어진 전쟁. 이순신의 수군과 전국의 의병이 활약했다.",
+                    "임진왜란과 정유재란", Kingdom.JOSEON, 1592, 1598),
+            new HistoricalEvent("광해군과 인조반정",
+                    "임진왜란 후 광해군의 중립 외교와 전후 복구, 1623년 인조반정으로 이어진 정치 격변.",
+                    "광해군 치세와 반정", Kingdom.JOSEON, 1608, 1623),
+            new HistoricalEvent("병자호란",
+                    "1627년 정묘호란과 1636~1637년 병자호란으로 이어진 후금(청)의 침입. 인조가 삼전도에서 항복했다.",
+                    "정묘·병자호란", Kingdom.JOSEON, 1627, 1637),
+            new HistoricalEvent("북벌과 예송논쟁",
+                    "효종의 북벌 추진과 현종 대 서인·남인이 대립한 예송논쟁 시기.",
+                    "효종·현종 대의 정쟁", Kingdom.JOSEON, 1649, 1674),
+            new HistoricalEvent("숙종의 환국정치",
+                    "숙종이 경신·기사·갑술환국으로 정국을 뒤집으며 왕권을 강화한 시기. 장희빈 사건이 얽혀 있다.",
+                    "숙종 대 환국", Kingdom.JOSEON, 1674, 1720),
+            new HistoricalEvent("영조의 탕평",
+                    "영조가 탕평책과 균역법을 펴고, 사도세자 사건이 벌어진 시기.",
+                    "영조의 개혁과 임오화변", Kingdom.JOSEON, 1724, 1776),
+            new HistoricalEvent("정조의 개혁",
+                    "정조가 규장각을 세우고 수원 화성을 축조하며 개혁 정치를 편 조선 후기 문예 부흥기.",
+                    "정조의 개혁 정치", Kingdom.JOSEON, 1776, 1800),
+            new HistoricalEvent("세도정치기",
+                    "정조 사후 순조·헌종·철종 대에 걸쳐 외척 가문이 권력을 독점하며 삼정 문란이 심화된 시기.",
+                    "조선 후기 세도정치", Kingdom.JOSEON, 1800, 1863),
+            new HistoricalEvent("흥선대원군 집권기",
+                    "고종 즉위 후 흥선대원군이 서원 철폐·경복궁 중건·통상수교 거부 정책을 편 시기.",
+                    "흥선대원군의 개혁과 쇄국", Kingdom.JOSEON, 1863, 1873),
+            new HistoricalEvent("개항과 임오군란",
+                    "1876년 강화도 조약으로 개항한 뒤 1882년 구식 군인들이 일으킨 임오군란까지의 시기.",
+                    "강화도 조약과 임오군란", Kingdom.JOSEON, 1876, 1882),
+            new HistoricalEvent("갑신정변",
+                    "1884년 김옥균 등 급진 개화파가 일으킨 정변. 3일 만에 실패했다.",
+                    "1884년 갑신정변", Kingdom.JOSEON, 1884, 1884),
+            new HistoricalEvent("동학농민운동과 갑오개혁",
+                    "1894년 동학농민운동과 그에 이어진 갑오·을미개혁, 1895년 을미사변으로 이어진 격동기.",
+                    "1894년 동학과 갑오개혁", Kingdom.JOSEON, 1894, 1896),
+
+            // ── 대한제국 (1897~1910) ──
+            new HistoricalEvent("대한제국 성립",
+                    "1897년 고종이 대한제국을 선포하고 광무개혁으로 근대 국가를 지향한 시기.",
+                    "대한제국과 광무개혁", Kingdom.KOREAN_EMPIRE, 1897, 1904),
+            new HistoricalEvent("을사늑약",
+                    "1905년 일제가 외교권을 강탈한 을사늑약과 그에 저항한 을사의병·순국 항쟁.",
+                    "1905년 을사늑약", Kingdom.KOREAN_EMPIRE, 1905, 1907),
+            new HistoricalEvent("정미의병과 국권피탈",
+                    "1907년 군대 해산 이후 전국으로 번진 정미의병과 1910년 국권 피탈까지의 시기.",
+                    "정미의병과 경술국치", Kingdom.KOREAN_EMPIRE, 1907, 1910),
+
+            // ── 일제강점기 (1910~1945) ──
+            new HistoricalEvent("무단통치기",
+                    "1910년 국권 피탈 후 헌병경찰을 앞세운 일제의 강압적 무단 통치 시기.",
+                    "1910년대 무단통치", Kingdom.JAPANESE_COLONY, 1910, 1919),
+            new HistoricalEvent("3·1운동과 임시정부",
+                    "1919년 전국적 만세 시위와 그 결과로 수립된 대한민국 임시정부.",
+                    "3·1운동과 임시정부 수립", Kingdom.JAPANESE_COLONY, 1919, 1919),
+            new HistoricalEvent("봉오동·청산리 전투",
+                    "1920년 홍범도·김좌진 등이 만주에서 일본군을 크게 격파한 무장 독립 전쟁.",
+                    "1920년 무장독립전쟁", Kingdom.JAPANESE_COLONY, 1920, 1920),
+            new HistoricalEvent("의열 투쟁기",
+                    "1920~30년대 의열단·한인애국단 등이 벌인 의거와 무장 항일 투쟁 시기.",
+                    "의열단·한인애국단의 의거", Kingdom.JAPANESE_COLONY, 1920, 1935),
+            new HistoricalEvent("민족말살기",
+                    "1937년 중일전쟁 이후 창씨개명·강제징용·위안부 동원 등 민족 말살 정책이 강행된 시기.",
+                    "1930~40년대 전시 수탈", Kingdom.JAPANESE_COLONY, 1937, 1945),
+
+            // ── 대한민국 제1공화국 ──
+            new HistoricalEvent("광복과 정부수립",
+                    "1945년 광복 이후 미군정과 좌우 대립을 거쳐 1948년 대한민국 정부가 수립되기까지의 시기.",
+                    "광복과 대한민국 정부수립", Kingdom.FIRST_REPUBLIC_OF_KOREA, 1945, 1948),
+            new HistoricalEvent("한국전쟁",
+                    "1950년 6월 발발해 1953년 정전협정으로 멈춘 전쟁. 민족 분단이 고착되는 계기가 되었다.",
+                    "6·25 한국전쟁", Kingdom.FIRST_REPUBLIC_OF_KOREA, 1950, 1953),
+            new HistoricalEvent("전후 복구와 4·19혁명",
+                    "전후 이승만 정권기의 혼란과 부정선거에 맞서 1960년 일어난 4·19혁명까지의 시기.",
+                    "전후 정국과 4·19혁명", Kingdom.FIRST_REPUBLIC_OF_KOREA, 1953, 1960)
+    );
+}
