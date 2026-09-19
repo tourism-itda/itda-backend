@@ -482,6 +482,8 @@ public class ContentService {
             throw new ContentNotFoundException(id);
         }
 
+        contentRepository.incrementViewCount(id);
+
         return buildDetailResponse(content);
     }
 

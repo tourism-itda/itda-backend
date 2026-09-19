@@ -7,8 +7,10 @@ import com.tourism.itda.explore.enums.Kingdom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -47,4 +49,13 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
             @Param("personId") Long personId,
             Pageable pageable
     );
+
+    /**
+     * 상세 조회 시 조회수 +1. 애플리케이션에서 읽어와 +1 해서 저장하면(read-modify-write)
+     * 동시 요청이 겹칠 때 카운트가 유실될 수 있어, DB가 한 번의 UPDATE로 원자적으로 처리하게 한다.
+     */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query("UPDATE Content c SET c.viewCount = c.viewCount + 1 WHERE c.id = :id")
+    void incrementViewCount(@Param("id") Long id);
 }
