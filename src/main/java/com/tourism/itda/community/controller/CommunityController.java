@@ -23,11 +23,12 @@ public class CommunityController {
     @GetMapping
     public List<CommunityPostSummaryResponse> getPosts(
             @RequestParam(required = false) String q,
+            @RequestParam(name = "content_id", required = false) Long contentId,
             @RequestParam(defaultValue = "recent") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int limit
     ) {
-        return communityService.getPosts(q, sort, page, limit);
+        return communityService.getPosts(q, contentId, sort, page, limit);
     }
 
     /** No.41 GET /api/community/posts/:itinerary_id — 인증 불필요. */

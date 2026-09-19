@@ -17,6 +17,10 @@ public record CommunityPostSummaryResponse(
         long placeCount,
         String region,
         String durationLabel,
+        // 이 루트가 만들어진 작품. 작품 없이 만든 일정은 셋 다 null.
+        Long contentId,
+        String contentTitle,
+        String contentThumbnailUrl,
         String thumbnailUrl,
         List<String> tags
 ) {

@@ -45,11 +45,19 @@ public class CommunityService {
     // =========================================================
     // No.40 커뮤니티 목록
     // =========================================================
-    public List<CommunityPostSummaryResponse> getPosts(String q, String sort, int page, int limit) {
+    public List<CommunityPostSummaryResponse> getPosts(String q, Long contentId, String sort, int page, int limit) {
         String likePattern = (q != null && !q.isBlank()) ? "%" + q + "%" : null;
 
         // createdAt DESC 로 미리 정렬된 상태로 가져온다 (sort=recent 는 그대로 사용).
-        List<Itinerary> itineraries = itineraryRepository.findSharedByTitleLikeOrderByCreatedAtDesc(likePattern);
+        List<Itinerary> itineraries = itineraryRepository.findSharedByKeywordOrderByCreatedAtDesc(likePattern);
+
+        // "이 작품으로 만든 루트만 보기". null 파라미터 타입 추론 문제를 피하려고 쿼리 대신 여기서 거른다
+        // (아래 정렬·페이징도 어차피 전부 메모리에서 하는 구조다).
+        if (contentId != null) {
+            itineraries = itineraries.stream()
+                    .filter(it -> contentId.equals(it.getContentId()))
+                    .toList();
+        }
 
         // 정렬 기준(popular/rating)이 리뷰 집계값이라 Itinerary 컬럼만으로는 DB 정렬이 안 된다.
         // 응답에도 어차피 필요한 값이라 미리 다 계산해두고 그 값으로 재정렬한다.
@@ -71,6 +79,7 @@ public class CommunityService {
         return pageItems.stream()
                 .map(it -> {
                     User author = authorMap.get(it.getUserId());
+                    Content content = contentMap.get(it.getContentId());
                     List<String> tags = tagNames(it.getId());
                     return new CommunityPostSummaryResponse(
                             it.getId(),
@@ -82,7 +91,10 @@ public class CommunityService {
                             itineraryPlaceRepository.countByItineraryId(it.getId()),
                             it.getRegion(),
                             it.getDurationLabel(),
-                            resolveThumbnail(it, contentMap.get(it.getContentId())),
+                            content != null ? content.getId() : null,
+                            content != null ? content.getTitle() : null,
+                            contentThumbnail(content),
+                            resolveThumbnail(it, content),
                             tags
                     );
                 })
@@ -139,6 +151,9 @@ public class CommunityService {
                 places.size(),
                 itinerary.getRegion(),
                 itinerary.getDurationLabel(),
+                content != null ? content.getId() : null,
+                content != null ? content.getTitle() : null,
+                contentThumbnail(content),
                 tagNames(itineraryId),
                 thumbnailUrl,
                 stops
@@ -189,6 +204,12 @@ public class CommunityService {
         if (contentIds.isEmpty()) return new java.util.HashMap<>();
         return contentRepository.findAllById(contentIds).stream()
                 .collect(Collectors.toMap(Content::getId, c -> c));
+    }
+
+    /** 작품 박스용 이미지 — 메인 페이지 작품 카드와 같은 thumbnail 우선, 없으면 포스터. */
+    private String contentThumbnail(Content content) {
+        if (content == null) return null;
+        return content.getThumbnailUrl() != null ? content.getThumbnailUrl() : content.getPosterUrl();
     }
 
     private List<String> tagNames(Long itineraryId) {
