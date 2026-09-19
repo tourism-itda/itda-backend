@@ -18,5 +18,9 @@ public enum Kingdom {
 
     KOREAN_EMPIRE,            // 대한제국
     JAPANESE_COLONY,          // 일제강점기
-    FIRST_REPUBLIC_OF_KOREA   // 대한민국 제1공화국
+    FIRST_REPUBLIC_OF_KOREA,  // 대한민국 제1공화국 (1948~1960)
+
+    THIRD_FOURTH_REPUBLIC,    // 제3·4공화국 (1961~1979, 박정희·유신)
+    FIFTH_REPUBLIC,           // 제5공화국 (1980~1987, 전두환·5·18)
+    SIXTH_REPUBLIC            // 제6공화국 이후 (1987~2008, 민주화·IMF)
 }

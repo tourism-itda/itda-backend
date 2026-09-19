@@ -98,6 +98,10 @@ public class KingdomService {
             case KOREAN_EMPIRE -> "대한제국";
             case JAPANESE_COLONY -> "일제강점기";
             case FIRST_REPUBLIC_OF_KOREA -> "대한민국 제1공화국";
+
+            case THIRD_FOURTH_REPUBLIC -> "제3·4공화국";
+            case FIFTH_REPUBLIC -> "제5공화국";
+            case SIXTH_REPUBLIC -> "제6공화국";
         };
     }
 

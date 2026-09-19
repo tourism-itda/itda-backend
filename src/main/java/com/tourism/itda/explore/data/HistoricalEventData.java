@@ -140,6 +140,39 @@ public class HistoricalEventData {
                     "6·25 한국전쟁", Kingdom.FIRST_REPUBLIC_OF_KOREA, 1950, 1953),
             new HistoricalEvent("전후 복구와 4·19혁명",
                     "전후 이승만 정권기의 혼란과 부정선거에 맞서 1960년 일어난 4·19혁명까지의 시기.",
-                    "전후 정국과 4·19혁명", Kingdom.FIRST_REPUBLIC_OF_KOREA, 1953, 1960)
+                    "전후 정국과 4·19혁명", Kingdom.FIRST_REPUBLIC_OF_KOREA, 1953, 1960),
+
+            // ── 제3·4공화국 (1961~1979, 박정희·유신) ──
+            new HistoricalEvent("5·16과 개발연대",
+                    "1961년 5·16 군사정변으로 집권한 박정희 정부가 경제개발 5개년 계획을 추진한 시기.",
+                    "5·16과 경제개발기", Kingdom.THIRD_FOURTH_REPUBLIC, 1961, 1972),
+            new HistoricalEvent("유신체제",
+                    "1972년 유신헌법으로 성립한 장기 집권 체제와 이에 맞선 민주화 운동이 이어진 시기.",
+                    "유신 독재기", Kingdom.THIRD_FOURTH_REPUBLIC, 1972, 1979),
+            new HistoricalEvent("부마항쟁과 10·26",
+                    "1979년 부마민주항쟁과 10·26 사건으로 유신체제가 붕괴한 격변기.",
+                    "1979년 유신 붕괴", Kingdom.THIRD_FOURTH_REPUBLIC, 1979, 1979),
+
+            // ── 제5공화국 (1980~1987, 전두환) ──
+            new HistoricalEvent("12·12와 서울의 봄",
+                    "1979년 12·12 군사반란과 1980년 봄 신군부에 맞선 민주화 열망이 분출한 시기.",
+                    "신군부 집권 전야", Kingdom.FIFTH_REPUBLIC, 1979, 1980),
+            new HistoricalEvent("5·18 광주민주화운동",
+                    "1980년 5월 광주에서 신군부의 계엄에 맞서 일어난 민주화 항쟁.",
+                    "1980년 광주민주화운동", Kingdom.FIFTH_REPUBLIC, 1980, 1980),
+            new HistoricalEvent("제5공화국 군사정권기",
+                    "전두환 정부의 강압 통치와 이에 저항한 민주화 운동이 이어진 시기.",
+                    "전두환 정권과 민주화 운동", Kingdom.FIFTH_REPUBLIC, 1980, 1987),
+
+            // ── 제6공화국 이후 (1987~2008, 민주화·IMF) ──
+            new HistoricalEvent("6월 민주항쟁",
+                    "1987년 6월 대통령 직선제 개헌을 이끌어낸 전국적 민주화 항쟁.",
+                    "1987년 6월 항쟁", Kingdom.SIXTH_REPUBLIC, 1987, 1987),
+            new HistoricalEvent("민주화 이후와 서울올림픽",
+                    "1988년 서울올림픽 전후로 민주화가 진전되고 사회가 급변한 시기.",
+                    "1988년 전후 민주화기", Kingdom.SIXTH_REPUBLIC, 1988, 1996),
+            new HistoricalEvent("IMF 외환위기",
+                    "1997년 외환위기와 그 여파로 사회·경제가 크게 흔들린 시기.",
+                    "1997년 외환위기", Kingdom.SIXTH_REPUBLIC, 1997, 2001)
     );
 }
