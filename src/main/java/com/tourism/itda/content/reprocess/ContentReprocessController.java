@@ -1,6 +1,7 @@
 package com.tourism.itda.content.reprocess;
 
 import lombok.RequiredArgsConstructor;
+import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,5 +33,16 @@ public class ContentReprocessController {
             @RequestParam(name = "offset", defaultValue = "0") int offset,
             @RequestParam(name = "max_contents", defaultValue = "10") int maxContents) {
         return contentReprocessBatch.run(dryRun, onlyMissingStory, offset, maxContents);
+    }
+
+    /**
+     * 특정 작품 id 들만 골라 재처리한다. 예: ?ids=482209,357228,760497,770322
+     * 문제 있는 소수 작품만 정밀 재생성할 때 쓴다.
+     */
+    @PostMapping("/reprocess-story/by-ids")
+    public ContentReprocessReport reprocessStoryByIds(
+            @RequestParam(name = "dry_run", defaultValue = "true") boolean dryRun,
+            @RequestParam(name = "ids") List<Long> ids) {
+        return contentReprocessBatch.runByIds(dryRun, ids);
     }
 }

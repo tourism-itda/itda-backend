@@ -56,12 +56,35 @@ public class ContentReprocessBatch {
                 ? List.of()
                 : eligible.subList(offset, Math.min(offset + maxContents, eligible.size()));
 
-        int processed = 0, storyRegenerated = 0, byPerson = 0, byEvent = 0, noChronology = 0, classifyFailed = 0;
-        List<ContentReprocessReport.Item> items = new ArrayList<>();
-
         log.info("콘텐츠 스토리 재처리 배치 시작 — 이번 처리 {}편 / 전체대상 {}편 "
                         + "(dryRun={}, onlyMissingStory={}, offset={}, maxContents={})",
                 targets.size(), eligible.size(), dryRun, onlyMissingStory, offset, maxContents);
+
+        return process(targets, dryRun);
+    }
+
+    /**
+     * 특정 id 목록만 골라 재처리한다(문제 있는 소수 작품만 정밀 재생성할 때 사용).
+     * 요청한 id 순서를 유지하며, 존재하지 않는 id 는 건너뛴다.
+     */
+    @Transactional
+    public ContentReprocessReport runByIds(boolean dryRun, List<Long> ids) {
+        List<Content> targets = new ArrayList<>();
+        for (Long id : ids) {
+            contentRepository.findById(id).ifPresentOrElse(
+                    targets::add,
+                    () -> log.warn("재처리 대상 id={} 를 찾을 수 없어 건너뜁니다", id));
+        }
+
+        log.info("콘텐츠 스토리 재처리(id 지정) 시작 — 요청 {}건, 처리 {}편 (dryRun={})",
+                ids.size(), targets.size(), dryRun);
+
+        return process(targets, dryRun);
+    }
+
+    private ContentReprocessReport process(List<Content> targets, boolean dryRun) {
+        int processed = 0, storyRegenerated = 0, byPerson = 0, byEvent = 0, noChronology = 0, classifyFailed = 0;
+        List<ContentReprocessReport.Item> items = new ArrayList<>();
 
         for (Content content : targets) {
             processed++;
