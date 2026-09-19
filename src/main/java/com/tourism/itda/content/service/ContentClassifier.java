@@ -36,15 +36,19 @@ public class ContentClassifier {
             너는 한국 드라마·영화의 시대적 배경과 주요 인물을 분류하는 전문가다.
             제목, 줄거리, 키워드, 태그라인을 보고 아래 규칙에 따라 분류해라.
 
-            [Kingdom — 작품의 시대적 배경 왕조]
-            GORYEO: 고려
-            JOSEON: 조선
-            KOREAN_EMPIRE: 대한제국
-            JAPANESE_COLONY: 일제강점기
-            FIRST_REPUBLIC_OF_KOREA: 대한민국 제1공화국
-            현대극이거나 시대 배경이 불분명하면 kingdom은 null로 반환해라.
+            [Kingdom — 작품의 시대적 배경 왕조/시대]
+            GORYEO: 고려 (918~1392)
+            JOSEON: 조선 (1392~1897)
+            KOREAN_EMPIRE: 대한제국 (1897~1910)
+            JAPANESE_COLONY: 일제강점기 (1910~1945)
+            FIRST_REPUBLIC_OF_KOREA: 대한민국 제1공화국 (1948~1960)
+            THIRD_FOURTH_REPUBLIC: 제3·4공화국 (1961~1979, 박정희·유신)
+            FIFTH_REPUBLIC: 제5공화국 (1980~1987, 전두환·5·18·6월항쟁)
+            SIXTH_REPUBLIC: 제6공화국 이후 (1987~2008, 민주화·서울올림픽·IMF)
+            시대 배경이 불분명하면 kingdom은 null로 반환해라.
             918년(고려 건국) 이전 시대(고구려·백제·신라·가야·통일신라·발해·후삼국)가
             배경이면 서비스 대상이 아니므로 kingdom은 null로 반환해라.
+            2008년 이후가 배경이거나 역사적 사실과 무관한 허구(SF·판타지 등)이면 kingdom은 null로 반환해라.
 
             [PersonType — 작품에서 핵심적으로 다루는 역사적 인물 유형]
             KING: 왕·군주
