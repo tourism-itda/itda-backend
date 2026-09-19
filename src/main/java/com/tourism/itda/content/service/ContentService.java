@@ -4,6 +4,7 @@ import com.tourism.itda.content.client.TmdbClient;
 import com.tourism.itda.content.dto.*;
 import com.tourism.itda.content.entity.Content;
 import com.tourism.itda.content.entity.ContentStatus;
+import com.tourism.itda.content.entity.StorySource;
 import com.tourism.itda.content.entity.ContentMedia;
 import com.tourism.itda.content.entity.ContentPlace;
 import com.tourism.itda.content.exception.ContentNotFoundException;
@@ -270,12 +271,17 @@ public class ContentService {
                 r.matchedPerson() != null ? r.matchedPerson().getName() : null);
 
         String personName = r.matchedPerson() != null ? r.matchedPerson().getName() : null;
+        // 연표(인물/사건)를 근거로 썼으면 CHRONICLE, 아니면 AI 창작.
+        StorySource storySource = "NONE".equals(r.chronologySource())
+                ? StorySource.AI_GENERATED
+                : StorySource.CHRONICLE;
         boolean storyRegenerated = storytellingGenerator.generate(
                         title, overview, keywords, tagline, personName, r.events())
                 .map(s -> {
                     content.changeSummary(s.summary());
                     content.changeStoryIntro(s.storyIntro());
                     content.changeStoryBody(s.storyBody());
+                    content.changeStorySource(storySource);
                     return true;
                 })
                 .orElse(false);
