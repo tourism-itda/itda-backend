@@ -58,4 +58,9 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     @Transactional
     @Query("UPDATE Content c SET c.viewCount = c.viewCount + 1 WHERE c.id = :id")
     void incrementViewCount(@Param("id") Long id);
+
+    /** media(ContentMedia) 백필 대상 — 아직 media 가 연결되지 않은 콘텐츠. */
+    @Query("SELECT c FROM Content c WHERE NOT EXISTS "
+            + "(SELECT 1 FROM ContentMedia cm WHERE cm.content = c)")
+    List<Content> findAllWithoutMedia();
 }
