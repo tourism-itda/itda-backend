@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * No.43 목록 항목 / No.44 작성 응답 공용.
- * isLiked 는 No.44 에서는 null 로 넘겨 응답에서 아예 빠지게 한다(NON_NULL).
+ * isLiked / isMine 은 비로그인 시 null 로 넘겨 응답에서 아예 빠지게 한다(NON_NULL).
  */
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -21,9 +21,11 @@ public record ReviewResponse(
         String content,
         Integer likeCount,
         LocalDateTime createdAt,
-        Boolean isLiked
+        Boolean isLiked,
+        Boolean isMine
 ) {
-    public static ReviewResponse of(Review review, String authorNickname, String authorProfileUrl, Boolean isLiked) {
+    public static ReviewResponse of(Review review, String authorNickname, String authorProfileUrl,
+                                    Boolean isLiked, Boolean isMine) {
         return new ReviewResponse(
                 review.getId(),
                 authorNickname,
@@ -32,7 +34,8 @@ public record ReviewResponse(
                 review.getContentText(),
                 review.getLikeCount(),
                 review.getCreatedAt(),
-                isLiked
+                isLiked,
+                isMine
         );
     }
 }
