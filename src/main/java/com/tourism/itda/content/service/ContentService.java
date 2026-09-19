@@ -7,6 +7,7 @@ import com.tourism.itda.content.entity.ContentStatus;
 import com.tourism.itda.content.entity.StorySource;
 import com.tourism.itda.content.entity.ContentMedia;
 import com.tourism.itda.content.entity.ContentPlace;
+import com.tourism.itda.content.entity.Media;
 import com.tourism.itda.content.exception.ContentNotFoundException;
 import com.tourism.itda.content.repository.BookmarkRepository;
 import com.tourism.itda.content.repository.ContentCategoryRepository;
@@ -16,6 +17,7 @@ import com.tourism.itda.content.repository.ContentMediaRepository;
 import com.tourism.itda.content.repository.ContentPlaceRepository;
 import com.tourism.itda.content.repository.ContentRepository;
 import com.tourism.itda.content.repository.ContentStorySectionRepository;
+import com.tourism.itda.content.repository.MediaRepository;
 import com.tourism.itda.content.service.HistoryChronologyLoader.ChronologyEvent;
 import com.tourism.itda.explore.data.HistoricalPersonData;
 import com.tourism.itda.explore.entity.ContentKingdom;
@@ -53,6 +55,7 @@ public class ContentService {
     private final TmdbClient tmdbClient;
     private final ContentRepository contentRepository;
     private final ContentMediaRepository contentMediaRepository;
+    private final MediaRepository mediaRepository;
     private final ContentCategoryRepository contentCategoryRepository;
     private final ContentCharacterRepository contentCharacterRepository;
     private final ContentStorySectionRepository contentStorySectionRepository;
@@ -73,6 +76,7 @@ public class ContentService {
             TmdbClient tmdbClient,
             ContentRepository contentRepository,
             ContentMediaRepository contentMediaRepository,
+            MediaRepository mediaRepository,
             ContentCategoryRepository contentCategoryRepository,
             ContentCharacterRepository contentCharacterRepository,
             ContentStorySectionRepository contentStorySectionRepository,
@@ -92,6 +96,7 @@ public class ContentService {
         this.tmdbClient = tmdbClient;
         this.contentRepository = contentRepository;
         this.contentMediaRepository = contentMediaRepository;
+        this.mediaRepository = mediaRepository;
         this.contentCategoryRepository = contentCategoryRepository;
         this.contentCharacterRepository = contentCharacterRepository;
         this.contentStorySectionRepository = contentStorySectionRepository;
@@ -235,6 +240,17 @@ public class ContentService {
                     )
             );
         }
+
+        // media(타입/개봉연도) 연결 — TMDB 재파싱 없이 Content 에 이미 저장된 값을 그대로 복사한다.
+        // 장르는 이번 범위에서 제외(TMDB 장르 API 연동이 별도로 필요).
+        Media savedMedia = mediaRepository.save(
+                new Media(
+                        savedContent.getTitle(),
+                        savedContent.getMediaType(),
+                        savedContent.getReleaseYear()
+                )
+        );
+        contentMediaRepository.save(new ContentMedia(savedContent, savedMedia));
 
         return savedContent;
     }
@@ -468,6 +484,26 @@ public class ContentService {
     }
 
     /**
+     * media(ContentMedia) 백필 — saveContent() 에 media 연결 로직을 추가하기 전에 저장된
+     * 콘텐츠들은 media 가 비어 있다. TMDB 재호출 없이 이미 저장된 Content.mediaType/
+     * releaseYear 값만 그대로 복사해서 채운다. 여러 번 실행해도 안전(이미 채워진 건 건너뜀).
+     *
+     * 장르는 이번 백필 범위에서 제외한다 — TMDB 장르 API 연동이 별도로 필요하다.
+     */
+    public int backfillMediaForExistingContents() {
+
+        List<Content> targets = contentRepository.findAllWithoutMedia();
+
+        for (Content content : targets) {
+            Media media = mediaRepository.save(
+                    new Media(content.getTitle(), content.getMediaType(), content.getReleaseYear()));
+            contentMediaRepository.save(new ContentMedia(content, media));
+        }
+
+        return targets.size();
+    }
+
+    /**
      * 콘텐츠 조회 API
      *
      * DB에 없으면 TMDB에서 가져와 저장한다.
@@ -481,6 +517,8 @@ public class ContentService {
         if (content.getStatus() != ContentStatus.PUBLISHED) {
             throw new ContentNotFoundException(id);
         }
+
+        contentRepository.incrementViewCount(id);
 
         return buildDetailResponse(content);
     }

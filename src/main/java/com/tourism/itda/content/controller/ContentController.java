@@ -65,6 +65,19 @@ public class ContentController {
 
     public record CollectResponse(int saved) {}
 
+    /**
+     * media(타입/개봉연도) 백필 수동 트리거.
+     * media 연결이 없는 기존 콘텐츠들을 TMDB 재호출 없이 Content 에 이미 저장된 값만으로 채운다.
+     * 여러 번 실행해도 안전(이미 채워진 콘텐츠는 건너뜀).
+     */
+    @PostMapping("/backfill-media")
+    public BackfillMediaResponse backfillMedia() {
+        int filled = contentService.backfillMediaForExistingContents();
+        return new BackfillMediaResponse(filled);
+    }
+
+    public record BackfillMediaResponse(int filled) {}
+
     @GetMapping("/credits/{movieId}")
     public TmdbCreditResponse credits(
             @PathVariable Long movieId
