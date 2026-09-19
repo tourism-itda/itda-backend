@@ -69,6 +69,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+                        // 관리성 배치·수집 API — 프론트에서 쓰지 않고 운영자가 서버 내부/스케줄러로만 돌린다.
+                        // 아직 권한(Role) 체계가 없어 로그인한 아무 회원이나 외부 API 대량 호출·데이터 적재
+                        // 배치를 트리거할 수 있으므로 HTTP 노출 자체를 막는다. denyAll → 인증 여부와 무관하게 403.
+                        // 향후 관리자 화면이 필요해지면 Role 체계로 교체할 것.
+                        .requestMatchers(HttpMethod.POST, "/api/contents/collect").denyAll()
+                        .requestMatchers(HttpMethod.POST, "/api/contents/backfill-media").denyAll()
+                        .requestMatchers("/api/admin/**").denyAll()
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/check-login-id", "/api/users/check-nickname").permitAll()
