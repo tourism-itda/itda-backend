@@ -1,5 +1,6 @@
 package com.tourism.itda.review.service;
 
+import com.tourism.itda.global.exception.ForbiddenException;
 import com.tourism.itda.global.exception.InvalidRequestException;
 import com.tourism.itda.global.exception.NotFoundException;
 import com.tourism.itda.planner.entity.Itinerary;
@@ -52,11 +53,14 @@ public class ReviewService {
                     User author = authorMap.get(review.getUserId());
                     boolean isLiked = userId != null
                             && reviewLikeRepository.existsById(new ReviewLikeId(review.getId(), userId));
+                    // 비로그인이면 isMine은 null → NON_NULL로 응답에서 제외.
+                    Boolean isMine = userId != null ? userId.equals(review.getUserId()) : null;
                     return ReviewResponse.of(
                             review,
                             author != null ? author.getNickname() : null,
                             author != null ? author.getProfileUrl() : null,
-                            isLiked);
+                            isLiked,
+                            isMine);
                 })
                 .toList();
     }
@@ -77,11 +81,30 @@ public class ReviewService {
 
         User author = userRepository.findById(userId).orElse(null);
 
+        // 방금 작성한 리뷰는 본인 것 → 등록 직후 재조회 없이 삭제 버튼 노출 가능.
         return ReviewResponse.of(
                 review,
                 author != null ? author.getNickname() : null,
                 author != null ? author.getProfileUrl() : null,
-                null);
+                null,
+                true);
+    }
+
+    // =========================================================
+    // 리뷰 삭제 — 작성자 본인만 가능.
+    // =========================================================
+    @Transactional
+    public void deleteReview(Long userId, Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("리뷰를 찾을 수 없습니다."));
+
+        if (!review.getUserId().equals(userId)) {
+            throw new ForbiddenException("본인이 작성한 리뷰만 삭제할 수 있습니다.");
+        }
+
+        // review_like가 review를 FK로 참조하므로 좋아요 먼저 제거.
+        reviewLikeRepository.deleteByReviewId(reviewId);
+        reviewRepository.delete(review);
     }
 
     // =========================================================
