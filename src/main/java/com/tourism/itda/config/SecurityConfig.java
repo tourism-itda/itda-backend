@@ -72,7 +72,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/check-login-id", "/api/users/check-nickname").permitAll()
-                        .requestMatchers("/api/places/**").permitAll()
+                        // 관광API 패스스루·장소 조회는 GET 만 공개.
+                        // POST /api/places/import 는 place 테이블에 쓰므로 인증 필요 → anyRequest 로 처리.
+                        .requestMatchers(HttpMethod.GET, "/api/places/**").permitAll()
                         .requestMatchers("/api/explore/**").permitAll()
                         .requestMatchers("/api/events/**").permitAll()
                         .requestMatchers("/api/contents/*/places").permitAll()
@@ -82,7 +84,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/itineraries/route").permitAll()
                         // 나머지 /api/itineraries/** (저장·목록·상세·수정·삭제) 는 인증 필요 → anyRequest 로 처리
                         .requestMatchers(HttpMethod.GET, "/api/contents").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/contents/credits/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/contents/*").permitAll()
+                        // POST /api/contents/{contentId}(영화 저장)·/api/contents/collect(수집 트리거)는
+                        // 쓰기/부작용 작업이므로 인증 필요 → anyRequest 로 처리.
                         // No.40/41 커뮤니티 목록·상세 — 인증 불필요
                         .requestMatchers(HttpMethod.GET, "/api/community/posts", "/api/community/posts/*").permitAll()
                         // No.43 리뷰 목록 — 인증 선택 (로그인 시에만 is_liked 계산). POST(작성)/좋아요는 인증 필요 → anyRequest 로 처리
@@ -91,7 +96,6 @@ public class SecurityConfig {
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/api/contents/**").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();

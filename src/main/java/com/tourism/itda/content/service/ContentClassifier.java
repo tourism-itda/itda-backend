@@ -5,6 +5,8 @@ import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.StructuredMessageCreateParams;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import com.tourism.itda.explore.data.HistoricalEventData;
+import com.tourism.itda.explore.entity.HistoricalEvent;
 import com.tourism.itda.explore.enums.Kingdom;
 import com.tourism.itda.explore.enums.PersonType;
 import com.tourism.itda.planner.route.LlmProperties;
@@ -18,7 +20,19 @@ import java.util.Optional;
 @Component
 public class ContentClassifier {
 
-    private static final String SYSTEM_PROMPT = """
+    // 검수된 사건 목록은 HistoricalEventData 가 단일 출처다. 프롬프트에 그대로 주입해
+    // Claude 가 자유롭게 연도를 지어내지 않고 이 목록 중 하나만 '선택'하게 한다.
+    private static final String SYSTEM_PROMPT = buildSystemPrompt();
+
+    private static String buildSystemPrompt() {
+        StringBuilder eventList = new StringBuilder();
+        for (HistoricalEvent e : HistoricalEventData.EVENTS) {
+            eventList.append("- ").append(e.getName())
+                    .append(" (").append(e.getStartYear()).append("~").append(e.getEndYear()).append("): ")
+                    .append(e.getSummary()).append("\n");
+        }
+
+        return """
             너는 한국 드라마·영화의 시대적 배경과 주요 인물을 분류하는 전문가다.
             제목, 줄거리, 키워드, 태그라인을 보고 아래 규칙에 따라 분류해라.
 
@@ -49,12 +63,21 @@ public class ContentClassifier {
             실제 역사적 사건을 다루면 그 사건·인물의 실존 인물을 반환해라.
             예: "봉오동 전투"를 다루면 "홍범도", 화가 장승업의 일대기를 다루면 "장승업".
 
+            [eventName — 작품이 다루는 역사적 시대/사건]
+            아래 목록 중 작품의 배경에 가장 잘 맞는 사건 이름을 '있는 그대로' 하나 반환해라.
+            주인공이 허구 인물이어도, 작품이 실제 역사적 시대·사건을 배경으로 하면 해당 사건을 반환해라.
+            (예: 가상 인물이 임진왜란을 배경으로 활약하면 "임진왜란")
+            목록에 없는 시대이거나 배경이 불분명하면 반드시 null을 반환해라.
+            목록에 없는 사건 이름을 새로 지어내지 마라 — 반드시 아래 목록의 이름만 사용해라.
+            선택 가능한 사건 목록:
+            %s
             [반드시 지켜야 할 근거 규칙 — 억지 매칭 방지]
-            - 줄거리나 키워드에 그 인물·사건을 가리키는 명백한 근거가 있을 때만 인물을 반환해라.
+            - 줄거리나 키워드에 그 인물·사건을 가리키는 명백한 근거가 있을 때만 인물·사건을 반환해라.
             - 제목만 보고 추측하거나, 줄거리가 없거나 부실해 근거를 찾을 수 없으면 반드시 null을 반환해라.
             - 조금이라도 확신이 없으면 억지로 지어내지 말고 null을 반환해라.
             특정 실존 인물이 중심이 아니거나 불분명하면 null로 반환해라.
-            """;
+            """.formatted(eventList.toString());
+    }
 
     public record ContentClassification(
             @JsonPropertyDescription("작품의 시대적 배경 왕조. Kingdom enum 값 또는 null.")
@@ -64,7 +87,10 @@ public class ContentClassifier {
             String personType,
 
             @JsonPropertyDescription("작품의 핵심 역사적 실존 인물 이름(한국어). 없으면 null.")
-            String personName
+            String personName,
+
+            @JsonPropertyDescription("작품이 다루는 역사적 시대/사건 이름. 제공된 목록의 이름과 정확히 일치해야 하며, 없으면 null.")
+            String eventName
     ) {}
 
     private final LlmProperties properties;
@@ -95,11 +121,12 @@ public class ContentClassifier {
                     .orElseThrow(() -> new IllegalStateException("Claude 응답에 구조화 결과가 없습니다."));
 
             log.info(
-                    "콘텐츠 분류 결과 - title={}, kingdom={}, personType={}, personName={}",
+                    "콘텐츠 분류 결과 - title={}, kingdom={}, personType={}, personName={}, eventName={}",
                     title,
                     result.kingdom(),
                     result.personType(),
-                    result.personName()
+                    result.personName(),
+                    result.eventName()
             );
 
             return Optional.of(result);
