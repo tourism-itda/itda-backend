@@ -7,6 +7,8 @@ import com.tourism.itda.content.entity.Content;
 import com.tourism.itda.content.repository.ContentRepository;
 import com.tourism.itda.planner.entity.Itinerary;
 import com.tourism.itda.planner.repository.ItineraryRepository;
+import com.tourism.itda.user.entity.User;
+import com.tourism.itda.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 커뮤니티 목록에서 "어떤 작품으로 만든 루트인지" 보여주고, 작품 이름으로 검색/필터할 수 있는지 확인한다.
  * - 목록·상세 응답에 content_id / content_title / content_thumbnail_url 이 실린다
  * - q 는 일정 제목뿐 아니라 작품 제목에도 매칭된다 (작품 이름으로 검색하면 그 작품의 루트가 나온다)
+ * - q 는 지역명, 작성자 닉네임에도 매칭된다
  * - content_id 로 특정 작품의 루트만 걸러 볼 수 있다
  * - 작품 없이 만든 일정(content_id null)도 목록에서 깨지지 않는다
  */
@@ -48,10 +51,14 @@ class CommunityPostContentSearchTest {
     private ItineraryRepository itineraryRepository;
     @Autowired
     private ContentRepository contentRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     private Long routeOfAId;
     private Long routeOfBId;
     private Long routeWithoutContentId;
+    private Long routeInBusanId;
+    private Long routeByNicknamedAuthorId;
 
     @BeforeEach
     void setUp() {
@@ -63,6 +70,15 @@ class CommunityPostContentSearchTest {
         routeOfAId = sharedItinerary(CONTENT_A_ID, "경복궁 하루 코스");
         routeOfBId = sharedItinerary(CONTENT_B_ID, "수원화성 하루 코스");
         routeWithoutContentId = sharedItinerary(null, "작품 없이 만든 코스");
+
+        // 제목·작품명 어디에도 없는 지역명으로만 검색해서 매칭되는지 확인.
+        routeInBusanId = sharedItinerary(null, "바다 보러 가는 코스", "부산광역시", 1L);
+
+        // 제목에 없는 작성자 닉네임으로 검색해서 매칭되는지 확인.
+        User author = userRepository.save(
+                new User("nickname-search-tester", "pw", "테스터", "검색테스트닉네임",
+                        null, null, true));
+        routeByNicknamedAuthorId = sharedItinerary(null, "닉네임과 무관한 제목", "서울", author.getUserId());
     }
 
     @Test
@@ -103,6 +119,21 @@ class CommunityPostContentSearchTest {
     }
 
     @Test
+    void q_matchesRegion_notOnlyItineraryTitle() {
+        List<CommunityPostSummaryResponse> result = communityService.getPosts("부산광역시", null, "recent", 0, 20);
+
+        assertThat(result).extracting(CommunityPostSummaryResponse::itineraryId).containsExactly(routeInBusanId);
+    }
+
+    @Test
+    void q_matchesAuthorNickname_notOnlyItineraryTitle() {
+        List<CommunityPostSummaryResponse> result = communityService.getPosts("검색테스트닉네임", null, "recent", 0, 20);
+
+        assertThat(result).extracting(CommunityPostSummaryResponse::itineraryId)
+                .containsExactly(routeByNicknamedAuthorId);
+    }
+
+    @Test
     void contentIdFilter_returnsOnlyThatContentsRoutes() {
         List<CommunityPostSummaryResponse> result = communityService.getPosts(null, CONTENT_B_ID, "recent", 0, 50);
 
@@ -127,11 +158,15 @@ class CommunityPostContentSearchTest {
     }
 
     private Long sharedItinerary(Long contentId, String title) {
+        return sharedItinerary(contentId, title, "서울", 1L);
+    }
+
+    private Long sharedItinerary(Long contentId, String title, String region, Long userId) {
         Itinerary it = Itinerary.builder()
-                .userId(1L)
+                .userId(userId)
                 .contentId(contentId)
                 .title(title)
-                .region("서울")
+                .region(region)
                 .durationLabel("당일치기")
                 .build();
         it.changeIsShared(true);

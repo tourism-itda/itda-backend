@@ -17,13 +17,16 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
 
     /**
      * No.40 커뮤니티 목록용 — 공유 중이고 soft delete 안 된 일정만, 최신순.
-     * 검색어는 일정 제목뿐 아니라 그 일정이 만들어진 작품(content) 제목에도 매칭한다 —
-     * 작품 이름으로 검색하면 그 작품으로 만든 루트가 나오도록. content_id 가 null 인 일정은
-     * IN 서브쿼리에서 자연히 빠지므로 제목 매칭만 적용된다.
+     * 검색어는 일정 제목뿐 아니라 그 일정이 만들어진 작품(content) 제목, 지역명, 작성자 닉네임에도 매칭한다 —
+     * 작품 이름으로 검색하면 그 작품으로 만든 루트가, 지역명이나 닉네임으로 검색하면 해당 루트가 나오도록.
+     * content_id 가 null 인 일정은 IN 서브쿼리에서 자연히 빠지므로 나머지 조건만 적용된다.
      */
     @Query("SELECT i FROM Itinerary i WHERE i.shared = true AND i.deletedAt IS NULL "
-            + "AND (:likePattern IS NULL OR i.title LIKE :likePattern "
-            + "OR i.contentId IN (SELECT c.id FROM Content c WHERE c.title LIKE :likePattern)) "
+            + "AND (:likePattern IS NULL "
+            + "OR i.title LIKE :likePattern "
+            + "OR i.region LIKE :likePattern "
+            + "OR i.contentId IN (SELECT c.id FROM Content c WHERE c.title LIKE :likePattern) "
+            + "OR i.userId IN (SELECT u.userId FROM User u WHERE u.nickname LIKE :likePattern)) "
             + "ORDER BY i.createdAt DESC")
     List<Itinerary> findSharedByKeywordOrderByCreatedAtDesc(@Param("likePattern") String likePattern);
 
