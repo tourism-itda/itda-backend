@@ -7,6 +7,8 @@ import java.time.LocalDate;
  *
  * @param eventStartDate eventstartdate(yyyyMMdd) 파싱 결과. 파싱 실패 시 null.
  * @param eventEndDate   eventenddate(yyyyMMdd) 파싱 결과. 파싱 실패 시 null.
+ * @param longitude      mapx(경도) 파싱 결과. 좌표가 없거나 파싱 실패 시 null.
+ * @param latitude       mapy(위도) 파싱 결과. 좌표가 없거나 파싱 실패 시 null.
  */
 public record TourApiFestival(
         String contentId,
@@ -14,5 +16,7 @@ public record TourApiFestival(
         String address,
         String imageUrl,
         LocalDate eventStartDate,
-        LocalDate eventEndDate) {
+        LocalDate eventEndDate,
+        Double longitude,
+        Double latitude) {
 }

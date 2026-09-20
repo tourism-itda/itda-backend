@@ -60,7 +60,8 @@ public class EventService {
                 .limit(limit)
                 .map(f -> new EventSummaryResponse(
                         f.contentId(), f.title(), f.imageUrl(), f.address(),
-                        f.eventStartDate(), f.eventEndDate(), homepageFor(f.contentId())))
+                        f.eventStartDate(), f.eventEndDate(), homepageFor(f.contentId()),
+                        f.longitude(), f.latitude()))
                 .toList();
     }
 

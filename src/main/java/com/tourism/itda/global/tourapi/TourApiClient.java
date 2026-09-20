@@ -526,7 +526,9 @@ public class TourApiClient {
                 firstNonBlank(text(item, "addr1"), text(item, "addr2")),
                 firstNonBlank(text(item, "firstimage"), text(item, "firstimage2")),
                 parseEventDate(text(item, "eventstartdate")),
-                parseEventDate(text(item, "eventenddate")));
+                parseEventDate(text(item, "eventenddate")),
+                parseDouble(text(item, "mapx")),   // 경도(longitude)
+                parseDouble(text(item, "mapy")));  // 위도(latitude)
     }
 
     private static LocalDate parseEventDate(String s) {
