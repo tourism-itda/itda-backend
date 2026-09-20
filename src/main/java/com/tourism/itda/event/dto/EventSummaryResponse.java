@@ -16,5 +16,8 @@ public record EventSummaryResponse(
         String address,
         LocalDate eventStartDate,
         LocalDate eventEndDate,
-        String eventHomepage) {
+        String eventHomepage,
+        // 관광API mapx/mapy. 좌표가 없는 행사도 있어 null 이면 응답에서 생략된다(NON_NULL).
+        Double longitude,
+        Double latitude) {
 }
